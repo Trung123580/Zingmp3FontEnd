@@ -1,0 +1,59 @@
+@import '../../variable.scss';
+.login {
+  // height: calc(100% - 63vh);
+  margin: 10px 0;
+  max-height: calc(100vh - 200px);
+  height: 37vh;
+}
+.info {
+  display: flex;
+  gap: 12px;
+  padding: 0 10px;
+}
+.img {
+  max-width: 64px;
+  min-height: 64px;
+  img {
+    object-fit: cover;
+    border-radius: 999px;
+  }
+}
+.name {
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 19px;
+}
+.individual {
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 19px;
+  margin: 8px 0;
+  text-transform: none;
+  padding: 0 10px;
+}
+.menu-action {
+  display: flex;
+  flex-direction: column;
+  .action-item {
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start !important;
+      padding: 12px 10px;
+      gap: 12px;
+      border-radius: 4px;
+      width: 100%;
+      &:hover {
+        background-color: $alpha-bg;
+      }
+    }
+  }
+}
+.level {
+  margin: 15px 0;
+  padding: 0 10px;
+  button {
+    background-color: $alpha-bg;
+    font-size: 1.3rem !important;
+  }
+}

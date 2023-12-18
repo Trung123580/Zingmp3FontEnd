@@ -1,0 +1,102 @@
+@import '../../variable.scss';
+.btn {
+  color: $color-white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: normal;
+  gap: 12px;
+  letter-spacing: 0.3px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  &:hover {
+    -webkit-filter: brightness(0.9);
+    filter: brightness(0.9);
+  }
+  &:disabled {
+    opacity: 0.5;
+  }
+  &.login {
+    border: 1px solid $color-white;
+    color: inherit;
+    padding: 6px 35px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: normal;
+    border-radius: 999px;
+  }
+  &.genre-select {
+    padding: 4px 24px;
+    border: 1px solid $border-primary;
+    border-radius: 100px;
+    font-weight: 400;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    line-height: normal;
+  }
+  &.btn-allPlaylist {
+    font-size: 1.4rem;
+    padding: 9px 24px;
+    font-weight: 400;
+    line-height: normal;
+    border: 1px solid $border-primary;
+    gap: 7px;
+    letter-spacing: 0;
+  }
+  &.outline {
+    border: 1px solid $color-white;
+    padding: 5px 25px;
+    font-weight: 400;
+    &:hover {
+      background-color: hsla(0, 0%, 100%, 0.1);
+    }
+  }
+  &.add-artist {
+    color: $color-white;
+    font-size: 1.2rem;
+    padding: 6px 19px;
+    font-weight: 400;
+    text-transform: uppercase;
+    width: max-content;
+    &:hover {
+      -webkit-filter: brightness(0.9);
+      filter: brightness(0.9);
+      @include transition;
+    }
+  }
+  &.show-charts {
+    border-radius: 999px;
+    border: 1px solid $color-white;
+    font-size: 1.4rem;
+    font-weight: 500;
+    line-height: 1.43;
+    text-align: center;
+    color: $color-white;
+    padding: 8px 25px;
+    &:hover {
+      -webkit-filter: brightness(0.9);
+      filter: brightness(0.9);
+      background-color: $alpha-bg;
+      @include transition;
+    }
+  }
+  &.video-btn {
+    width: 40px;
+    height: 40px;
+    display: inline-block;
+    line-height: 40px;
+    border-radius: 999px;
+    box-shadow: 0 2px 4px 0 rgba(133, 105, 208, 0.11);
+    background-color: hsla(0, 0%, 100%, 0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    svg {
+      font-size: 2.5rem;
+      font-weight: 100;
+    }
+  }
+}

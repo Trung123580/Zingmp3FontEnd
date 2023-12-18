@@ -1,0 +1,128 @@
+@import '../../variable.scss';
+@include container;
+.list-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.menu {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+}
+#wrapper-album {
+  .albums {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 28px;
+    @include table {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    @include mobile {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+  }
+}
+.wrapper-ranks {
+  .ranks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    @include table {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    @include mobile {
+      grid-template-columns: repeat(1, 1fr);
+      gap: 15px;
+    }
+  }
+}
+.chart {
+  margin-top: 48px;
+  background: rgba(51, 16, 76, 0.95);
+  padding: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  @include table {
+    margin-top: 38px;
+  }
+  @include mobile {
+    margin-top: 28px;
+  }
+  .logo-zingChart {
+    margin-bottom: 20px;
+    a {
+      font-size: 2.8rem;
+      line-height: normal;
+      font-weight: 700;
+      letter-spacing: normal;
+      background: radial-gradient(50% 124.93% at 95.86% -10%, #3efad9 0, hsla(0, 0%, 100%, 0) 100%),
+        linear-gradient(91.56deg, #ff9357 1.54%, #9100ff 98.71%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+  .main {
+    display: flex;
+    @include table {
+      flex-direction: column-reverse;
+    }
+    @include mobile {
+      flex-direction: column-reverse;
+    }
+    .chart-left {
+      width: 41.66667%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      @include table {
+        width: 100%;
+      }
+      @include mobile {
+        width: 100%;
+      }
+      .wrapper-btn {
+        display: flex;
+        justify-content: center;
+      }
+    }
+    .chart-right {
+      width: 58.33333%;
+      height: 300px;
+      position: relative;
+      @include table {
+        width: 100%;
+      }
+      @include mobile {
+        width: 100%;
+      }
+    }
+  }
+}
+.zing-chart {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 70px;
+  @include table {
+    margin-top: 60px;
+  }
+  @include mobile {
+    margin-top: 50px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .zing-item {
+    width: 100%;
+    cursor: pointer;
+    img {
+      object-fit: cover;
+      @include borderRadius;
+    }
+  }
+}

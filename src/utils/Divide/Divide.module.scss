@@ -1,0 +1,27 @@
+@import '../../variable.scss';
+.sidebar-divide {
+  position: relative;
+  height: 1px;
+  margin: 16px 0;
+  &::after {
+    content: '';
+    border-top: 1px solid $border-primary;
+    position: absolute;
+    left: 25px;
+    right: 25px;
+    top: 0;
+  }
+}
+
+.full-width {
+  &::after {
+    right: 0;
+    left: 0;
+  }
+}
+.p-10 {
+  &::after {
+    right: 10px;
+    left: 10px;
+  }
+}

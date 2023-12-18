@@ -1,0 +1,91 @@
+@import '../../variable.scss';
+.card {
+  width: 100%;
+  // @include table {
+  //   &:last-child {
+  //     display: none;
+  //   }
+  // }
+  .avatar {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 5px;
+    position: relative;
+    &:hover {
+      img {
+        @include hover;
+      }
+      .menu-action {
+        display: block;
+        // @include transition;
+      }
+    }
+    img {
+      object-fit: cover;
+      transition: 0.7s;
+      // border-radius: inherit;
+    }
+  }
+  .name {
+    font-size: 1.3rem;
+    // font-weight: 500;
+    cursor: default;
+    line-height: 1.36;
+    color: $color-white;
+    margin-top: 14px;
+    @include text-cover;
+    margin-bottom: 4px;
+  }
+  .artists {
+    font-size: 1.2rem;
+    color: $text-secondary;
+    // margin-top: 12px;
+    @include text-cover;
+    span {
+      &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+        color: $color-navigation-text;
+        @include transition;
+      }
+      display: inline-block;
+      margin-right: 4px;
+    }
+  }
+}
+.menu-action {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  .action {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    span {
+      line-height: 0;
+      padding: 8px;
+      margin: 0 2px;
+      color: $color-white;
+      cursor: pointer;
+      min-width: max-content;
+      &:nth-child(2) {
+        &:hover {
+          background-color: transparent;
+        }
+        svg {
+          font-size: 4rem;
+        }
+      }
+      svg {
+        font-size: 2rem;
+      }
+      &:hover {
+        background-color: $alpha-bg;
+        @include transition;
+        border-radius: 50%;
+      }
+    }
+  }
+}

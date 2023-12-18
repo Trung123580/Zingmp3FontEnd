@@ -1,0 +1,74 @@
+$color-white: #fff;
+$color-black: #32323d;
+$color-search: '#eee';
+$color-navigation-text: #dadada;
+$alpha-bg: rgba(255, 255, 255, 0.102);
+$border-primary: rgba(255, 255, 255, 0.1);
+$purple-primary: #9b4de0;
+$text-placeholder: #757575;
+$text-secondary: hsla(0, 0%, 100%, 0.5);
+$text-navigate: #a0a0a0;
+$primary-bg: #363636;
+$bg-chart: hsla(0, 0%, 100%, 0.05);
+@mixin rotate {
+  transform: rotate(180deg);
+  transition: 0.7s;
+  scale: 1.2;
+}
+@mixin borderRadius {
+  border-radius: 4px;
+}
+@mixin hover {
+  cursor: pointer;
+  transform: scale(1.1) translateZ(0);
+  transition: transform 0.7s;
+}
+
+@mixin text-cover {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  @content;
+}
+@mixin transition {
+  transition: 0.3s;
+}
+//Mobile
+@mixin mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+//Table
+@mixin table {
+  @media (min-width: 769px) and (max-width: 1023px) {
+    .container {
+      width: 100%;
+    }
+    @content;
+  }
+}
+@mixin pc {
+  @media (min-width: 1024px) {
+    @content;
+  }
+}
+@mixin container {
+  .container {
+    width: 100%;
+    margin-top: 70px;
+    padding: 0 59px;
+    @content;
+  }
+  @include mobile {
+    .container {
+      padding: 0 19px;
+    }
+  }
+  @include table {
+    .container {
+      padding: 0 29px;
+    }
+  }
+}

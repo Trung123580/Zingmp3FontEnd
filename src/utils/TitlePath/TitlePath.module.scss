@@ -1,0 +1,37 @@
+@import '../../variable.scss';
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 48px 0 20px;
+  .name {
+    font-size: 2rem;
+    color: $color-white;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+  .show {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    &:hover {
+      color: $color-white;
+      transition: 0.3s;
+    }
+    span {
+      font-size: 1.2rem;
+      font-weight: 500;
+      text-wrap: nowrap;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+  }
+  @include table {
+    margin: 30px 0 15px;
+  }
+  @include mobile {
+    margin: 20px 0 10px;
+  }
+}

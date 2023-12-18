@@ -1,0 +1,55 @@
+@import '../../variable.scss';
+@include container;
+.zing-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.menu {
+  background-color: $alpha-bg;
+  border-radius: 8px;
+  padding: 20px 10px;
+}
+.list-song {
+}
+.charts {
+  h2 {
+    width: fit-content;
+    text-transform: capitalize;
+    margin-bottom: 20px;
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: normal;
+    color: $color-white;
+  }
+  .wrapper-charts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    @include table {
+      grid-template-columns: repeat(1, 1fr);
+    }
+    @include mobile {
+      grid-template-columns: repeat(1, 1fr);
+    }
+    .card {
+      background-color: $bg-chart;
+      border-radius: 16px;
+      padding: 20px 10px;
+      min-width: 100%;
+      .title {
+        padding: 0 0 10px 40px;
+        font-size: 24px;
+        font-weight: 700;
+        color: $color-white;
+        line-height: normal;
+      }
+    }
+  }
+}
+.btn-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+}

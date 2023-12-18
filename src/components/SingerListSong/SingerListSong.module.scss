@@ -1,0 +1,49 @@
+@import '../../variable.scss';
+.list-song {
+  width: 100%;
+  h5 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    font-weight: 400;
+    color: $text-secondary;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    span {
+      color: $color-white;
+      @include text-cover;
+    }
+  }
+  .menu {
+    display: flex;
+    align-items: center;
+    height: 46px;
+    padding: 10px;
+    border-radius: 5px;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    .media-left {
+      width: 50%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      svg {
+        cursor: pointer;
+        border: 1px solid $alpha-bg;
+        border-radius: 2px;
+      }
+    }
+    .media-middle {
+      flex: 1;
+    }
+    .media-left,
+    .media-middle,
+    .media-right {
+      font-size: 1.2rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      color: $text-secondary;
+    }
+  }
+}

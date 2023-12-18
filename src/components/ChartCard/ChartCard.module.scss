@@ -1,0 +1,77 @@
+@import '../../variable.scss';
+.card {
+  display: flex;
+  align-items: center;
+  @include borderRadius;
+  padding: 10px 15px;
+  cursor: pointer;
+  background-color: $alpha-bg;
+  &.active {
+    background-color: hsla(0, 0%, 100%, 0.2);
+  }
+  &:hover {
+    background-color: hsla(0, 0%, 100%, 0.2);
+  }
+  &:nth-child(2) {
+    .rank {
+      -webkit-text-stroke: 1px #50e3c2;
+    }
+  }
+  &:last-child {
+    .rank {
+      -webkit-text-stroke: 1px #e35050;
+    }
+  }
+  .rank {
+    min-width: 38px;
+    font-size: 3.2rem;
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+    color: rgba(74, 144, 226, 0);
+    font-family: 'Roboto', sans-serif;
+    white-space: nowrap;
+    -webkit-text-stroke: 1px #4a90e2;
+    opacity: 1;
+  }
+  .main {
+    display: flex;
+    flex: 1;
+    .avatar {
+      margin: 0 10px 0 15px;
+      min-width: 60px;
+      width: 60px;
+      img {
+        object-fit: cover;
+        @include borderRadius;
+      }
+    }
+    .text {
+      h3 {
+        font-size: 1.4rem;
+        font-weight: 500;
+      }
+      .artists {
+        display: flex;
+        color: $text-secondary;
+        @include text-cover;
+        span {
+          &:hover {
+            text-decoration: underline;
+            cursor: pointer;
+            color: $color-navigation-text;
+            @include transition;
+          }
+          font-size: 1.2rem;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+  .percent {
+    color: $color-white;
+    font-weight: 700;
+    font-size: 1.6rem;
+    line-height: 1.56;
+  }
+}

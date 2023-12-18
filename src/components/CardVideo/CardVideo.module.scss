@@ -1,0 +1,82 @@
+@import '../../variable.scss';
+.card {
+  .banner {
+    @include borderRadius;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    &:hover {
+      .icon-play {
+        display: inline-block;
+        @include transition;
+      }
+    }
+    img {
+      @include borderRadius;
+      transition: 0.7s;
+      &:hover {
+        @include hover;
+      }
+      object-fit: cover;
+    }
+    .duration {
+      font-size: 1.2rem;
+      line-height: normal;
+      color: #fff;
+      position: absolute;
+      right: 5px;
+      bottom: 5px;
+      padding: 3px 5px;
+      border-radius: 4px;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+    .icon-play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      svg {
+        font-size: 4rem;
+      }
+    }
+  }
+  .user {
+    display: flex;
+    padding: 10px 0;
+    gap: 10px;
+    .avatar {
+      max-width: 40px;
+      min-width: 40px;
+      img {
+        cursor: pointer;
+        object-fit: cover;
+        border-radius: 999px;
+      }
+    }
+    .content {
+      h3 {
+        font-size: 1.4rem;
+        font-weight: 500;
+        max-width: 100%;
+        line-height: normal;
+        @include text-cover;
+      }
+      .artists {
+        font-size: 1.2rem;
+        color: $text-secondary;
+        @include text-cover;
+        span {
+          &:hover {
+            text-decoration: underline;
+            cursor: pointer;
+            color: $color-navigation-text;
+            @include transition;
+          }
+          display: inline-block;
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+}

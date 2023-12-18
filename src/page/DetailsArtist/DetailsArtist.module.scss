@@ -1,0 +1,348 @@
+@import '../../variable.scss';
+@include container;
+.top {
+}
+.banner {
+  width: 100%;
+  position: relative;
+  height: 299px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 50%, rgba(106, 135, 158, 0.8));
+  @include mobile {
+    height: 200px;
+  }
+  @include table {
+    height: 250px;
+  }
+  &::before {
+    height: 300px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 50%, rgba(106, 135, 158, 0.8));
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  &::after {
+    height: 200px;
+    background: linear-gradient(0deg, #0e131a, rgba(14, 19, 26, 0));
+    opacity: 0.4;
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .img {
+    height: 100%;
+    img {
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  .information {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    gap: 32px;
+    width: 100%;
+    padding: 0 59px;
+    margin-bottom: 24px;
+    @include mobile {
+      padding: 0 19px;
+      gap: 17px;
+    }
+    @include table {
+      padding: 0 29px;
+      gap: 22px;
+    }
+    .avatar {
+      max-width: 140px;
+      min-width: 100px;
+      width: 140px;
+      @include mobile {
+        width: 100px;
+      }
+      img {
+        border-radius: 999px;
+        object-fit: cover;
+      }
+    }
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+      @include mobile {
+        gap: 5px;
+      }
+      h2 {
+        width: fit-content;
+        font-size: 6rem;
+        text-transform: none;
+        font-weight: 700;
+        line-height: normal;
+        @include text-cover;
+        @include mobile {
+          font-size: 3rem;
+        }
+        @include table {
+          font-size: 5rem;
+        }
+      }
+      .bottom {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        @include mobile {
+          gap: 5px;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .follow {
+          font-size: 1.4rem;
+          font-weight: 500;
+          @include text-cover;
+        }
+      }
+    }
+  }
+}
+.artist {
+  // background: #1e1e1e;
+}
+.new-release {
+  padding-top: 30px;
+  .title {
+    display: flex;
+    gap: 28px;
+    .title-left {
+      flex: 0 0 33.33%;
+      @include mobile {
+        min-width: 370px;
+      }
+    }
+    .title-right {
+      flex: 1;
+      @include mobile {
+        display: none;
+      }
+    }
+  }
+  .content {
+    display: flex;
+    gap: 28px;
+    @include mobile {
+      flex-direction: column;
+      gap: 15px;
+    }
+  }
+  .left {
+    flex: 0 0 33.33%;
+    // background: linear-gradient(286.07deg, rgba(30, 30, 30, 0.95) 55.21%, rgba(30, 30, 30, 0.6));
+    .card-new {
+      padding: 16px;
+      background-color: rgba(254, 255, 255, 0.1);
+      border-radius: 12px;
+      display: flex;
+      gap: 16px;
+      @include mobile {
+        min-width: 370px;
+      }
+      .avatar {
+        max-width: 151px;
+        height: 151px;
+        min-width: 151px;
+        @include mobile {
+          max-width: 121px;
+          height: 121px;
+          min-width: 121px;
+        }
+        img {
+          border-radius: 6px;
+          object-fit: cover;
+        }
+      }
+      .info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        .wrapper-name {
+          h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+          .artists {
+            font-size: 1.2rem;
+            color: $text-secondary;
+            @include text-cover;
+            span {
+              &:hover {
+                text-decoration: underline;
+                cursor: pointer;
+                color: $color-navigation-text;
+                @include transition;
+              }
+              display: inline-block;
+              margin-right: 4px;
+            }
+          }
+        }
+
+        .note {
+          font-size: 1.2rem;
+          font-weight: 400;
+          line-height: 18px;
+          letter-spacing: 0.0025em;
+          text-transform: capitalize;
+          text-wrap: nowrap;
+          color: $text-secondary;
+        }
+      }
+    }
+  }
+  .right {
+    flex: 1;
+    .menu-song {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px 28px;
+      @include mobile {
+        grid-template-columns: repeat(1, 1fr);
+      }
+      &.response {
+        @include table {
+          grid-template-columns: repeat(1, 1fr);
+          div {
+            &:nth-child(n + 4) {
+              display: none;
+            }
+          }
+        }
+        @include mobile {
+          grid-template-columns: repeat(1, 1fr);
+        }
+      }
+    }
+  }
+}
+.middle {
+  .wrapper-album {
+    // display: grid;
+    // grid-template-columns: repeat(5, 1fr);
+  }
+  .wrapper-video {
+  }
+}
+.menu-artists {
+  .wrapper-artists {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 50px;
+    @include table {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+      > div:last-child {
+        display: none;
+      }
+    }
+    @include mobile {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+      > div:nth-child(n + 3) {
+        display: none;
+      }
+    }
+  }
+}
+.artist-biography {
+  margin-bottom: 30px;
+  @include mobile {
+    margin-bottom: 20px;
+  }
+  .artist-content {
+    display: grid;
+    // display: flex;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 942.72px;
+    gap: 30px;
+    @include mobile {
+      gap: 20px;
+      @include transition;
+      max-width: 100%;
+      grid-template-columns: 1fr;
+      min-width: 350px;
+    }
+    .avatar {
+      overflow: hidden;
+      border-radius: 8px;
+      height: 320px;
+      width: 100%;
+      @include mobile {
+        // margin: 0 auto;
+        height: 280px;
+      }
+      img {
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 20%;
+      }
+    }
+    .description {
+      flex: 1;
+      .text {
+        margin-bottom: 48px;
+        display: flex;
+        flex-direction: column;
+        @include table {
+          margin-bottom: 38px;
+        }
+        @include mobile {
+          margin-bottom: 28px;
+        }
+        p {
+          display: flex;
+          color: $color-white;
+          @include text-cover {
+            -webkit-line-clamp: 7;
+          }
+        }
+        span {
+          color: $text-secondary;
+          width: 100%;
+          display: inline-block;
+          text-align: right;
+          font-size: 1.2rem;
+          font-weight: 700;
+          cursor: pointer;
+          text-transform: uppercase;
+          position: relative;
+          &:hover {
+            color: $color-white;
+            @include transition;
+            text-decoration: underline;
+          }
+        }
+      }
+      .follow {
+        h4 {
+          font-size: 2rem;
+          line-height: 24px;
+          font-weight: 700;
+          color: $color-white;
+          margin-bottom: 4px;
+        }
+        span {
+          font-weight: 400;
+          font-size: 1.4rem;
+        }
+      }
+    }
+  }
+}

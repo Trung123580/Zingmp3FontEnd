@@ -1,0 +1,41 @@
+@import '../variable.scss';
+//banner
+.wrapper-album-skeleton {
+  display: grid;
+  gap: 24px;
+  padding-top: 32px;
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  span {
+    border-radius: 8px;
+  }
+  @include table {
+    padding-top: 25px;
+  }
+}
+.banner-skeleton {
+  padding-top: 32px;
+  span {
+    border-radius: 8px;
+  }
+  @include table {
+    padding-top: 25px;
+  }
+}
+// slider-item
+.slider-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hide-table-mobile {
+  @include table {
+    display: none !important;
+  }
+  @include mobile {
+    display: none !important;
+  }
+}

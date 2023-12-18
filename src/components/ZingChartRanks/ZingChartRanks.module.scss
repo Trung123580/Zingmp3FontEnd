@@ -1,0 +1,47 @@
+@import '../../variable.scss';
+@include container;
+.wrapper-ranks {
+  padding-top: 40px;
+  @include mobile {
+    padding-top: 30px;
+  }
+  h2 {
+    margin-bottom: 30px;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: normal;
+    color: $color-white;
+    @include mobile {
+      margin-bottom: 20px;
+    }
+  }
+  .nav {
+    margin-bottom: 15px;
+    .list {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      li {
+        cursor: pointer;
+        font-size: 2.4rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 15px 0;
+        color: $text-navigate;
+        &:hover {
+          color: $color-white;
+          @include transition;
+        }
+        &.active {
+          color: $color-white;
+        }
+      }
+    }
+  }
+  .menu {
+    height: 48vh;
+    @include mobile {
+      height: 45vh;
+    }
+  }
+}

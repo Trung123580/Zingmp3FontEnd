@@ -1,0 +1,38 @@
+@import '../../variable.scss';
+.search {
+  width: 100%;
+  max-width: 440px;
+  .search-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    border-radius: 20px;
+    height: 40px;
+    background-color: $alpha-bg;
+    color: $text-placeholder;
+    padding: 0 10px;
+    gap: 10px;
+    border: 1px solid transparent;
+    label {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      svg {
+        font-size: 3rem;
+      }
+    }
+    input {
+      padding: 10px 0;
+      width: 100%;
+      font-size: 1.4rem;
+      background-clip: padding-box;
+      // line-height: 34px;
+      // &:focus {
+      color: $color-white;
+      &::placeholder {
+        color: inherit;
+      }
+      // }
+    }
+  }
+}

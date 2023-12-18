@@ -1,0 +1,44 @@
+@import '../../variable.scss';
+@include container;
+.album {
+  min-height: calc(100% - 158px);
+  padding-top: 40px;
+}
+.album-content {
+  display: flex;
+  gap: 30px;
+  @include mobile {
+    flex-direction: column;
+  }
+}
+.wrapper {
+  width: 100%;
+  // overflow-y: scroll;
+  // height: 100vh;
+  .bottom-info {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    span {
+      color: $text-secondary;
+      font-size: 13px;
+      line-height: 18px;
+    }
+  }
+}
+.menu-artists {
+  .wrapper-artists {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 50px;
+    @include table {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+    }
+    @include mobile {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 25px;
+    }
+  }
+}

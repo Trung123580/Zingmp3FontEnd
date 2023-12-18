@@ -1,0 +1,123 @@
+@import '../../variable.scss';
+@include container;
+.wrapper-song {
+}
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  .select {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 999px;
+    min-width: 120px;
+    padding: 7px 15px;
+    cursor: pointer;
+    background-color: $alpha-bg;
+    position: relative;
+    span {
+      font-size: 1.4rem;
+      border-radius: 999px;
+      line-height: normal;
+      display: inline-block;
+      font-weight: 400;
+      text-transform: none;
+      text-align: center;
+    }
+    .dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      opacity: 0;
+      visibility: hidden;
+      padding: 5px;
+      border-radius: 8px;
+      background-color: #363636;
+      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      align-items: flex-start;
+      &.show {
+        visibility: visible;
+        opacity: 1;
+      }
+      &::after {
+        content: '';
+        clear: both;
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #363636;
+        position: absolute;
+        left: 15px;
+        top: -8px;
+      }
+      span {
+        font-size: 12px;
+        border-radius: 4px;
+        line-height: 1;
+        padding: 10px;
+        text-align: left;
+        cursor: pointer;
+        width: 100%;
+        display: inline-block;
+        &:hover {
+          background-color: $alpha-bg;
+        }
+      }
+    }
+  }
+}
+.single {
+  padding-bottom: 30px;
+  .menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px 0;
+    @include table {
+      gap: 20px 0;
+    }
+    @include mobile {
+      gap: 20px 0;
+    }
+    .item-album {
+      width: calc(100% / 5);
+      padding-left: 12px;
+      padding-right: 12px;
+      @include table {
+        width: calc(100% / 4);
+      }
+      @include mobile {
+        width: calc(100% / 2);
+      }
+    }
+  }
+}
+.video {
+  .video-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px 0;
+    @include table {
+      gap: 20px 0;
+    }
+    @include mobile {
+      gap: 20px 0;
+    }
+    .video-item {
+      width: calc(100% / 3);
+      padding-left: 12px;
+      padding-right: 12px;
+      @include table {
+        width: calc(100% / 3);
+      }
+      @include mobile {
+        width: calc(100% / 2);
+      }
+    }
+  }
+}

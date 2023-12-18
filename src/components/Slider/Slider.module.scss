@@ -1,0 +1,11 @@
+@import '../../variable.scss';
+.slider {
+  padding-top: 32px !important;
+  @include table {
+    padding-top: 25px !important;
+  }
+}
+.img-banner {
+  border-radius: 8px;
+  cursor: pointer;
+}
