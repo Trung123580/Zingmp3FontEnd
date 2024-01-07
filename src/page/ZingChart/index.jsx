@@ -91,6 +91,7 @@ const ZingChart = () => {
               onPlaySong={() => onPlaySong(song, arr, '#zingchart')}
               index={index + 1}
               status={song?.rakingStatus}
+              hiddenIconMusic={true}
             />
           ))}
           {dataSong.RTChart.items.length > 10 ? (
@@ -137,6 +138,7 @@ const ZingChart = () => {
                             status={song?.rakingStatus}
                             chartIndex={true}
                             hiddenSongTitle={true}
+                            hiddenIconMusic={true}
                           />
                         );
                       }

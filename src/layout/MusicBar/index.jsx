@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState, useRef, memo } from 'react';
+import { useContext, useEffect, useState, useRef, memo, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { playSong, openPlayList, getSong, randomSong } from '~/store/actions/dispatch';
 import { AuthProvider } from '~/AuthProvider';
-import { apiSong } from '~/api';
+import { apiInfoSong, apiSong } from '~/api';
 import { shuffle as _shuffle } from 'lodash';
 // import { useParams } from 'react-router-dom';
 import moment from 'moment';
@@ -47,6 +47,7 @@ const MusicBar = () => {
   const inputVolumeRef = useRef();
   const cdThumb = useRef();
   const cdThumbAnimate = useRef(null);
+  // console.log(currentSong);
   useEffect(() => {
     if (audio) {
       audio.pause();
@@ -68,6 +69,14 @@ const MusicBar = () => {
     };
     getDetailsSong();
   }, [currentSong]);
+  useEffect(() => {
+    (async () => {
+      const response = await apiInfoSong(currentSong?.encodeId);
+      if (response.data?.err === 0) {
+        currentSong.mvlink = response.data.data.mvlink;
+      }
+    })();
+  }, [currentSong?.encodeId]);
   // cdThumb rotate
   useEffect(() => {
     if (cdThumb.current) {
@@ -105,7 +114,32 @@ const MusicBar = () => {
       window.removeEventListener('keydown', handleListenKeydown);
     };
   }, [audio]);
-
+  const indexSong = useMemo(() => {
+    return currentPlayList?.listItem?.findIndex(({ encodeId }) => encodeId === currentSong?.encodeId);
+  }, [currentSong]);
+  const handleNextSong = () => {
+    if (indexSong !== -1 && indexSong + 1 < currentPlayList?.listItem?.length) {
+      dispatch(getSong(currentPlayList?.listItem[indexSong + 1]));
+    } else {
+      dispatch(getSong(currentPlayList.listItem[0]));
+    }
+  };
+  const handlePrevSong = () => {
+    if (indexSong !== -1 && indexSong - 1 >= 0) {
+      dispatch(getSong(currentPlayList?.listItem[indexSong - 1]));
+    } else {
+      // Không có bài hát trước đó, quay về cuối danh sách
+      dispatch(getSong(currentPlayList.listItem[currentPlayList.listItem.length - 1]));
+    }
+  };
+  // randomSong
+  const handleToggleRandomSong = () => {
+    if (isRandomSong) {
+      dispatch(randomSong(false));
+    } else {
+      dispatch(randomSong(true));
+    }
+  };
   useEffect(() => {
     if (audio) {
       const handleEnded = () => {
@@ -116,11 +150,17 @@ const MusicBar = () => {
         setSeconds(0);
         console.log(isRandomSong);
         if (isRandomSong) {
-          const indexSong = currentPlayList?.listItem?.findIndex(({ encodeId }) => encodeId === currentSong?.encodeId);
-          dispatch(getSong(_shuffle(currentPlayList?.listItem)[indexSong + 1]));
-        } else {
-          const indexSong = currentPlayList?.listItem?.findIndex(({ encodeId }) => encodeId === currentSong?.encodeId);
+          if (indexSong !== -1 && indexSong + 1 < currentPlayList?.listItem?.length) {
+            dispatch(getSong(_shuffle(currentPlayList?.listItem)[indexSong + 1]));
+          } else {
+            dispatch(getSong(currentPlayList.listItem[0]));
+          }
+          return;
+        }
+        if (indexSong !== -1 && indexSong + 1 < currentPlayList?.listItem?.length) {
           dispatch(getSong(currentPlayList?.listItem[indexSong + 1]));
+        } else {
+          dispatch(getSong(currentPlayList.listItem[0]));
         }
       };
 
@@ -236,22 +276,7 @@ const MusicBar = () => {
     dispatch(openPlayList(!isOpenPlayList));
   };
   // next sing
-  const handleNextSong = () => {
-    const indexSong = currentPlayList?.listItem?.findIndex(({ encodeId }) => encodeId === currentSong?.encodeId);
-    dispatch(getSong(currentPlayList?.listItem[indexSong + 1]));
-  };
-  const handlePrevSong = () => {
-    const indexSong = currentPlayList?.listItem?.findIndex(({ encodeId }) => encodeId === currentSong?.encodeId);
-    dispatch(getSong(currentPlayList?.listItem[indexSong - 1]));
-  };
-  // randomSong
-  const handleToggleRandomSong = () => {
-    if (isRandomSong) {
-      dispatch(randomSong(false));
-    } else {
-      dispatch(randomSong(true));
-    }
-  };
+
   // navigate
   const handleNavigate = (url) => {
     navigate(
@@ -261,16 +286,15 @@ const MusicBar = () => {
         .join('/')
     );
   };
+  // console.log(currentSong);
   const handleNavigateVideo = (url) => {
     const pathLink = path.DETAILS_ARTIST.replace(':name', name) + path.OPEN_VIDEO;
     navigate(pathLink.replace('/video-clip/:titleVideo/:videoId', url.split('.')[0]));
   };
   // loveMusic
-  const isLikeMusic = currentUser?.loveMusic.some(({ encodeId }) => encodeId === currentSong.encodeId);
-  if (!currentSong && !audio) {
-    return null;
-  }
-
+  const isLikeMusic = currentUser?.loveMusic.some(({ encodeId }) => encodeId === currentSong?.encodeId);
+  if (!currentSong && !audio) return null;
+  // if (isHiddenMusicBar) return null;
   return (
     <div id={cx('music-bar')} style={{ backgroundImage: `url(${themeApp?.backgroundMusicBar || backgroundDefaultBar})` }}>
       <div className={cx('player-controls')}>
@@ -281,7 +305,7 @@ const MusicBar = () => {
               className={cx('avatar', {
                 rotate: isPlay,
               })}>
-              <img src={currentSong?.thumbnail} alt='error' />
+              <img src={currentSong?.thumbnailM} alt='error' />
             </div>
             <div className={cx('name')}>
               <h3>{currentSong?.title}</h3>
@@ -360,9 +384,18 @@ const MusicBar = () => {
         <div className={cx('player-right')}>
           <div className={cx('music-controls')}>
             <Tippy content={<span className='tippy-title'>MV</span>} followCursor='horizontal' placement='top' arrow={true} duration={300}>
-              <span className={cx('zm-btn')} onClick={() => handleNavigateVideo(currentSong?.mvlink)}>
-                <BiSolidMoviePlay />
-              </span>
+              {currentSong?.mvlink ? (
+                <span className={cx('zm-btn')} onClick={() => handleNavigateVideo(currentSong?.mvlink)}>
+                  <BiSolidMoviePlay />
+                </span>
+              ) : (
+                <span
+                  className={cx('zm-btn', {
+                    disable: true,
+                  })}>
+                  <BiSolidMoviePlay />
+                </span>
+              )}
             </Tippy>
             <Tippy
               content={<span className='tippy-title'>Xem lời bài hát</span>}

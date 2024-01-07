@@ -102,6 +102,7 @@ const ZingChartRanks = () => {
                       index={index + 1}
                       status={song?.rakingStatus}
                       chartIndex={true}
+                      hiddenIconMusic={true}
                     />
                   );
                 });

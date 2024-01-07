@@ -66,7 +66,12 @@ const CardSong = ({
           <h3 className={cx('name')}>{card.title}</h3>
           <div className={cx('artists')}>
             {card?.artists?.map(({ name, id, link }, index) => (
-              <span key={id} onClick={() => onNavigateArtist(path.DETAILS_ARTIST.replace('/:name', link))}>
+              <span
+                key={id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNavigateArtist(path.DETAILS_ARTIST.replace('/:name', link));
+                }}>
                 {name + `${index === card.artists.length - 1 ? '' : ','}`}
               </span>
             ))}

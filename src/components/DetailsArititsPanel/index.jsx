@@ -20,7 +20,7 @@ const DetailsArtistPanel = () => {
   const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onAddAlbum, onRemoveAlbum } = handle;
   const { name, panel } = useParams();
   const navigate = useNavigate();
-  console.log(artistVideo);
+  // console.log(artistVideo);
   const listSong = useMemo(() => {
     return artistTopSection?.items;
   }, [artistTopSection]);
@@ -51,7 +51,6 @@ const DetailsArtistPanel = () => {
     e.stopPropagation();
     setIsShowDropDown(!isShowDropDown);
   };
-  console.log(artistVideo);
   const handleSortSong = (typeNumber) => {
     if (typeNumber === 0) {
       setSortSong(0);
@@ -66,6 +65,10 @@ const DetailsArtistPanel = () => {
   };
   const handleClickOutside = () => {
     setIsShowDropDown(false);
+  };
+  const handleNavigateVideo = (url) => {
+    const pathLink = path.DETAILS_ARTIST.replace(':name', name) + path.OPEN_VIDEO;
+    navigate(pathLink.replace('/video-clip/:titleVideo/:videoId', url.split('.')[0]));
   };
   useEffect(() => {
     document.addEventListener('click', handleClickOutside);
@@ -153,6 +156,7 @@ const DetailsArtistPanel = () => {
                 data={data}
                 onNavigate={() => handleNavigateUser(path.DETAILS_ARTIST.replace('/:name', data.artist.link))}
                 onNavigateArtist={handleNavigateUser}
+                onOpenVideo={() => handleNavigateVideo(data.link)}
               />
             </div>
           ))}

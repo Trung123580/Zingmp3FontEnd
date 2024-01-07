@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useContext } from 'react';
 import { apiVideoArtist } from '~/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { Scrollbar } from 'react-scrollbars-custom';
@@ -11,27 +11,66 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BoxSkeleton, CardFullSkeletonBanner } from '~/BaseSkeleton';
 import StarRateRoundedIcon from '@mui/icons-material/StarRateRounded';
+import { BsPlayCircle, BsPauseCircle } from 'react-icons/bs';
 import path from '~/router/path';
+import VideoQueuePlayer from './VideoQueuePlayer';
+import { useTheme } from '@mui/material/styles';
+import Slider from '@mui/material/Slider';
+import VideoPlayer from './VideoPlayer';
+import SkipPreviousRoundedIcon from '@mui/icons-material/SkipPreviousRounded';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import SkipNextRoundedIcon from '@mui/icons-material/SkipNextRounded';
+import CropFreeRoundedIcon from '@mui/icons-material/CropFreeRounded';
+import { IoPlay, IoPause, IoRepeatOutline } from 'react-icons/io5';
+import { LuRectangleHorizontal } from 'react-icons/lu';
+import { LuVolume2, LuVolumeX } from 'react-icons/lu';
+import { AuthProvider } from '~/AuthProvider';
 const cx = classNames.bind(style);
 const Video = () => {
   const { dataVideo } = useSelector((state) => state.app);
   const [isLoading, setIsLoading] = useState(false);
   const { videoId, titleVideo, name } = useParams();
+  const [sourceVideo, setSourceVideo] = useState(null);
+  const [currentSeconds, setCurrentSeconds] = useState(0);
+  const [volume, setVolume] = useState(100);
+  const [statePlayVideo, setStatePlayVideo] = useState({
+    isPlay: false,
+    isShowIcon: false,
+    defaultIsPlay: false,
+  });
+  const { isPlay, isShowIcon, defaultIsPlay } = statePlayVideo;
+  const { themeApp } = useContext(AuthProvider);
+  const videoRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  console.log(dataVideo);
-  //   if (!dataVideo?.type) {
-  //     return null;
-  //   }
+  const theme = useTheme();
+  const formatDuration = (value) => {
+    const minute = Math.floor(value / 60);
+    const secondLeft = value - minute * 60;
+    return `${minute}:${secondLeft < 10 ? `0${secondLeft}` : secondLeft}`;
+  };
   useEffect(() => {
     (async () => {
       const response = await apiVideoArtist(videoId);
       if (response.data.err === 0) {
         setIsLoading(true);
         dispatch(getDataVideo(response));
+        setSourceVideo(response.data.data.streaming.mp4['720p']);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId]);
+  useEffect(() => {
+    let timePlayVideo;
+    if (isLoading) {
+      timePlayVideo = setTimeout(() => {
+        setStatePlayVideo((prev) => ({ ...prev, isPlay: !prev.isPlay, isShowIcon: !prev.isShowIcon }));
+      }, 300);
+    }
+    return () => {
+      timePlayVideo && clearTimeout(timePlayVideo);
+    };
+  }, [isLoading]);
   const handleNavigate = (url) => {
     const index = url
       .split('/')
@@ -45,6 +84,16 @@ const Video = () => {
           .join('/')
       );
     }
+  };
+  const handleTogglePlayVideo = (e) => {
+    e.stopPropagation();
+    setStatePlayVideo((prev) => ({
+      ...prev,
+      isPlay: !prev.isPlay,
+    }));
+  };
+  const handleChangeVolume = (e, value) => {
+    setVolume(value);
   };
   if (!isLoading) {
     return (
@@ -96,10 +145,10 @@ const Video = () => {
               <div className={cx('header')}>
                 <div className={cx('header-left')}>
                   <div className={cx('avatar')}>
-                    <img src={dataVideo.artist.thumbnail} alt={dataVideo.artist.name} />
+                    <img src={dataVideo?.artist.thumbnail} alt={dataVideo?.artist.name} />
                   </div>
                   <div className={cx('name')}>
-                    <h2>{dataVideo.title}</h2>
+                    <h2>{dataVideo?.title}</h2>
                     <div className={cx('artists')}>
                       {dataVideo?.artists?.map(({ name, id, link, spotlight }, index, arr) => (
                         <span key={id} onClick={() => handleNavigate(path.DETAILS_ARTIST.replace('/:name', link))}>
@@ -118,21 +167,178 @@ const Video = () => {
                 </div>
               </div>
               <div className={cx('content')}>
-                <div className={cx('video-player')}>
-                  <video src=''></video>
-                </div>
-                <div className={cx('queue-player')}>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis, harum accusantium. Provident, sapiente vitae eveniet neque suscipit
-                  sequi repudiandae similique! Deleniti quibusdam aspernatur et vel! Repudiandae quam quibusdam rem pariatur? Facere enim repudiandae
-                  recusandae amet a perferendis repellendus vel vitae obcaecati saepe temporibus nobis asperiores suscipit in laboriosam iusto
-                  deleniti ducimus animi aliquid, odit quia facilis id earum dolore! Nobis. Deserunt veritatis natus sit nesciunt veniam eveniet
-                  incidunt, illo perspiciatis quos laboriosam iusto magnam amet repudiandae id repellendus modi necessitatibus eum aperiam. Rem
-                  mollitia numquam aliquam perspiciatis aliquid quam eum. Rerum sapiente assumenda maxime, eum qui sint rem illo animi neque ullam
-                  quis ipsam laudantium sequi dignissimos? Laudantium veniam accusantium mollitia inventore odio, aut incidunt totam doloribus tempore
-                  sequi excepturi. Asperiores iusto, atque explicabo qui consectetur quisquam eius assumenda doloribus necessitatibus quis labore
-                  sapiente! Distinctio quisquam, consectetur neque quas iste quis ratione aliquid nihil, sit itaque eum animi quibusdam reiciendis.
+                <div className={cx('wrapper-content')}>
+                  <div
+                    className={cx('video-player')}
+                    style={{
+                      paddingBottom: defaultIsPlay ? '0' : '56.25%',
+                    }}>
+                    <VideoPlayer
+                      ref={videoRef}
+                      onPlay={() =>
+                        setStatePlayVideo((prev) => ({
+                          ...prev,
+                          isShowIcon: false,
+                          defaultIsPlay: true,
+                        }))
+                      }
+                      onPause={() => setStatePlayVideo((prev) => ({ ...prev, isShowIcon: true }))}
+                      onProgress={(e) => setCurrentSeconds(Math.floor(e.playedSeconds))}
+                      dataVideo={dataVideo}
+                      sourceVideo={sourceVideo}
+                      isPlay={isPlay}
+                      volume={volume / 100}
+                    />
+                    {defaultIsPlay && (
+                      <>
+                        <div className={cx('overlay')} onClick={handleTogglePlayVideo} />
+                        {isShowIcon ? (
+                          <span className={cx('default-icon-play')} onClick={handleTogglePlayVideo}>
+                            <BsPlayCircle />
+                          </span>
+                        ) : (
+                          <span
+                            className={cx('default-icon-play', {
+                              hidden: true,
+                            })}
+                            onClick={handleTogglePlayVideo}>
+                            <BsPauseCircle />
+                          </span>
+                        )}
+                        <div className={cx('video-progress')}>
+                          <div>
+                            <Slider
+                              className={cx('progress-bar')}
+                              aria-label='time-indicator'
+                              size='small'
+                              value={currentSeconds}
+                              min={0}
+                              step={1}
+                              max={videoRef.current?.getDuration()}
+                              onChange={(_, value) => setCurrentSeconds(value)}
+                              onChangeCommitted={(_, value) => videoRef.current.seekTo(value)}
+                              slots={{
+                                valueLabel: formatDuration(currentSeconds),
+                              }}
+                              sx={{
+                                color: '#fff',
+                                height: 4,
+                                '&:hover': {
+                                  height: 6,
+                                },
+                                '& .MuiSlider-thumb': {
+                                  width: 8,
+                                  height: 8,
+                                  transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
+                                  '&::before': {
+                                    boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
+                                  },
+                                  '&:hover, &.Mui-focusVisible': {
+                                    boxShadow: `0px 0px 0px 4px ${theme.palette.mode === 'dark' ? 'rgb(255 255 255 / 16%)' : 'rgb(0 0 0 / 16%)'}`,
+                                  },
+                                  '&.Mui-active': {
+                                    width: 10,
+                                    height: 10,
+                                  },
+                                },
+                                '& .MuiSlider-rail': {
+                                  opacity: 0.28,
+                                },
+                              }}
+                            />
+                          </div>
+                          <div className={cx('controls-video')}>
+                            <div className={cx('controls-left')}>
+                              <span className={cx('icon')}>
+                                <SkipPreviousRoundedIcon />
+                              </span>
+                              <span
+                                className={cx('icon', {
+                                  sizeLg: true,
+                                })}
+                                onClick={handleTogglePlayVideo}>
+                                {isPlay ? <IoPause /> : <IoPlay />}
+                              </span>
+                              <span className={cx('icon')}>
+                                <SkipNextRoundedIcon />
+                              </span>
+                              <span
+                                className={cx('icon', {
+                                  volume: true,
+                                })}
+                                style={{ marginLeft: '10px' }}>
+                                {volume ? <LuVolume2 onClick={() => setVolume(0)} /> : <LuVolumeX onClick={() => setVolume(100)} />}
+                                <Slider
+                                  className={cx('slider-volume')}
+                                  aria-label='Volume'
+                                  value={volume}
+                                  onChange={handleChangeVolume}
+                                  sx={{
+                                    mx: '10px',
+                                    height: 3,
+                                    '&:hover': {
+                                      height: 4,
+                                    },
+                                    color: themeApp?.primaryColor,
+                                    '& .MuiSlider-thumb': {
+                                      width: 13,
+                                      height: 13,
+                                      '&::before': {
+                                        boxShadow: '0 2px 8px 0 rgba(0,0,0,0.4)',
+                                      },
+                                      '&:hover, &.Mui-focusVisible': {
+                                        boxShadow: `0px 0px 0px 4px ${theme.palette.mode === 'dark' ? 'rgb(255 255 255 / 16%)' : 'rgb(0 0 0 / 16%)'}`,
+                                      },
+                                    },
+                                  }}
+                                />
+                              </span>
+                              <div className={cx('current-time')}>
+                                <span>00:00</span>
+                                <span>|</span>
+                                <span> 00:00</span>
+                              </div>
+                            </div>
+                            <div className={cx('controls-right')}>
+                              <span className={cx('icon')}>
+                                <IoRepeatOutline />
+                              </span>
+                              <span className={cx('icon')}>
+                                <SettingsOutlinedIcon />
+                              </span>
+                              <span className={cx('icon')}>
+                                <LuRectangleHorizontal />
+                              </span>
+                              <span className={cx('icon')}>
+                                <CropFreeRoundedIcon />
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <VideoQueuePlayer />
                 </div>
               </div>
+            </div>
+            <div>
+              <span>{formatDuration(currentSeconds)}</span>
+              <span>{formatDuration(Number(Math.floor(videoRef.current?.getDuration())) - Number(currentSeconds))}</span>
+              <br />
+              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ea quidem praesentium, et voluptas amet a delectus nostrum neque culpa!
+              Dignissimos quo autem ut et quasi ducimus sit quibusdam eum at. Tempore molestias quas tempora libero voluptatem, deserunt quod deleniti
+              doloribus! Esse neque, ab fugit, eaque assumenda ad quaerat illum adipisci omnis, autem asperiores earum officia saepe dolorem.
+              Asperiores, repudiandae iure. Voluptate facilis earum, reprehenderit sed rem hic, veniam vero expedita dolorum adipisci officia
+              doloremque quod, dolor assumenda! Dignissimos ipsam, accusantium, eveniet totam quod praesentium facilis, quam quae necessitatibus
+              labore inventore! Placeat maxime voluptate ea culpa. Adipisci corrupti culpa similique aspernatur, saepe quasi quas odit illum,
+              excepturi fuga sunt pariatur cumque earum reprehenderit obcaecati, voluptates voluptatem quod porro ratione suscipit! Sequi. Ipsum,
+              consequatur perspiciatis minus, aspernatur pariatur dolorem incidunt illum nulla blanditiis maiores natus ipsam vero magnam autem
+              adipisci vel nesciunt nihil quasi veritatis voluptates accusantium qui? Voluptatem sed minus tempore. Excepturi corrupti reiciendis
+              explicabo voluptatibus quasi cum. Ratione ut eveniet nobis. Ea iure maxime praesentium similique voluptate, reiciendis fugiat doloribus,
+              nobis ducimus numquam esse veritatis. Nisi repellendus doloremque quibusdam laborum. Voluptatum expedita corrupti ducimus nostrum
+              suscipit magnam autem aspernatur repudiandae explicabo sit, officia deleniti amet nulla, iste modi similique quod facilis dicta,
+              officiis natus consequatur libero. Aut ex a enim!
             </div>
           </Scrollbar>
         </section>

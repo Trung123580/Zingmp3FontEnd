@@ -12,7 +12,6 @@ const LineChart = ({ chartData }) => {
     top: 0,
     left: 0,
   });
-
   const { selectedChart, handle } = useContext(AuthProvider);
   const { onChartHoverTooltip } = handle;
   const chartRef = useRef();

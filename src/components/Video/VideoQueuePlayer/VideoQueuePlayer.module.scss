@@ -1,0 +1,65 @@
+@import '../../../variable.scss';
+.queue-player {
+  width: 350px;
+  flex-shrink: 1;
+  padding: 0 15px;
+  @include pc {
+    height: calc(53.4375vw - 196.875px);
+  }
+  @include table {
+    position: relative;
+    margin: 30px auto 0;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 95vw;
+  }
+  @include mobile {
+    position: relative;
+    margin: 30px auto 0;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 95vw;
+  }
+  .wrapper-queue {
+    background-color: hsla(0, 0%, 100%, 0.10196078431372549);
+    overflow: hidden;
+    height: 100%;
+    width: auto;
+    margin-top: 0;
+  }
+  .queue-title {
+    display: flex;
+    padding: 20px;
+    justify-content: space-between;
+    margin-bottom: 0;
+    h3 {
+      font-weight: 700;
+      text-transform: capitalize;
+      display: block;
+      font-size: 1.8rem;
+    }
+    .auto-play-switch {
+      display: flex;
+      .auto-play-text {
+        font-size: 1rem;
+        line-height: normal;
+        text-transform: uppercase;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        width: auto;
+      }
+    }
+  }
+  .menu {
+    height: calc(53.4375vw - 196.875px);
+    overflow-y: scroll;
+    width: auto;
+  }
+  @include table {
+    width: 100%;
+  }
+  @include mobile {
+    width: 100%;
+  }
+}

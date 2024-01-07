@@ -27,7 +27,6 @@ const Home = () => {
   const { onPlaySong, onAddPlayList, onRemovePlayList } = handle;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  console.log(allAlbum);
   useEffect(() => {
     const getData = async () => {
       try {

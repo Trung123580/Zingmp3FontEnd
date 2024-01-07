@@ -22,9 +22,10 @@ const DetailsArtist = () => {
   const { currentSong, isPlay, artistInfo, artistTopSection, singleEP, artistVideo, artistPlaylist, listArtist } = useSelector((state) => state.app);
   const { currentUser } = useSelector((state) => state.auth);
   const { onAddLikeSong, onRemoveLikeSong, onPlaySong, onAddAlbum, onRemoveAlbum } = handle;
-  const { name, panel, videoId, titleVideo } = useParams();
+  const { name, panel, videoId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // console.log(artistVideo);
   useEffect(() => {
     (async () => {
       setIsLoading(false);
@@ -38,6 +39,7 @@ const DetailsArtist = () => {
         throw new Error(error);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
   const formatFollowCount = useMemo(() => {
     if (!artistInfo?.totalFollow) {

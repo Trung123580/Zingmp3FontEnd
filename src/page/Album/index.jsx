@@ -41,18 +41,12 @@ const Album = () => {
   // console.log(playListData);
   const handleNavigate = (type, url) => {
     if (type === 1) return; // lam modal phat bai hat
-    const index = url
-      .split('/')
-      .filter((item) => item !== 'nghe-si')
-      .findLastIndex((item) => item);
-    if (!(url.split('/').filter((item) => item !== 'nghe-si')[index] === name)) {
-      navigate(
-        url
-          .split('/')
-          .filter((item) => item !== 'nghe-si')
-          .join('/')
-      );
-    }
+    navigate(
+      url
+        .split('/')
+        .filter((item) => item !== 'nghe-si')
+        .join('/')
+    );
   };
   // console.log(playListData.song);
   return (
@@ -77,7 +71,10 @@ const Album = () => {
                   currentSong={currentSong}
                   currentUser={currentUser}
                   onNavigateArtist={handleNavigate}
-                  onNavigate={() => handleNavigate(null, song.album.link.split('.')[0])}
+                  onNavigate={(e) => {
+                    e.stopPropagation();
+                    handleNavigate(null, song.album.link.split('.')[0]);
+                  }}
                   isPlay={isPlay}
                   theme={themeApp}
                   key={song.encodeId}

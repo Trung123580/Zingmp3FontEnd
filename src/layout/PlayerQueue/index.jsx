@@ -7,6 +7,7 @@ import { CardSong } from '~/components';
 import classNames from 'classnames/bind';
 import style from './PlayerQueue.module.scss';
 import { differenceBy as _differenceBy } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 const cx = classNames.bind(style);
 const PlayerQueue = () => {
   const { isOpenPlayList, currentSong, isPlay, currentPlayList } = useSelector((state) => state.app);
@@ -14,6 +15,7 @@ const PlayerQueue = () => {
   const [active, setActive] = useState(0);
   const { themeApp, handle } = useContext(AuthProvider);
   const { onAddLikeSong, onRemoveLikeSong, onPlaySong } = handle;
+  const navigate = useNavigate();
   const thumbStyles = {
     width: '100%',
     backgroundColor: 'hsla(0,0%,100%,0.3)',
@@ -29,7 +31,14 @@ const PlayerQueue = () => {
     if (active === 1) return;
     setActive(1);
   };
-  // console.log(currentUser);
+  const handleNavigate = (url) => {
+    navigate(
+      url
+        .split('/')
+        .filter((item) => item !== 'nghe-si')
+        .join('/')
+    );
+  };
   return (
     <div
       className={cx('player', {
@@ -122,6 +131,7 @@ const PlayerQueue = () => {
                     isIconLove={true}
                     className='edit'
                     onPlaySong={() => onPlaySong(card, arr, currentSong?.currentTitle)}
+                    onNavigateArtist={handleNavigate}
                   />
                 ))
               : currentUser?.historySong.map((card) => (
@@ -134,9 +144,10 @@ const PlayerQueue = () => {
                     onRemoveLikeSong={onRemoveLikeSong}
                     currentUser={currentUser}
                     card={card}
+                    onNavigateArtist={handleNavigate}
                     isIconLove={true}
                     onPlaySong={() => {
-                      onPlaySong(card, currentSong?.listItem, currentSong?.currentTitle);
+                      onPlaySong(card, currentPlayList.listItem, currentPlayList.title);
                       setActive(0);
                     }}
                     className='edit'

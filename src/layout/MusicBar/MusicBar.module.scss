@@ -128,13 +128,13 @@
         display: flex;
         justify-content: center;
         gap: 14px;
-
         .zm-btn {
           cursor: pointer;
           padding: 5px;
           display: flex;
           align-items: center;
           position: relative;
+
           &:hover {
             &::after {
               display: block;
@@ -239,6 +239,11 @@
           align-items: center;
           position: relative;
           width: max-content;
+          &.disable {
+            box-shadow: none;
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
           &:hover {
             &::after {
               display: block;
