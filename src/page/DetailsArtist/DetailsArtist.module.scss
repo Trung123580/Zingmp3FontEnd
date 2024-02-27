@@ -307,7 +307,6 @@
           margin-bottom: 28px;
         }
         p {
-          display: flex;
           color: $color-white;
           @include text-cover {
             -webkit-line-clamp: 7;

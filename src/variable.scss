@@ -34,6 +34,11 @@ $bg-chart: hsla(0, 0%, 100%, 0.05);
 @mixin transition {
   transition: 0.3s;
 }
+@mixin flex-basis {
+  flex-basis: auto;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
 //Mobile
 @mixin mobile {
   @media (max-width: 768px) {

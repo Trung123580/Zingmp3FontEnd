@@ -24,7 +24,7 @@ const Home = () => {
   const { currentUser } = useSelector((state) => state.auth);
   const { currentSong, isPlay } = useSelector((state) => state.app);
   const { themeApp, handle, selectedChart } = useContext(AuthProvider);
-  const { onPlaySong, onAddPlayList, onRemovePlayList } = handle;
+  const { onPlaySong, onAddPlayList, onRemovePlayList, onCloseModal, onActiveSong } = handle;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -40,12 +40,14 @@ const Home = () => {
       }
     };
     getData();
+    return () => {
+      onCloseModal();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     if (newRelease) setMenuGenre(newRelease.items.all);
   }, [newRelease]);
-  // useEffect(() => {}, [currentSong, isPlay]);
   const handleTypeActive = (number, type) => {
     setActiveBtn(number);
     if (type === 'all') setMenuGenre(newRelease.items[type]);
@@ -88,6 +90,7 @@ const Home = () => {
                   return (
                     <CardSong
                       key={uuid()}
+                      onActiveSong={(e) => onActiveSong(e, card, false)}
                       isPlay={isPlay}
                       currentSong={currentSong}
                       currentUser={currentUser}

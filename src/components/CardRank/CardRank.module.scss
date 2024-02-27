@@ -35,6 +35,9 @@
         @include text-cover;
       }
       .artists {
+        @include text-cover {
+          -webkit-line-clamp: 2;
+        }
         span {
           &:hover {
             text-decoration: underline;

@@ -3,6 +3,31 @@
   width: 350px;
   flex-shrink: 1;
   padding: 0 15px;
+  &.theaterMode {
+    width: 100%;
+    height: auto;
+    .wrapper-queue {
+      background-color: transparent;
+      .queue-title {
+        justify-content: flex-start;
+        gap: 10px;
+        .auto-play-switch {
+          border-radius: 999px;
+          box-shadow: 0 2px 4px 0 rgba(133, 105, 208, 0.11);
+          background-color: hsla(0, 0%, 100%, 0.1);
+          padding: 0 15px;
+          cursor: pointer;
+          text-align: center;
+        }
+      }
+      .scrollbar__menu {
+        display: none;
+      }
+      .scrollbar__menu-medium {
+        display: block;
+      }
+    }
+  }
   @include pc {
     height: calc(53.4375vw - 196.875px);
   }
@@ -25,21 +50,48 @@
     overflow: hidden;
     height: 100%;
     width: auto;
+    border-radius: 4px;
     margin-top: 0;
+    @include table {
+      background-color: transparent;
+    }
+    @include mobile {
+      background-color: transparent;
+    }
   }
   .queue-title {
     display: flex;
     padding: 20px;
     justify-content: space-between;
     margin-bottom: 0;
+    @include table {
+      justify-content: flex-start;
+      gap: 10px;
+    }
+    @include mobile {
+      justify-content: flex-start;
+      gap: 10px;
+    }
     h3 {
       font-weight: 700;
       text-transform: capitalize;
       display: block;
       font-size: 1.8rem;
+      flex-shrink: 0;
     }
     .auto-play-switch {
       display: flex;
+      flex-shrink: 0;
+      gap: 5px;
+      align-items: center;
+      @include table {
+        border-radius: 999px;
+        box-shadow: 0 2px 4px 0 rgba(133, 105, 208, 0.11);
+        background-color: hsla(0, 0%, 100%, 0.1);
+        padding: 0 15px;
+        cursor: pointer;
+        text-align: center;
+      }
       .auto-play-text {
         font-size: 1rem;
         line-height: normal;
@@ -49,12 +101,30 @@
         align-items: center;
         width: auto;
       }
+      .switch {
+        display: flex;
+        align-items: center;
+      }
     }
   }
-  .menu {
-    height: calc(53.4375vw - 196.875px);
-    overflow-y: scroll;
-    width: auto;
+  .scrollbar__menu {
+    width: 100%;
+    height: auto;
+    @include pc {
+      height: calc(100% - 70px);
+    }
+    @include table {
+      display: none;
+    }
+    @include mobile {
+      display: none;
+    }
+  }
+  .scrollbar__menu-medium {
+    padding-bottom: 40px;
+    @include pc {
+      display: none;
+    }
   }
   @include table {
     width: 100%;

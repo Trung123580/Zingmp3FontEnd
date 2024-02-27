@@ -1,0 +1,82 @@
+@import '../../variable.scss';
+.portal {
+  background-color: #605c52;
+  border-radius: 8px;
+  position: fixed;
+  // top: 0%;
+  // right: 50%;
+  z-index: 101;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 280px;
+  padding: 10px 0;
+  .portal__header {
+    display: flex;
+    align-items: center;
+    padding: 15px 15px 0 15px;
+    gap: 10px;
+    .portal__avatar {
+      width: 40px;
+      height: 40px;
+      // min-width: 40px;
+      // min-height: 40px;
+      @include flex-basis;
+      img {
+        object-fit: cover;
+        border-radius: 4px;
+      }
+    }
+    .portal__name {
+      flex: 1;
+      @include text-cover;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+  }
+  .portal__menu {
+    display: flex;
+    margin: 15px 15px 10px;
+    border-radius: 8px;
+    background-color: $alpha-bg;
+    justify-content: space-between;
+    .portal__item {
+      flex: 1 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 8px;
+      padding: 8px 0;
+      font-size: 10px;
+      max-width: 80px;
+      cursor: pointer;
+      line-height: 14px;
+      svg {
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+      &:hover {
+        background-color: $alpha-bg;
+
+        // color: var(--text-item-hover);
+      }
+    }
+  }
+  .portal__action {
+    .portal__action-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      line-height: normal;
+      &:hover {
+        background-color: $alpha-bg;
+      }
+      span {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+    }
+  }
+}

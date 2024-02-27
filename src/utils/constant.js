@@ -47,4 +47,63 @@ const navChart = [
   { id: uuid(), path: 'us', name: 'us-uk' },
   { id: uuid(), path: 'korea', name: 'k-pop' },
 ];
-export { listTheme, listBtnNewRelease, navChart };
+const listKeyVideo = [
+  {
+    key: 'Digit0',
+    coords: 1,
+  },
+  {
+    key: 'Digit1',
+    coords: 0.9,
+  },
+  {
+    key: 'Digit2',
+    coords: 0.8,
+  },
+  {
+    key: 'Digit3',
+    coords: 0.7,
+  },
+  {
+    key: 'Digit4',
+    coords: 0.6,
+  },
+  {
+    key: 'Digit5',
+    coords: 0.5,
+  },
+  {
+    key: 'Digit6',
+    coords: 0.4,
+  },
+  {
+    key: 'Digit7',
+    coords: 0.3,
+  },
+  {
+    key: 'Digit8',
+    coords: 0.2,
+  },
+  {
+    key: 'Digit9',
+    coords: 0.1,
+  },
+];
+const fontsLyric = [
+  {
+    text: 'A',
+    fontSize: '1rem',
+    id: uuid(),
+  },
+  {
+    text: 'A',
+    fontSize: '1.2rem',
+    id: uuid(),
+  },
+  {
+    text: 'A',
+    fontSize: '1.3rem',
+    id: uuid(),
+  },
+];
+export { listTheme, listBtnNewRelease, navChart, listKeyVideo, fontsLyric };

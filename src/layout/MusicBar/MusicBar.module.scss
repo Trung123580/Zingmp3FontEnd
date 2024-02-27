@@ -17,6 +17,75 @@
   @include mobile {
     height: 130px;
   }
+  &.lyricSong {
+    z-index: 104;
+    border-top: 1px solid transparent;
+    // background: #2d2f32 !important;
+    background: transparent !important;
+    .player-controls {
+      justify-content: center;
+      .player-left {
+        display: none;
+      }
+      .player-middle {
+        display: flex;
+        flex-direction: column;
+        max-width: unset;
+        .music-controls {
+          order: 2;
+        }
+        .music-range {
+          order: 1;
+          flex: 1;
+          align-items: center;
+          justify-content: center;
+          flex-basis: auto;
+          flex-grow: 0;
+          flex-shrink: 0;
+          .wrapper-range {
+            max-width: 400px;
+          }
+        }
+      }
+      .player-right {
+        display: none;
+      }
+    }
+    @include mobile {
+      height: 90px;
+      .player-controls {
+        justify-content: center;
+        .player-left {
+          display: none;
+        }
+        .player-middle {
+          display: flex;
+          flex-direction: column;
+          max-width: unset;
+          width: 100%;
+          .music-controls {
+            order: 2;
+          }
+          .music-range {
+            order: 1;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+            flex-basis: auto;
+            flex-grow: 0;
+            flex-shrink: 0;
+            .wrapper-range {
+              max-width: 100%;
+              min-width: 200px;
+            }
+          }
+        }
+        .player-right {
+          display: none;
+        }
+      }
+    }
+  }
   .player-controls {
     display: flex;
     align-items: center;
@@ -134,7 +203,9 @@
           display: flex;
           align-items: center;
           position: relative;
-
+          flex-basis: auto;
+          flex-grow: 0;
+          flex-shrink: 0;
           &:hover {
             &::after {
               display: block;
@@ -177,6 +248,7 @@
           background-color: $alpha-bg;
           border-radius: 4px;
           position: relative;
+          cursor: pointer;
           &:hover {
             height: 6px;
             .note-track {
@@ -222,7 +294,6 @@
       width: 30%;
       display: flex;
       justify-content: flex-end;
-
       .music-controls {
         display: flex;
         justify-content: center;
@@ -325,9 +396,11 @@
     height: 15px;
     @include mobile {
       width: 100px;
+      height: 10px;
     }
     @include table {
       width: 100px;
+      height: 10px;
     }
     &:hover {
       .volume-input {

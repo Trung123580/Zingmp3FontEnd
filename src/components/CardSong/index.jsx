@@ -8,11 +8,14 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import path from '~/router/path';
-
 const cx = classNames.bind(style);
 const CardSong = ({
   style,
   card,
+  //modal
+  // active song
+  onActiveSong,
+  // show iconlove
   isIconLove,
   isPlay,
   currentSong,
@@ -81,17 +84,17 @@ const CardSong = ({
         <div className={cx('action')}>
           {isIconLove && (
             <Tippy
-              content={<span className='tippy-title'>Thêm vào thư viện</span>}
+              content={<span className='tippy-title'>{isLikeMusic ? 'Xóa khỏi thư viện' : 'Thêm vào thư viện'} </span>}
               followCursor='horizontal'
               placement='top'
               arrow={true}
               duration={300}>
               {isLikeMusic ? (
-                <span className={cx('icon')} onClick={(e) => onRemoveLikeSong(e, card?.encodeId)}>
+                <span className={cx('icon')} style={{ padding: !!isIconLove && '5px' }} onClick={onRemoveLikeSong}>
                   <FavoriteIcon fontSize='large' />
                 </span>
               ) : (
-                <span className={cx('icon')} onClick={(e) => onAddLikeSong(e, card)}>
+                <span className={cx('icon')} style={{ padding: !!isIconLove && '5px' }} onClick={onAddLikeSong}>
                   <FavoriteBorderIcon fontSize='large' />
                 </span>
               )}
@@ -104,7 +107,9 @@ const CardSong = ({
             placement='top'
             arrow={true}
             duration={300}>
-            <span className={cx('icon')}>{<MoreHorizIcon fontSize='large' />}</span>
+            <span className={cx('icon')} onClick={onActiveSong}>
+              {<MoreHorizIcon fontSize='large' />}
+            </span>
           </Tippy>
         </div>
       </div>

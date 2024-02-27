@@ -9,15 +9,69 @@ const AuthProvider = createContext();
 const cookies = new Cookies();
 const expirationDate = new Date();
 const AppProvider = ({ children }) => {
+  const { theme, currentUser } = useSelector((state) => state.auth);
+  const { currentPlayList } = useSelector((state) => state.app);
   const [themeApp, setThemeApp] = useState(null);
   const [appCallBack, setAppCallBack] = useState(false);
   const [isAuth, setIsAuth] = useState(cookies.get('auth-token'));
+  const [isOpenLyricSong, setIsOpenLyricSong] = useState(false);
+  const [openModal, setOpenModal] = useState({
+    isOpenModal: false,
+    currentModal: false,
+    titleModal: '',
+  });
+  const { isOpenModal, titleModal, currentModal } = openModal;
   // chart
   const [selectedChart, setSelectedChart] = useState(null);
   const [user, setUser] = useState(undefined);
-  const { theme, currentUser } = useSelector((state) => state.auth);
   const userCollection = collection(db, 'user');
   const dispatch = useDispatch();
+  //LyricSong
+  const handleToggleLyricSong = () => {
+    setIsOpenLyricSong((prev) => !prev);
+  };
+  // modal
+  const handleOpen = (title, currentModal) => setOpenModal((prev) => ({ ...prev, isOpenModal: true, titleModal: title, currentModal: currentModal }));
+  const handleClose = () => setOpenModal((prev) => ({ ...prev, isOpenModal: false }));
+  // portal
+  const [coords, setCoords] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    thumbnailM: '',
+    title: '',
+    isShowPortal: false,
+    isDelete: false,
+    targetSong: false, // false => danh sach phat / true => history
+  });
+  const handleActiveSong = (e, song, isDelete, targetSong) => {
+    // => isDelete nếu có tham số thứ 3 ẩn nut delete
+    if (e) {
+      e.stopPropagation();
+      if (coords.isShowPortal) {
+        setCoords((prev) => ({ ...prev, isShowPortal: false }));
+        return;
+      }
+      const clientReact = e.target.getBoundingClientRect();
+      // console.log(clientReact);
+      setCoords({
+        x: clientReact.left,
+        y: clientReact.top,
+        width: clientReact.width,
+        height: clientReact.height,
+        thumbnailM: song.thumbnailM,
+        encodeId: song.encodeId,
+        title: song.title,
+        isShowPortal: true,
+        isDelete: isDelete,
+        targetSong: targetSong, // false => danh sach phat / true => history
+      });
+    } else {
+      setCoords((prev) => ({ ...prev, isShowPortal: false }));
+    }
+  };
+
   useEffect(() => {
     setUser(cookies.get('user'));
   }, [isAuth]);
@@ -27,28 +81,22 @@ const AppProvider = ({ children }) => {
     setThemeApp(getTheme);
   }, [theme]);
   useEffect(() => {
-    if (isAuth) {
-      (async () => {
-        if (user?.uid) {
-          const docRef = doc(db, 'user', user?.uid);
-          const docSnap = await getDoc(docRef);
-          const data = docSnap.data();
-          dispatch(dataUser(data)); // user
-        }
-      })();
+    try {
+      if (isAuth) {
+        (async () => {
+          if (user?.uid) {
+            const docRef = doc(db, 'user', user?.uid);
+            const docSnap = await getDoc(docRef);
+            const data = docSnap.data();
+            dispatch(dataUser(data)); // user
+          }
+        })();
+      }
+    } catch (error) {
+      console.log(error);
     }
     // eslint-disable-next-line
   }, [appCallBack, user]);
-  useEffect(() => {
-    let timesShowSuccess;
-    timesShowSuccess = setTimeout(() => {
-      dispatch(addSuccess({ type: false, content: '' }));
-    }, 2000);
-    return () => {
-      timesShowSuccess && clearTimeout(timesShowSuccess);
-    };
-    // eslint-disable-next-line
-  }, [currentUser]);
   const handleLoginApp = async () => {
     try {
       const response = await signInWithPopup(auth, googleProvider);
@@ -76,6 +124,7 @@ const AppProvider = ({ children }) => {
           createPlayList: [], // [ lồng arr để lưu các play list khác nhau[] ] // tu tao play list cho rieng minh
           followMv: [], // theo doi video
           followAlbum: [], // theo doi album
+          followArtist: [],
         });
       }
     } catch (error) {
@@ -95,7 +144,7 @@ const AppProvider = ({ children }) => {
       const song = JSON.parse(localStorage.getItem('song'));
       if (song?.encodeId === item?.encodeId) return;
       dispatch(getSong({ ...item }));
-      dispatch(getCurrentPlayList({ listItem, title: title }));
+      dispatch(getCurrentPlayList({ listItem: listItem, title: title }));
       dispatch(playSong(true));
       if (isAuth) {
         (async () => {
@@ -119,6 +168,30 @@ const AppProvider = ({ children }) => {
     // eslint-disable-next-line
     [isAuth, user, currentUser]
   );
+  // remove historySong
+  const handleRemoveHistorySong = useCallback(
+    async (e, idSong) => {
+      e.stopPropagation();
+      if (!coords.targetSong) {
+        const refreshPlayList = currentPlayList.listItem.filter((song) => song.encodeId !== idSong);
+        dispatch(getCurrentPlayList({ listItem: refreshPlayList, title: currentPlayList.title }));
+        dispatch(addSuccess({ type: true, content: 'đã xóa bài hát trong danh sách phát' }));
+        handleActiveSong(null, null);
+        return;
+      }
+      const userDoc = doc(db, 'user', user?.uid);
+      const newDataStory = currentUser?.historySong.filter(({ encodeId }) => encodeId !== idSong);
+      await updateDoc(userDoc, {
+        historySong: newDataStory,
+      }).then(() => {
+        handleActiveSong(null, null);
+        dispatch(dataUser({ ...currentUser, historySong: newDataStory }));
+        dispatch(addSuccess({ type: true, content: 'đã xóa bài hát khỏi lịch sử nghe nhạc' }));
+      });
+    },
+    // eslint-disable-next-line
+    [user, currentUser, coords.targetSong]
+  );
   // song
   const handleAddLikeSong = useCallback(
     async (e, songItem) => {
@@ -131,9 +204,9 @@ const AppProvider = ({ children }) => {
       await updateDoc(userDoc, {
         loveMusic: arrayUnion({
           ...songItem,
+          mvlink: songItem.mvlink || null,
         }),
       }).then(() => {
-        // setAppCallBack((prevAppCallBack) => !prevAppCallBack);
         dispatch(dataUser({ ...currentUser, loveMusic: [...currentUser?.loveMusic, { ...songItem }] }));
         dispatch(addSuccess({ type: true, content: 'đã thêm bài hát vào thư viện' }));
       }); // re-renderApp
@@ -149,7 +222,7 @@ const AppProvider = ({ children }) => {
       await updateDoc(userDoc, {
         loveMusic: newDataStory,
       }).then(() => {
-        dispatch(dataUser({ ...currentUser, loveMusic: currentUser?.loveMusic.filter(({ encodeId }) => encodeId !== idSong) }));
+        dispatch(dataUser({ ...currentUser, loveMusic: newDataStory }));
         dispatch(addSuccess({ type: true, content: 'đã xóa bài hát khỏi thư viện' }));
       });
     },
@@ -175,7 +248,6 @@ const AppProvider = ({ children }) => {
           sortDescription,
         }),
       }).then(() => {
-        // setAppCallBack((prevAppCallBack) => !prevAppCallBack);
         dispatch(
           dataUser({ ...currentUser, followPlayList: [...currentUser?.followPlayList, { thumbnailM, encodeId, title, link, sortDescription }] })
         );
@@ -193,8 +265,7 @@ const AppProvider = ({ children }) => {
       await updateDoc(userDoc, {
         followPlayList: newDataStory,
       }).then(() => {
-        // setAppCallBack((prevAppCallBack) => !prevAppCallBack);
-        dispatch(dataUser({ ...currentUser, followPlayList: currentUser?.followPlayList.filter(({ encodeId }) => encodeId !== idAlbum) }));
+        dispatch(dataUser({ ...currentUser, followPlayList: newDataStory }));
         dispatch(addSuccess({ type: true, content: 'đã xóa playlist khỏi thư viện' }));
       }); // re-renderApp
     },
@@ -219,7 +290,6 @@ const AppProvider = ({ children }) => {
           link,
         }),
       }).then(() => {
-        // setAppCallBack((prevAppCallBack) => !prevAppCallBack);
         dispatch(dataUser({ ...currentUser, followAlbum: [...currentUser?.followAlbum, { thumbnailM, encodeId, title, link }] }));
         dispatch(addSuccess({ type: true, content: 'đã thêm album vào thư viện' }));
       }); // re-renderApp
@@ -235,7 +305,7 @@ const AppProvider = ({ children }) => {
       await updateDoc(userDoc, {
         followAlbum: newDataStory,
       }).then(() => {
-        dispatch(dataUser({ ...currentUser, followAlbum: currentUser?.followAlbum.filter(({ encodeId }) => encodeId !== idSong) }));
+        dispatch(dataUser({ ...currentUser, followAlbum: newDataStory }));
         dispatch(addSuccess({ type: true, content: 'đã xóa album khỏi thư viện' }));
       });
     },
@@ -246,13 +316,98 @@ const AppProvider = ({ children }) => {
   const handleChartHoverTooltip = (data) => {
     setSelectedChart(data);
   };
-  // onPlayVideo
+  // followArtist *
+  const handleAddArtist = useCallback(
+    async (e, artist) => {
+      e.stopPropagation();
+      if (!isAuth) {
+        handleLoginApp();
+        return;
+      }
+      const userDoc = doc(db, 'user', user?.uid);
+      const { thumbnailM, id, name, link } = artist;
+      await updateDoc(userDoc, {
+        followArtist: arrayUnion({
+          thumbnailM,
+          id,
+          name,
+          link,
+        }),
+      }).then(() => {
+        dispatch(dataUser({ ...currentUser, followArtist: [...currentUser?.followArtist, { thumbnailM, id, name, link }] }));
+        // dispatch(addSuccess({ type: true, content: 'đã thêm album vào thư viện' }));
+      });
+    },
+    // eslint-disable-next-line
+    [isAuth, user, currentUser]
+  );
+  const handleRemoveArtist = useCallback(
+    async (e, idArtist) => {
+      e.stopPropagation();
+      const userDoc = doc(db, 'user', user?.uid);
+      const newDataStory = currentUser?.followArtist.filter(({ id }) => id !== idArtist);
+      await updateDoc(userDoc, {
+        followArtist: newDataStory,
+      }).then(() => {
+        dispatch(dataUser({ ...currentUser, followArtist: newDataStory }));
+        // dispatch(addSuccess({ type: true, content: 'đã xóa mv khỏi thư viện' }));
+      });
+    },
+    // eslint-disable-next-line
+    [user, currentUser]
+  );
+  //followMv *
+  const handleAddMv = useCallback(
+    async (video) => {
+      if (!isAuth) {
+        handleLoginApp();
+        return;
+      }
+      const userDoc = doc(db, 'user', user?.uid);
+      const { thumbnailM, link, title, artists, duration, encodeId } = video;
+      await updateDoc(userDoc, {
+        followMv: arrayUnion({
+          thumbnailM,
+          title,
+          encodeId,
+          link,
+          artists,
+          duration,
+        }),
+      }).then(() => {
+        dispatch(dataUser({ ...currentUser, followMv: [...currentUser?.followMv, { thumbnailM, title, link, artists, encodeId, duration }] }));
+        dispatch(addSuccess({ type: true, content: 'đã thêm mv vào thư viện' }));
+      }); // re-renderApp
+    },
+    // eslint-disable-next-line
+    [isAuth, user, currentUser]
+  );
+  const handleRemoveMv = useCallback(
+    async (idVideo) => {
+      const newDataStory = currentUser?.followMv.filter(({ encodeId }) => encodeId !== idVideo);
+      const userDoc = doc(db, 'user', user?.uid);
+      await updateDoc(userDoc, {
+        followMv: newDataStory,
+      }).then(() => {
+        dispatch(dataUser({ ...currentUser, followMv: newDataStory }));
+        dispatch(addSuccess({ type: true, content: 'đã xóa mv khỏi thư viện' }));
+      });
+    },
+    // eslint-disable-next-line
+    [user, currentUser]
+  );
   const values = {
     themeApp,
     handle: {
+      //modal
+      onOpenModal: handleOpen,
+      onCloseModal: handleClose,
+      //app
       onLoginApp: handleLoginApp,
       onSignOutApp: handleSignOutApp,
+      // historySong
       onPlaySong: handlePlaySong,
+      onRemoveHistorySong: handleRemoveHistorySong,
       // song
       onAddLikeSong: handleAddLikeSong,
       onRemoveLikeSong: handleRemoveLikeSong,
@@ -264,10 +419,29 @@ const AppProvider = ({ children }) => {
       onRemoveAlbum: handleRemoveAlbum,
       //chart
       onChartHoverTooltip: handleChartHoverTooltip,
+      // mv
+      onAddMv: handleAddMv,
+      onRemoveMv: handleRemoveMv,
+      // artist
+      onAddArtist: handleAddArtist,
+      onRemoveArtist: handleRemoveArtist,
+      //portal
+      onActiveSong: handleActiveSong,
+      //LyricSong
+      onToggleLyricSong: handleToggleLyricSong,
     },
     isAuth,
     user,
     selectedChart,
+    // modal
+    isOpenModal: isOpenModal,
+    titleModal: titleModal,
+    currentModal: currentModal,
+    //portal
+    coords: coords,
+    isShowPortal: coords.isShowPortal,
+    //LyricSong
+    isOpenLyricSong: isOpenLyricSong,
   };
   return <AuthProvider.Provider value={values}>{children}</AuthProvider.Provider>;
 };

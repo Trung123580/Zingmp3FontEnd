@@ -15,11 +15,11 @@ const ZingChartRanks = () => {
     if (country) return country;
     return 'vn';
   });
-  const { chartData, isPlay, currentSong, currentUser } = useSelector((state) => state.app);
+  const { chartData, isPlay, currentSong } = useSelector((state) => state.app);
+  const { currentUser } = useSelector((state) => state.auth);
   const { themeApp, handle } = useContext(AuthProvider);
-  const { onAddLikeSong, onRemoveLikeSong, onPlaySong } = handle;
+  const { onAddLikeSong, onRemoveLikeSong, onPlaySong, onActiveSong } = handle;
   const navigate = useNavigate();
-  console.log(country);
   const handleNavigate = (type, url) => {
     if (type === 1) return; // lam modal phat bai hat
     navigate(
@@ -90,6 +90,7 @@ const ZingChartRanks = () => {
                     <CardAlbumSong
                       key={song?.encodeId}
                       song={song}
+                      onActiveSong={(e) => onActiveSong(e, song)}
                       currentSong={currentSong}
                       currentUser={currentUser}
                       onNavigateArtist={handleNavigate}

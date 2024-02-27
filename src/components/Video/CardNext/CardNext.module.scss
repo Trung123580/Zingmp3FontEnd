@@ -1,0 +1,93 @@
+// :active     background-color: hsla(0,0%,100%,.05);
+@import '../../../variable.scss';
+.item {
+  display: flex;
+  align-items: center;
+  padding: 5px 20px;
+  gap: 10px;
+  &:hover {
+    background-color: hsla(0, 0%, 100%, 0.05);
+    @include transition;
+  }
+  &.isActive {
+    background-color: hsla(0, 0%, 100%, 0.05);
+  }
+  &.theaterMode {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    .thumbnail {
+      width: 100%;
+      height: auto;
+    }
+  }
+  @include table {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+  }
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+  }
+  .thumbnail {
+    width: 120px;
+    height: 64px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 4px;
+    cursor: pointer;
+    @include table {
+      width: 100%;
+      height: auto;
+    }
+    @include mobile {
+      width: 100%;
+      height: auto;
+    }
+    img {
+      width: 100%;
+      border-radius: 4px;
+      object-fit: cover;
+      &:hover {
+        @include hover;
+      }
+    }
+  }
+  .content {
+    flex: 1;
+    .name {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-weight: 700;
+      font-size: 1.4rem;
+      white-space: normal;
+      letter-spacing: 0.3;
+    }
+    .artists {
+      font-size: 12px;
+      margin-top: 3px;
+      display: flex;
+      flex-wrap: nowrap;
+      flex-basis: 0;
+      gap: 5px;
+      .artists__item {
+        color: $text-secondary;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        cursor: pointer;
+        max-width: 100%;
+        line-height: normal;
+        display: flex;
+        align-items: center;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

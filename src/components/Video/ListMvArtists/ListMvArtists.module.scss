@@ -1,0 +1,14 @@
+@import '../../../variable.scss';
+
+.menu__video {
+  display: flex; // dung inline-style
+  // display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+  @include table {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

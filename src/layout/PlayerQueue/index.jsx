@@ -8,13 +8,22 @@ import classNames from 'classnames/bind';
 import style from './PlayerQueue.module.scss';
 import { differenceBy as _differenceBy } from 'lodash';
 import { useNavigate } from 'react-router-dom';
+import BaseModal from '~/utils/BaseModal';
 const cx = classNames.bind(style);
 const PlayerQueue = () => {
   const { isOpenPlayList, currentSong, isPlay, currentPlayList } = useSelector((state) => state.app);
   const { currentUser } = useSelector((state) => state.auth);
   const [active, setActive] = useState(0);
-  const { themeApp, handle } = useContext(AuthProvider);
-  const { onAddLikeSong, onRemoveLikeSong, onPlaySong } = handle;
+  // const [activeIdSong, setActiveIdSong] = useState(null);
+  // const [coords, setCoords] = useState({
+  //   x: 0,
+  //   y: 0,
+  //   width: 0,
+  //   height: 0,
+  // });
+  // console.log(coords);
+  const { themeApp, handle, isOpenModal, currentModal, coords } = useContext(AuthProvider);
+  const { onAddLikeSong, onRemoveLikeSong, onPlaySong, onCloseModal, onActiveSong } = handle;
   const navigate = useNavigate();
   const thumbStyles = {
     width: '100%',
@@ -47,6 +56,11 @@ const PlayerQueue = () => {
       })}
       style={{ background: '#2d2f32' }}>
       <Scrollbar
+        onScroll={() => {
+          if (coords?.isShowPortal) {
+            onActiveSong(null, null);
+          }
+        }}
         trackYProps={{
           renderer: (props) => {
             const { elementRef, ...restProps } = props;
@@ -92,6 +106,7 @@ const PlayerQueue = () => {
               {!!currentSong && (
                 <CardSong
                   isHiddenTime={true}
+                  onActiveSong={(e) => onActiveSong(e, currentSong)}
                   isPlay={isPlay}
                   currentSong={currentSong}
                   onAddLikeSong={onAddLikeSong}
@@ -99,6 +114,7 @@ const PlayerQueue = () => {
                   currentUser={currentUser}
                   card={currentSong}
                   isIconLove={true}
+                  onNavigateArtist={handleNavigate}
                   className='edit'
                 />
               )}
@@ -107,25 +123,47 @@ const PlayerQueue = () => {
           {active === 0 && (
             <div className={cx('next-info__song')}>
               <h4>Tiếp theo</h4>
-              <p>
-                từ danh sách bài hát <span style={{ color: themeApp?.primaryColor }}> {currentPlayList?.title}</span>
-              </p>
+              {currentPlayList?.title && (
+                <p>
+                  từ danh sách bài hát <span style={{ color: themeApp?.primaryColor }}> {currentPlayList?.title}</span>
+                </p>
+              )}
             </div>
           )}
           <div className={cx('list-menu')}>
+            {currentPlayList?.title === 'Nhạc yêu thích' &&
+              currentPlayList?.listItem.length &&
+              currentPlayList?.listItem.map((card, index, arr) => (
+                <CardSong
+                  key={uuid()}
+                  onActiveSong={(e) => onActiveSong(e, card, true)}
+                  isHiddenTime={true}
+                  isPlay={isPlay}
+                  currentSong={currentSong}
+                  onAddLikeSong={(e) => onAddLikeSong(e, card)}
+                  onRemoveLikeSong={(e) => onRemoveLikeSong(e, card.encodeId)}
+                  currentUser={currentUser}
+                  card={card}
+                  isIconLove={true}
+                  className='edit'
+                  onPlaySong={() => onPlaySong(card, arr, currentPlayList?.title)}
+                  onNavigateArtist={handleNavigate}
+                />
+              ))}
             {!!currentSong && active === 0
               ? _differenceBy(
-                  currentPlayList?.listItem,
+                  currentPlayList?.listItem || [],
                   (currentUser?.historySong.length && currentUser?.historySong) || [currentSong],
                   'encodeId'
                 ).map((card, index, arr) => (
                   <CardSong
                     key={uuid()}
+                    onActiveSong={(e) => onActiveSong(e, card, true)}
                     isHiddenTime={true}
                     isPlay={isPlay}
                     currentSong={currentSong}
-                    onAddLikeSong={onAddLikeSong}
-                    onRemoveLikeSong={onRemoveLikeSong}
+                    onAddLikeSong={(e) => onAddLikeSong(e, card)}
+                    onRemoveLikeSong={(e) => onRemoveLikeSong(e, card.encodeId)}
                     currentUser={currentUser}
                     card={card}
                     isIconLove={true}
@@ -137,11 +175,12 @@ const PlayerQueue = () => {
               : currentUser?.historySong.map((card) => (
                   <CardSong
                     key={uuid()}
+                    onActiveSong={(e) => onActiveSong(e, card, true, true)}
                     isHiddenTime={true}
                     isPlay={isPlay}
                     currentSong={currentSong}
-                    onAddLikeSong={onAddLikeSong}
-                    onRemoveLikeSong={onRemoveLikeSong}
+                    onAddLikeSong={(e) => onAddLikeSong(e, card)}
+                    onRemoveLikeSong={(e) => onRemoveLikeSong(e, card.encodeId)}
                     currentUser={currentUser}
                     card={card}
                     onNavigateArtist={handleNavigate}
@@ -156,6 +195,7 @@ const PlayerQueue = () => {
           </div>
         </div>
       </Scrollbar>
+      <BaseModal reverseModal={currentModal} open={isOpenModal} onClose={onCloseModal} />
     </div>
   );
 };

@@ -1,31 +1,42 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { getArtistInfo } from '~/store/actions/dispatch';
-import { apiGetArtist } from '~/api';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Keyboard } from 'swiper/modules';
-import path from '~/router/path';
+import { useDispatch, useSelector } from 'react-redux';
+import { AuthProvider } from '~/AuthProvider';
+import { v4 as uuid } from 'uuid';
 import classNames from 'classnames/bind';
+import { getArtistInfo } from '~/store/actions/dispatch';
+import { CardSong, CardVideo, CardAlbum, CardArtists } from '~/components';
+import BaseModal from '~/utils/BaseModal';
+import { BoxSkeleton, CardFullSkeletonBanner } from '~/BaseSkeleton';
+import { apiGetArtist } from '~/api';
+import path from '~/router/path';
 import TitlePath from '~/utils/TitlePath';
 import Button from '~/utils/Button';
-import { v4 as uuid } from 'uuid';
 import style from './DetailsArtist.module.scss';
-import { BoxSkeleton, CardFullSkeletonBanner } from '~/BaseSkeleton';
-import { BsPersonAdd } from 'react-icons/bs';
-import { AuthProvider } from '~/AuthProvider';
-import { CardSong, CardVideo, CardAlbum, CardArtists } from '~/components';
+import { BsPersonAdd, BsCheck2 } from 'react-icons/bs';
 const cx = classNames.bind(style);
 const DetailsArtist = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { themeApp, handle } = useContext(AuthProvider);
-  const { currentSong, isPlay, artistInfo, artistTopSection, singleEP, artistVideo, artistPlaylist, listArtist } = useSelector((state) => state.app);
   const { currentUser } = useSelector((state) => state.auth);
-  const { onAddLikeSong, onRemoveLikeSong, onPlaySong, onAddAlbum, onRemoveAlbum } = handle;
+  const { currentSong, isPlay, artistInfo, artistTopSection, singleEP, artistVideo, artistPlaylist, listArtist } = useSelector((state) => state.app);
+  const { themeApp, handle, isOpenModal, currentModal } = useContext(AuthProvider);
+  const [isLoading, setIsLoading] = useState(false);
   const { name, panel, videoId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // console.log(artistVideo);
+  const {
+    onAddLikeSong,
+    onRemoveLikeSong,
+    onPlaySong,
+    onAddAlbum,
+    onRemoveAlbum,
+    onOpenModal,
+    onCloseModal,
+    onActiveSong,
+    onAddArtist,
+    onRemoveArtist,
+  } = handle;
   useEffect(() => {
     (async () => {
       setIsLoading(false);
@@ -39,8 +50,21 @@ const DetailsArtist = () => {
         throw new Error(error);
       }
     })();
+    return () => {
+      onCloseModal();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
+  // useEffect(() => {
+  //   const handleClickOutside = () => {
+  //     onActiveSong(null, null);
+  //   };
+  //   document.addEventListener('click', handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener('click', handleClickOutside);
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
   const formatFollowCount = useMemo(() => {
     if (!artistInfo?.totalFollow) {
       return 0;
@@ -70,6 +94,7 @@ const DetailsArtist = () => {
     const pathLink = path.DETAILS_ARTIST + path.DETAILS_ARTIST_PANEL;
     navigate(pathLink.replace('/:name/:panel', url));
   };
+  const isFollowArtist = currentUser?.followArtist.some((item) => item?.id === artistInfo?.id);
   if (panel) {
     return (
       <div className={cx('container')}>
@@ -97,15 +122,16 @@ const DetailsArtist = () => {
           </div>
           <div className={cx('information')}>
             <div className={cx('avatar')}>
-              <img src={artistInfo?.thumbnail} alt='' />
+              <img src={artistInfo?.thumbnailM} alt='' />
             </div>
             <div className={cx('content')}>
               <h2>{artistInfo?.name}</h2>
               <div className={cx('bottom')}>
                 <span className={cx('follow')}>{formatFollowCount} người quan tâm</span>
                 <Button
-                  content='quan tâm'
-                  icon={<BsPersonAdd fontSize='16px' />}
+                  content={isFollowArtist ? 'Đã quan tâm' : 'quan tâm'}
+                  onClick={(e) => (isFollowArtist ? onRemoveArtist(e, artistInfo.id) : onAddArtist(e, artistInfo))}
+                  icon={isFollowArtist ? <BsCheck2 fontSize='16px' /> : <BsPersonAdd fontSize='16px' />}
                   className='add-artist'
                   style={{ borderColor: themeApp?.primaryColor }}
                 />
@@ -167,13 +193,14 @@ const DetailsArtist = () => {
                         <CardSong
                           card={song}
                           key={song.encodeId}
+                          onActiveSong={(e) => onActiveSong(e, song)}
                           isPlay={isPlay}
                           isHiddenTime={true}
                           currentSong={currentSong}
                           currentUser={currentUser}
-                          onRemoveLikeSong={onRemoveLikeSong}
-                          onAddLikeSong={onAddLikeSong}
-                          onPlaySong={() => onPlaySong(song, arr, currentSong?.currentTitle)}
+                          onRemoveLikeSong={(e) => onRemoveLikeSong(e, song.encodeId)}
+                          onAddLikeSong={(e) => onAddLikeSong(e, song)}
+                          onPlaySong={() => onPlaySong(song, arr, null)}
                           className='edit'
                           isIconLove={true}
                           style={{ borderBottom: '1px solid hsla(0,0%,100%,0.05)' }}
@@ -341,6 +368,7 @@ const DetailsArtist = () => {
                           onAddPlayList={(e) => onAddAlbum(e, album)}
                           onRemovePlayList={(e) => onRemoveAlbum(e, album.encodeId)}
                           currentUser={currentUser}
+                          onNavigateArtist={handleNavigate}
                           themeApp={themeApp}
                         />
                       </SwiperSlide>
@@ -376,7 +404,7 @@ const DetailsArtist = () => {
                 <div className={cx('description')}>
                   <div className={cx('text')}>
                     <p>{artistInfo?.biography.split('<br>').join('')}</p>
-                    <span>xem thêm</span>
+                    <span onClick={() => onOpenModal(null, true)}>xem thêm</span>
                   </div>
                   <div className={cx('follow')}>
                     <h4>{formatFollowCount}</h4>
@@ -388,6 +416,15 @@ const DetailsArtist = () => {
           </div>
         </div>
       </div>
+      <BaseModal
+        reverseModal={currentModal}
+        name={artistInfo?.name}
+        thumbnail={artistInfo?.thumbnailM}
+        desc={artistInfo?.biography}
+        open={isOpenModal}
+        onClose={onCloseModal}
+      />
+      {/* <SongModal onClose={onCloseModal} open={isOpenModal} /> */}
     </>
   );
 };

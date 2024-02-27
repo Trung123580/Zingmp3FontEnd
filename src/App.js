@@ -1,10 +1,10 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { AuthProvider } from '~/AuthProvider';
 import { Scrollbar } from 'react-scrollbars-custom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { PlayerQueue, Sidebar, Header, MusicBar } from '~/layout';
 import { router } from '~/router';
-import { AddSuccess } from './components';
+import { AddSuccess, LyricSong, PortalModal } from './components';
 import { backgroundDefault } from '~/asset';
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'tippy.js/dist/tippy.css';
@@ -14,7 +14,8 @@ import 'swiper/css/navigation';
 import './App.scss';
 
 function App() {
-  const { themeApp } = useContext(AuthProvider);
+  const { themeApp, isShowPortal, coords, handle, isOpenLyricSong } = useContext(AuthProvider);
+  const { onActiveSong } = handle;
   const thumbStyles = {
     width: '100%',
     backgroundColor: 'hsla(0,0%,100%,0.3)',
@@ -22,13 +23,28 @@ function App() {
     position: 'relative',
     borderRadius: '5px',
   };
+  useEffect(() => {
+    const handleClickOutside = () => {
+      onActiveSong(null, null);
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <Router>
       <main id='app' style={{ backgroundImage: `url(${(themeApp && themeApp.backgroundApp) || backgroundDefault})` }}>
         <Header />
         <Sidebar />
         <Scrollbar
-          style={{ height: 'auto' }}
+          onScroll={() => {
+            if (coords?.isShowPortal) {
+              onActiveSong(null, null);
+            }
+          }}
+          scrollTop={0}
           trackYProps={{
             renderer: (props) => {
               const { elementRef, ...restProps } = props;
@@ -77,6 +93,8 @@ function App() {
         </Scrollbar>
         <MusicBar />
         <PlayerQueue />
+        {isShowPortal && <PortalModal />}
+        {isOpenLyricSong && <LyricSong />}
         <AddSuccess />
       </main>
     </Router>

@@ -17,12 +17,12 @@ const ZingChart = () => {
   const { currentSong, isPlay, chartData } = useSelector((state) => state.app);
   const { currentUser } = useSelector((state) => state.auth);
   const { themeApp, handle } = useContext(AuthProvider);
-  const { onPlaySong, onAddLikeSong, onRemoveLikeSong } = handle;
+  const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onActiveSong } = handle;
   const { pathname } = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isRanks = pathname.split('/').filter((item) => item !== '').length - 1;
-  console.log(dataSong);
+  // console.log(dataSong);
   // console.log(chartData);
   useEffect(() => {
     (async () => {
@@ -80,6 +80,7 @@ const ZingChart = () => {
             <CardAlbumSong
               key={song?.encodeId}
               song={song}
+              onActiveSong={(e) => onActiveSong(e, song)}
               currentSong={currentSong}
               currentUser={currentUser}
               onNavigateArtist={handleNavigate}
@@ -125,6 +126,7 @@ const ZingChart = () => {
                           <CardAlbumSong
                             key={song?.encodeId}
                             song={song}
+                            onActiveSong={(e) => onActiveSong(e, song)}
                             currentSong={currentSong}
                             currentUser={currentUser}
                             onNavigateArtist={handleNavigate}

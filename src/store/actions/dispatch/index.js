@@ -70,14 +70,27 @@ const getChartHome = (response) => {
     payload: response.data.data,
   };
 };
-const getDataVideo = (response) => {
+const getDeFaultDataVideo = (response) => {
   return {
     type: actionTypes.IS_OPEN_VIDEO,
     payload: response.data.data,
   };
 };
+const openCurrentVideo = (page) => {
+  return {
+    type: actionTypes.CURRENT_PAGE,
+    payload: page,
+  };
+};
+const changeCurrentTimeSongLyric = (time) => {
+  return {
+    type: actionTypes.CHANGE_CURRENT_SONG_LYRIC,
+    payload: time,
+  };
+};
 export {
-  getDataVideo,
+  openCurrentVideo,
+  getDeFaultDataVideo,
   getChartHome,
   getHome,
   changeTheme,
@@ -89,4 +102,5 @@ export {
   randomSong,
   getCurrentPlayList,
   getArtistInfo,
+  changeCurrentTimeSongLyric,
 };

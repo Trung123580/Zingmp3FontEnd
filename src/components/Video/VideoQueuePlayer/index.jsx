@@ -1,20 +1,30 @@
-import React from 'react';
+import { memo } from 'react';
 import { Scrollbar } from 'react-scrollbars-custom';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Keyboard, Scrollbar as ScrollbarX } from 'swiper/modules';
 import classNames from 'classnames/bind';
 import style from './VideoQueuePlayer.module.scss';
+import { v4 as uuid } from 'uuid';
+// import { Switch } from '@mui/material';
+import CardNext from '../CardNext';
+import { Switch } from '~/components';
 const cx = classNames.bind(style);
-const VideoQueuePlayer = () => {
+const VideoQueuePlayer = (props) => {
+  const { isAutoPlay, onChangeAutoPlay, selectItem, theme, themeApp, dataVideo, theaterMode, onNavigate, onNavigateVideo } = props;
   return (
-    <div className={cx('queue-player')}>
+    <div
+      className={cx('queue-player', {
+        theaterMode: theaterMode,
+      })}>
       <div className={cx('wrapper-queue')}>
         <div className={cx('queue-title')}>
           <h3>Danh Sách Phát</h3>
           <div className={cx('auto-play-switch')}>
             <span className={cx('auto-play-text')}>Tự động phát</span>
-            <div className={cx('switch')}>switch</div>
+            <Switch checked={isAutoPlay} onChange={onChangeAutoPlay} theme={theme} themeApp={themeApp} />
           </div>
         </div>
-        <div className={cx('menu')}>
+        <div className={cx('scrollbar__menu')}>
           <Scrollbar
             wrapperProps={{
               renderer: (props) => {
@@ -47,36 +57,67 @@ const VideoQueuePlayer = () => {
                 );
               },
             }}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis, harum accusantium. Provident, sapiente vitae eveniet neque suscipit sequi
-            repudiandae similique! Deleniti quibusdam aspernatur et vel! Repudiandae quam quibusdam rem pariatur? Facere enim repudiandae recusandae
-            amet a perferendis repellendus vel vitae obcaecati saepe temporibus nobis asperiores suscipit in laboriosam iusto deleniti ducimus animi
-            aliquid, odit quia facilis id earum dolore! Nobis. Deserunt veritatis natus sit nesciunt veniam eveniet incidunt, illo perspiciatis quos
-            laboriosam iusto magnam amet repudiandae id repellendus modi necessitatibus eum aperiam. Rem mollitia numquam aliquam perspiciatis aliquid
-            quam eum. Rerum sapiente assumenda maxime, eum qui sint rem illo animi neque ullam quis ipsam laudantium sequi dignissimos? Laudantium
-            veniam accusantium mollitia inventore odio, aut incidunt totam doloribus tempore sequi excepturi. Asperiores iusto, atque explicabo qui
-            consectetur quisquam eius assumenda doloribus necessitatibus quis labore sapiente! Distinctio quisquam, consectetur neque quas iste quis
-            ratione aliquid nihil, sit itaque eum animi quibusdam reiciendis. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Maiores
-            ducimus voluptatum quia vitae deserunt beatae dicta nesciunt quae. Ratione nisi iure officia sequi id asperiores consequuntur. Nemo nulla
-            odit amet. Quae sequi aliquam corrupti nulla veritatis voluptatem earum debitis, ea in iusto cumque culpa maiores quibusdam ipsum?
-            Aspernatur ducimus exercitationem illo culpa dolore. Dolor quae expedita nihil quibusdam totam voluptates. Voluptate perspiciatis
-            perferendis quo ab tenetur quae. Quo qui molestiae corrupti eveniet delectus eius tempora cumque dolorem, officiis, odit explicabo
-            veritatis ab at in aperiam saepe velit cupiditate fugiat voluptas? Totam aut, minus corrupti corporis ut perspiciatis quisquam quas, ex
-            dolorum sunt iste nisi vel similique consequatur aperiam dolore nam pariatur, vero sequi repellat hic excepturi debitis molestias quae.
-            Repellat? Quia sunt officia quae dicta nemo expedita quod explicabo ducimus illo laborum rem, molestias vel, laudantium magnam pariatur
-            vitae id consectetur excepturi? Reiciendis et temporibus eos facere rem maiores officiis. Magnam quibusdam temporibus modi suscipit
-            nesciunt alias voluptate debitis placeat, iste dicta ratione accusantium molestias fuga omnis beatae tempore obcaecati et perferendis enim
-            odit! Earum sequi iure laudantium vitae ad. Eius sunt reprehenderit consectetur maxime eveniet totam? Accusantium ducimus eligendi
-            laboriosam magnam aliquam reiciendis similique maxime! Facere omnis corrupti eos delectus alias dolor odit architecto fuga? Ducimus
-            laborum dolor assumenda! Nisi maiores et corrupti alias dolor, quisquam ducimus accusamus eum sed similique aliquid nemo excepturi iusto
-            magnam quibusdam ad deleniti voluptate beatae quidem blanditiis nostrum, architecto doloribus delectus! Sapiente, nihil! Quo nobis quaerat
-            animi ad maiores, obcaecati dicta blanditiis, saepe id asperiores sunt aperiam dolor veniam ullam vel, quas iure optio hic illum suscipit
-            minus! Ratione tempore fugiat doloremque dicta? Illum itaque est aliquam, harum id dolore quasi accusantium et iure corrupti quod vel aut
-            numquam exercitationem obcaecati sequi dignissimos consequatur ipsam unde atque, architecto mollitia. Labore atque aspernatur cum!
+            <div className={cx('menu')}>
+              {dataVideo?.recommends.map((video) => (
+                <CardNext
+                  key={video.encodeId}
+                  {...video}
+                  selectItem={selectItem}
+                  theaterMode={theaterMode}
+                  onNavigate={onNavigate}
+                  onNavigateVideo={onNavigateVideo}
+                />
+              ))}
+            </div>
           </Scrollbar>
+        </div>
+        <div className={cx('scrollbar__menu-medium')}>
+          <Swiper
+            className={cx('slider')}
+            autoplay={{
+              delay: 3000,
+              pauseOnMouseEnter: true,
+              disableOnInteraction: false,
+            }}
+            spaceBetween={30}
+            navigation={false}
+            keyboard={true}
+            rewind={true}
+            noSwiping={true}
+            modules={[Autoplay, Keyboard, ScrollbarX]}
+            breakpoints={{
+              360: {
+                slidesPerView: 2,
+                spaceBetween: 20,
+              },
+              480: {
+                slidesPerView: 2,
+                spaceBetween: 20,
+              },
+              640: {
+                slidesPerView: 2,
+                spaceBetween: 20,
+              },
+              768: {
+                slidesPerView: 4,
+                spaceBetween: 20,
+              },
+              993: {
+                slidesPerView: 5,
+                spaceBetween: 20,
+              },
+            }}>
+            {/* { thumbnailM, sortDescription, encodeId, link, title } */}
+            {dataVideo?.recommends.map((video) => (
+              <SwiperSlide key={uuid()}>
+                <CardNext {...video} selectItem={selectItem} theaterMode={theaterMode} onNavigate={onNavigate} onNavigateVideo={onNavigateVideo} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </div>
     </div>
   );
 };
 
-export default VideoQueuePlayer;
+export default memo(VideoQueuePlayer);

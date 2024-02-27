@@ -13,6 +13,7 @@ const cx = classNames.bind(style);
 const CardAlbumSong = ({
   song,
   theme,
+  onActiveSong,
   onPlaySong,
   currentSong,
   currentUser,
@@ -131,7 +132,9 @@ const CardAlbumSong = ({
             placement='top'
             arrow={true}
             duration={300}>
-            <span className={cx('icon')}>{<MoreHorizIcon fontSize='large' />}</span>
+            <span className={cx('icon')} onClick={onActiveSong}>
+              {<MoreHorizIcon fontSize='large' />}
+            </span>
           </Tippy>
         </div>
       </div>

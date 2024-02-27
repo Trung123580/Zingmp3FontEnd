@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState, useRef, memo, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { playSong, openPlayList, getSong, randomSong } from '~/store/actions/dispatch';
+import { playSong, openPlayList, getSong, randomSong, changeCurrentTimeSongLyric } from '~/store/actions/dispatch';
 import { AuthProvider } from '~/AuthProvider';
-import { apiInfoSong, apiSong } from '~/api';
+import { apiInfoSong, apiSong, apiVideoArtist } from '~/api';
 import { shuffle as _shuffle } from 'lodash';
 // import { useParams } from 'react-router-dom';
 import moment from 'moment';
@@ -25,19 +25,24 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Divide from '~/utils/Divide';
 import path from '~/router/path';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 const cx = classNames.bind(style);
 const MusicBar = () => {
-  // const [songInfo, setSongInfo] = useState(null);
+  const { currentSong, isRandomSong, isPlay, isOpenPlayList, currentPlayList, newReleaseChart } = useSelector((state) => state.app);
+  const { currentUser } = useSelector((state) => state.auth);
   const [seconds, setSeconds] = useState(0);
   const [audio, setAudio] = useState(null);
+  const [stateMiniSize, setStateMiniSize] = useState({
+    src: '',
+    isMiniSize: false,
+    isMounted: true,
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [volume, setVolume] = useState(100);
-  const { currentSong, isRandomSong, isPlay, isOpenPlayList, currentPlayList } = useSelector((state) => state.app);
-  const { currentUser } = useSelector((state) => state.auth);
-  const { themeApp, handle } = useContext(AuthProvider);
-  const { onAddLikeSong, onRemoveLikeSong } = handle;
+  const { themeApp, handle, isOpenLyricSong } = useContext(AuthProvider);
+  const { onAddLikeSong, onRemoveLikeSong, onPlaySong, onOpenModal, onToggleLyricSong } = handle;
   const { name } = useParams();
+  const { pathname } = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const thumbRef = useRef();
@@ -47,36 +52,64 @@ const MusicBar = () => {
   const inputVolumeRef = useRef();
   const cdThumb = useRef();
   const cdThumbAnimate = useRef(null);
-  // console.log(currentSong);
+  // miniPipRef
+  const refMiniSize = useRef(null);
+  const isVideo = pathname
+    .trim()
+    .split('/')
+    .filter((item) => item !== '').length;
+  const handleRefresh = () => {
+    audio.load();
+    audio.pause();
+    audio.currentTime = 0;
+    setSeconds(0);
+    thumbRef.current.style.background = `linear-gradient(to right, #fff 0%, #fff ${0}%, rgba(255, 255, 255, 0.3) ${0}%, rgba(255, 255, 255, 0.3) 100%)`;
+    trackNoteRef.current.style.left = 0;
+    setAudio(null);
+    dispatch(changeCurrentTimeSongLyric(0));
+  };
   useEffect(() => {
     if (audio) {
-      audio.pause();
-      audio.load();
-      audio.currentTime = 0;
+      handleRefresh();
     }
     const getDetailsSong = async () => {
       try {
-        const response = await apiSong(currentSong?.encodeId);
-        if (response.data?.err === 0) {
-          setAudio(new Audio(response.data?.data[128]));
+        const [response1, response2] = await Promise.all([apiSong(currentSong?.encodeId), apiInfoSong(currentSong?.encodeId)]);
+        if (response1.data?.err === 0 && response2.data?.err === 0) {
+          setAudio(new Audio(response1.data?.data[128]));
+          currentSong.mvlink = response2.data.data.mvlink;
+          setStateMiniSize((prev) => ({ ...prev, isMounted: true }));
+          if (document.pictureInPictureElement === refMiniSize.current) {
+            await refMiniSize.current.pause();
+            await document.exitPictureInPicture();
+          }
         } else {
           // // modal
-          // alert('bai hat can nap vip');
+          if (currentUser) {
+            onOpenModal('do bài hát thuộc bản quyền zingmp3, chuyển đến Nhạc yêu thích của bạn');
+            onPlaySong(
+              currentUser?.loveMusic[Math.floor(Math.random() * currentUser?.loveMusic.length)],
+              currentUser?.loveMusic || [],
+              'Nhạc yêu thích'
+            );
+          } else {
+            if (!newReleaseChart?.items.length) return;
+            onOpenModal('do bài hát thuộc bản quyền zingmp3, chuyển đến BXH bài hát');
+            onPlaySong(newReleaseChart?.items[0], newReleaseChart?.items || [], newReleaseChart?.title);
+          }
         }
       } catch (error) {
         console.log(error);
       }
     };
     getDetailsSong();
-  }, [currentSong]);
-  useEffect(() => {
-    (async () => {
-      const response = await apiInfoSong(currentSong?.encodeId);
-      if (response.data?.err === 0) {
-        currentSong.mvlink = response.data.data.mvlink;
-      }
-    })();
   }, [currentSong?.encodeId]);
+  useEffect(() => {
+    if (isVideo === 5) {
+      audio?.pause();
+      dispatch(playSong(false));
+    }
+  }, [isVideo]);
   // cdThumb rotate
   useEffect(() => {
     if (cdThumb.current) {
@@ -93,13 +126,59 @@ const MusicBar = () => {
       }
     }
   }, [isPlay]);
+  useEffect(() => {
+    if (stateMiniSize.isMiniSize && refMiniSize.current && stateMiniSize.isMounted) {
+      (async () => {
+        try {
+          const response = await apiVideoArtist(currentSong.encodeId);
+          if (response.data.err === 0) {
+            const dataVideo = response.data.data;
+            const src = dataVideo.streaming.mp4['720p'] || dataVideo.streaming.mp4['480p'] || dataVideo.streaming.mp4['360p'];
+            setStateMiniSize((prev) => ({ ...prev, src: src, isMounted: false }));
+            refMiniSize.current.load();
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      })();
+    }
+  }, [stateMiniSize.isMiniSize, refMiniSize.current]);
+  useEffect(() => {
+    if (!refMiniSize.current) return;
+    const handleLeavePiP = () => {
+      setStateMiniSize((prev) => ({ ...prev, isMiniSize: false }));
+    };
+    const handleLoadedMetadata = async (e) => {
+      await e.target.requestPictureInPicture();
+    };
+    refMiniSize.current?.addEventListener('leavepictureinpicture', handleLeavePiP);
+    refMiniSize.current.addEventListener('loadedmetadata', handleLoadedMetadata);
 
+    return () => {
+      refMiniSize.current?.removeEventListener('leavepictureinpicture', handleLeavePiP);
+      refMiniSize.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, [refMiniSize.current]);
+  const handleToggleMiniScreen = async () => {
+    if (document.pictureInPictureElement === refMiniSize.current) {
+      await refMiniSize.current.pause();
+      await document.exitPictureInPicture();
+      return;
+    }
+    if (document.pictureInPictureElement !== refMiniSize.current && !stateMiniSize.isMiniSize && !stateMiniSize.isMounted) {
+      await refMiniSize.current.play();
+      await refMiniSize.current.requestPictureInPicture();
+      return;
+    }
+    setStateMiniSize((prev) => ({ ...prev, isMiniSize: !prev.isMiniSize }));
+  };
   useEffect(() => {
     const handleListenKeydown = (e) => {
-      if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
-        e.preventDefault();
-        if (audio) {
+      if (audio && isVideo !== 5) {
+        if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+          e.preventDefault();
           if (!audio.paused) {
+            // dang code
             audio.pause();
             dispatch(playSong(false));
           } else {
@@ -107,16 +186,34 @@ const MusicBar = () => {
             dispatch(playSong(true));
           }
         }
+        if (e.code === 'ArrowUp' && e.target.tagName !== 'INPUT') {
+          e.preventDefault();
+          setVolume((prevVolume) => Math.min(Number(prevVolume) + 20, 100));
+        }
+        if (e.code === 'ArrowDown' && e.target.tagName !== 'INPUT') {
+          e.preventDefault();
+          setVolume((prevVolume) => Math.max(Number(prevVolume) - 20, 0));
+        }
+        if (e.code === 'ArrowRight' && e.target.tagName !== 'INPUT') {
+          e.preventDefault();
+          audio.currentTime = seconds + 5;
+        }
+        if (e.code === 'ArrowLeft' && e.target.tagName !== 'INPUT') {
+          e.preventDefault();
+          audio.currentTime = seconds - 5;
+        }
       }
     };
     window.addEventListener('keydown', handleListenKeydown);
     return () => {
       window.removeEventListener('keydown', handleListenKeydown);
     };
-  }, [audio]);
+  }, [audio, volume, seconds, isVideo]);
   const indexSong = useMemo(() => {
-    return currentPlayList?.listItem?.findIndex(({ encodeId }) => encodeId === currentSong?.encodeId);
-  }, [currentSong]);
+    if (!currentPlayList?.listItem.length) return;
+    const playList = currentPlayList?.listItem || [];
+    return playList?.findIndex((item) => item?.encodeId === currentSong?.encodeId) || 0;
+  }, [currentSong?.encodeId]);
   const handleNextSong = () => {
     if (indexSong !== -1 && indexSong + 1 < currentPlayList?.listItem?.length) {
       dispatch(getSong(currentPlayList?.listItem[indexSong + 1]));
@@ -148,7 +245,6 @@ const MusicBar = () => {
         audio.currentTime = 0;
         thumbRef.current.style.background = `linear-gradient(to right, #fff 0%, #fff 0%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.3) 100%)`;
         setSeconds(0);
-        console.log(isRandomSong);
         if (isRandomSong) {
           if (indexSong !== -1 && indexSong + 1 < currentPlayList?.listItem?.length) {
             dispatch(getSong(_shuffle(currentPlayList?.listItem)[indexSong + 1]));
@@ -175,7 +271,6 @@ const MusicBar = () => {
       };
     }
   }, [audio, isRandomSong]);
-
   useEffect(() => {
     if (volumeRef.current) {
       if (audio) {
@@ -201,10 +296,12 @@ const MusicBar = () => {
         thumbRef.current.style.background = `linear-gradient(to right, #fff 0%, #fff ${percent}%, rgba(255, 255, 255, 0.3) ${percent}%, rgba(255, 255, 255, 0.3) 100%)`;
         trackNoteRef.current.style.left = `${percent - 1}%`;
         setSeconds(Math.round(audio.currentTime));
+        // dispatch 1 action de lay thoi gian hien tai audio.currentTime
+        dispatch(changeCurrentTimeSongLyric(audio.currentTime));
       }
     };
     if (isPlay) {
-      intervalId = setInterval(updateCurrentTime, 50);
+      intervalId = setInterval(updateCurrentTime, 1000);
     } else {
       intervalId && clearInterval(intervalId);
     }
@@ -234,6 +331,7 @@ const MusicBar = () => {
       const trackThumbnail = trackRef.current.getBoundingClientRect();
       const percent = calculatePercentage(e.clientX, trackThumbnail);
       thumbRef.current.style.background = `linear-gradient(to right, #fff 0%, #fff ${percent}%, rgba(255, 255, 255, 0.3) ${percent}%, rgba(255, 255, 255, 0.3) 100%)`;
+      trackNoteRef.current.style.left = `${percent - 1}%`;
       audio.currentTime = (percent * audio?.duration) / 100;
       setSeconds(Math.round((percent * audio?.duration) / 100));
     }
@@ -275,8 +373,6 @@ const MusicBar = () => {
   const handleOpenQueue = () => {
     dispatch(openPlayList(!isOpenPlayList));
   };
-  // next sing
-
   // navigate
   const handleNavigate = (url) => {
     navigate(
@@ -286,7 +382,6 @@ const MusicBar = () => {
         .join('/')
     );
   };
-  // console.log(currentSong);
   const handleNavigateVideo = (url) => {
     const pathLink = path.DETAILS_ARTIST.replace(':name', name) + path.OPEN_VIDEO;
     navigate(pathLink.replace('/video-clip/:titleVideo/:videoId', url.split('.')[0]));
@@ -294,10 +389,17 @@ const MusicBar = () => {
   // loveMusic
   const isLikeMusic = currentUser?.loveMusic.some(({ encodeId }) => encodeId === currentSong?.encodeId);
   if (!currentSong && !audio) return null;
-  // if (isHiddenMusicBar) return null;
   return (
-    <div id={cx('music-bar')} style={{ backgroundImage: `url(${themeApp?.backgroundMusicBar || backgroundDefaultBar})` }}>
+    <div
+      id={cx('music-bar')}
+      className={cx({
+        lyricSong: isOpenLyricSong,
+      })}
+      style={{ backgroundImage: `url(${themeApp?.backgroundMusicBar || backgroundDefaultBar})` }}>
       <div className={cx('player-controls')}>
+        <video ref={refMiniSize} style={{ display: 'none' }} controls autoPlay>
+          <source src={stateMiniSize.src} type='audio/mpeg' />
+        </video>
         <div className={cx('player-left')}>
           <div className={cx('song-info')}>
             <div
@@ -320,7 +422,7 @@ const MusicBar = () => {
           </div>
           <div className={cx('action')}>
             <Tippy
-              content={<span className='tippy-title'>Thêm vào thư viện</span>}
+              content={<span className='tippy-title'>{isLikeMusic ? 'Xóa khỏi thư viện' : 'Thêm vào thư viện'} </span>}
               followCursor='horizontal'
               placement='top'
               arrow={true}
@@ -403,14 +505,23 @@ const MusicBar = () => {
               placement='top'
               arrow={true}
               duration={300}>
-              <span className={cx('zm-btn')}>
+              <span className={cx('zm-btn')} onClick={onToggleLyricSong}>
                 <LiaMicrophoneAltSolid />
               </span>
             </Tippy>
             <Tippy content={<span className='tippy-title'>Chế độ cửa sổ</span>} followCursor='horizontal' placement='top' arrow={true} duration={300}>
-              <span className={cx('zm-btn')}>
-                <FaRegWindowRestore />
-              </span>
+              {currentSong?.mvlink ? (
+                <span className={cx('zm-btn')} onClick={handleToggleMiniScreen}>
+                  <FaRegWindowRestore />
+                </span>
+              ) : (
+                <span
+                  className={cx('zm-btn', {
+                    disable: true,
+                  })}>
+                  <FaRegWindowRestore />
+                </span>
+              )}
             </Tippy>
             <div className={cx('fixes')}>
               <div className={cx('zm-btn')} onClick={handleMuteToggleVolume}>

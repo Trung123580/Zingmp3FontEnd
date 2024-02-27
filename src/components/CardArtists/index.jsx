@@ -1,9 +1,9 @@
 import Button from '~/utils/Button';
 import classNames from 'classnames/bind';
 import style from './CardArtists.module.scss';
-import { BsPersonAdd } from 'react-icons/bs';
+import { BsPersonAdd, BsCheck2 } from 'react-icons/bs';
 const cx = classNames.bind(style);
-const CardArtists = ({ data, themeApp, onNavigate }) => {
+const CardArtists = ({ data, themeApp, onNavigate, isFollowArtist, onToggleArtist }) => {
   return (
     <div className={cx('card-artist')}>
       <div className={cx('avatar')} onClick={onNavigate}>
@@ -30,11 +30,19 @@ const CardArtists = ({ data, themeApp, onNavigate }) => {
       </div>
       <div className={cx('btn-s')}>
         <Button
-          content='quan tâm'
+          content={isFollowArtist ? 'Đã quan tâm' : 'quan tâm'}
           className='add-artist'
-          icon={<BsPersonAdd fontSize='16px' />}
+          onClick={onToggleArtist}
+          icon={isFollowArtist ? <BsCheck2 fontSize='16px' /> : <BsPersonAdd fontSize='16px' />}
           style={{ borderColor: themeApp?.primaryColor, background: themeApp?.primaryColor }}
         />
+        {/*  <Button
+                  content={isFollowArtist ? 'Đã quan tâm' : 'quan tâm'}
+                  onClick={(e) => (isFollowArtist ? onRemoveArtist(e, artistInfo.id) : onAddArtist(e, artistInfo))}
+                  icon={isFollowArtist ? <BsCheck2 fontSize='16px' /> : <BsPersonAdd fontSize='16px' />}
+                  className='add-artist'
+                  style={{ borderColor: themeApp?.primaryColor }}
+                /> */}
       </div>
     </div>
   );

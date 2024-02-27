@@ -14,7 +14,12 @@ const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo }) => {
           <BsPlayCircle />
         </div>
       </div>
-      <div className={cx('user')} onClick={onNavigate}>
+      <div
+        className={cx('user')}
+        onClick={(e) => {
+          e.stopPropagation();
+          onNavigate();
+        }}>
         <div className={cx('avatar')}>
           <img src={data?.artist?.thumbnail} alt='' />
         </div>
@@ -22,7 +27,12 @@ const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo }) => {
           <h3>{data?.title}</h3>
           <div className={cx('artists')}>
             {data?.artists?.map(({ name, id, link }, index) => (
-              <span key={id} onClick={() => onNavigateArtist(path.DETAILS_ARTIST.replace('/:name', link))}>
+              <span
+                key={id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNavigateArtist(path.DETAILS_ARTIST.replace('/:name', link));
+                }}>
                 {name + `${index === data.artists.length - 1 ? '' : ','}`}
               </span>
             ))}

@@ -155,7 +155,6 @@ const Sidebar = () => {
                 </ul>
               </nav>
               <Divide />
-              <div className={cx('menu-item')}>playlist</div>
             </>
           ) : (
             <div className={cx('notification-login')}>
@@ -165,6 +164,7 @@ const Sidebar = () => {
           )}
         </Scrollbar>
       </div>
+      <div className={cx('menu-item')}>playlist</div>
     </aside>
   );
 };

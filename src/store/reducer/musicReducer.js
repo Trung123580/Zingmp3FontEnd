@@ -20,7 +20,8 @@ const initState = {
   artistPlaylist: [], //
   artistsRelated: null, // {}
   // OpenVideo
-  dataVideo: null, // {}
+  deFautDataVideo: null, // {}
+  currentPage: false, // false != video , true == video => page event Space Play
 };
 const musicReducer = (state = initState, action) => {
   switch (action.type) {
@@ -92,7 +93,13 @@ const musicReducer = (state = initState, action) => {
     case actionTypes.IS_OPEN_VIDEO:
       return {
         ...state,
-        dataVideo: action.payload,
+        deFautDataVideo: action.payload,
+      };
+    // currentPage
+    case actionTypes.CURRENT_PAGE:
+      return {
+        ...state,
+        currentPage: action.payload,
       };
     default:
       return state;

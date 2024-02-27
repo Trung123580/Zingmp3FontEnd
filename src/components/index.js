@@ -15,3 +15,6 @@ export { default as CardVideo } from './CardVideo';
 export { default as ZingChartRanks } from './ZingChartRanks';
 export { default as DetailsArtistPanel } from './DetailsArititsPanel';
 export { default as Video } from './Video';
+export { default as PortalModal } from './PortalModal';
+export { default as LyricSong } from './LyricSong';
+export { default as Switch } from './Switch';

@@ -94,3 +94,42 @@ export const apiGetArtist = async (name) => {
     throw new Error(error);
   }
 };
+
+export const apiListMv = async (id, page, count) => {
+  try {
+    const response = await axios({
+      method: 'get',
+      url: '/listmv',
+      params: { id: id, page: page, count: count },
+    });
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+// lyric
+
+export const apiLyricSong = async (id) => {
+  try {
+    const response = await axios({
+      method: 'get',
+      url: '/lyric',
+      params: { id: id },
+    });
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+// export const apiCategoryMV = async (id) => {
+//    try {
+//      const response = await axios({
+//        method: 'get',
+//        url: '/categorymv',
+//        params: { id: id },
+//      });
+//      return response;
+//    } catch (error) {
+//      throw new Error(error);
+//    }
+// }

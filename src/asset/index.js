@@ -11,6 +11,8 @@ import backgroundXoneBar from './image/background-xone-bar.jpg';
 import backgroundZmaBar from './image/background-zma-bar.png';
 import backgroundEiffelBar from './image/background-eiffel-bar.png';
 import userDefault from './image/user-default.png';
+import modalSongErr from './image/modal.png';
+import loading from './image/loading.svg';
 export {
   backgroundXone,
   backgroundZma,
@@ -25,4 +27,6 @@ export {
   backgroundWilop1Bar,
   backgroundWilop2Bar,
   userDefault,
+  loading,
+  modalSongErr,
 };

@@ -18,7 +18,7 @@ const Album = () => {
   const { currentSong, isPlay } = useSelector((state) => state.app);
   const { currentUser } = useSelector((state) => state.auth);
   const { themeApp, handle } = useContext(AuthProvider);
-  const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onAddPlayList, onRemovePlayList } = handle;
+  const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onAddPlayList, onRemovePlayList, onAddArtist, onRemoveArtist, onActiveSong } = handle;
   const { pid } = useParams();
   console.log(playListData);
   const navigate = useNavigate();
@@ -48,7 +48,6 @@ const Album = () => {
         .join('/')
     );
   };
-  // console.log(playListData.song);
   return (
     <div className={cx('container')}>
       {isLoading ? (
@@ -61,13 +60,14 @@ const Album = () => {
               onAddPlayList={(e) => onAddPlayList(e, playListData)}
               onRemovePlayList={(e) => onRemovePlayList(e, playListData?.encodeId)}
               currentUser={currentUser}
-              onPlaySong={() => onPlaySong(playListData?.song?.items[0], playListData?.song, playListData?.title)}
+              onPlaySong={() => onPlaySong(playListData?.song?.items[0], playListData?.song.items, playListData?.title)}
             />
             <div className={cx('wrapper')}>
               <SingerListSong playListData={playListData} />
               {playListData.song.items.map((song, index, arr) => (
                 <CardAlbumSong
                   song={song}
+                  onActiveSong={(e) => onActiveSong(e, song)}
                   currentSong={currentSong}
                   currentUser={currentUser}
                   onNavigateArtist={handleNavigate}
@@ -98,6 +98,10 @@ const Album = () => {
                   key={artist.id}
                   data={artist}
                   themeApp={themeApp}
+                  onToggleArtist={(e) => {
+                    currentUser?.followArtist.some((item) => item.id === artist.id) ? onRemoveArtist(e, artist.id) : onAddArtist(e, artist);
+                  }}
+                  isFollowArtist={currentUser?.followArtist.some((item) => item.id === artist.id)}
                   onNavigate={() => handleNavigate(null, path.DETAILS_ARTIST.replace('/:name', artist.link))}
                 />
               ))}
