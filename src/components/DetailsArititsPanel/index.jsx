@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames/bind';
 import style from './DetailsArititsPanel.module.scss';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CardAlbum, CardAlbumSong, CardVideo } from '..';
 import { AuthProvider } from '~/AuthProvider';
@@ -10,6 +10,7 @@ import { TbSortAscending } from 'react-icons/tb';
 // import ArrowBackIosIcon from '@mui/icons-materi  al/ArrowBackIos';
 import { sortBy as _sortBy } from 'lodash';
 import path from '~/router/path';
+import { isScrollTop } from '~/store/actions/dispatch';
 const cx = classNames.bind(style);
 const DetailsArtistPanel = () => {
   const [isShowDropDown, setIsShowDropDown] = useState(false);
@@ -20,6 +21,7 @@ const DetailsArtistPanel = () => {
   const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onAddAlbum, onRemoveAlbum } = handle;
   const { name, panel } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   // console.log(artistVideo);
   const listSong = useMemo(() => {
     return artistTopSection?.items;
@@ -72,9 +74,12 @@ const DetailsArtistPanel = () => {
   };
   useEffect(() => {
     document.addEventListener('click', handleClickOutside);
+    dispatch(isScrollTop(true));
     return () => {
       document.removeEventListener('click', handleClickOutside);
+      dispatch(isScrollTop(false));
     };
+    // eslint-disable-next-line
   }, []);
   if (panel === 'bai-hat' && artistTopSection) {
     return (

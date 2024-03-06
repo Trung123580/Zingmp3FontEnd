@@ -10,6 +10,7 @@ import classNames from 'classnames/bind';
 import style from './Sidebar.module.scss';
 import Button from '~/utils/Button';
 import Divide from '~/utils/Divide';
+import { IconAddPlaylist } from '~/asset/logo';
 const cx = classNames.bind(style);
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Sidebar = () => {
   const { pathname } = useLocation();
   const { theme } = useSelector((state) => state.auth);
   const { isAuth, handle } = useContext(AuthProvider);
-  const { onLoginApp } = handle;
+  const { onLoginApp, onOpenModal } = handle;
   useEffect(() => {
     const timeLoading = setTimeout(() => {
       setIsLoading(true);
@@ -127,7 +128,8 @@ const Sidebar = () => {
             <>
               <nav className={cx('nav-bar')}>
                 <ul className={cx('menu-profile')}>
-                  {menuRouteUser.insideRoute.map(({ id, path, icon: Icon, content }) => {
+                  {menuRouteUser.insideRoute.map(({ id, path, icon: Icon, content }, index) => {
+                    if (index === menuRouteUser.insideRoute.length - 1) return null;
                     return (
                       <li
                         key={id}
@@ -142,7 +144,7 @@ const Sidebar = () => {
                           })}>
                           {isLoading ? (
                             <>
-                              <Icon />
+                              {!!Icon && <Icon />}
                               <span className={cx('item-text')}>{content}</span>
                             </>
                           ) : (
@@ -164,7 +166,34 @@ const Sidebar = () => {
           )}
         </Scrollbar>
       </div>
-      <div className={cx('menu-item')}>playlist</div>
+      <div
+        className={cx('bottom__sidebar')}
+        onClick={() =>
+          onOpenModal(
+            {
+              name: 'Tạo playlist mới',
+              type: true,
+            },
+            3
+          )
+        }
+        // onClick={() =>
+        //   onOpenModal(
+        //     {
+        //       name: 'Tạo playlist mới',
+        //       type: true,
+        //       editType:true
+        //       id : id => để chỉnh sửa
+        //     },
+        //     3
+        //   )
+        // } // tao 1 noi de chinh sua playlist
+      >
+        <div className={cx('bottom__wrapper')}>
+          <IconAddPlaylist />
+          <span className={cx('text')}>Tạo playlist mới</span>
+        </div>
+      </div>
     </aside>
   );
 };

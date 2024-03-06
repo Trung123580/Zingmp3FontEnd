@@ -27,12 +27,26 @@ const CardAlbumSong = ({
   chartIndex,
   hiddenSongTitle,
   hiddenIconMusic,
+  releaseDate,
 }) => {
   const timeInSeconds = song.duration;
   const duration = moment.duration(timeInSeconds, 'seconds');
   const formattedTime = moment.utc(duration.asMilliseconds()).format('mm:ss');
   const isSelector = currentSong?.encodeId === song?.encodeId;
   const isLikeMusic = currentUser?.loveMusic.some(({ encodeId }) => encodeId === song?.encodeId);
+  const currentTime = moment();
+  const targetTime = moment.unix(song?.releaseDate);
+  const timeDifference = currentTime.diff(targetTime, 'minutes');
+  let timeString = '';
+  if (timeDifference < 60) {
+    timeString = `${timeDifference} phút trước`;
+  } else if (timeDifference < 24 * 60) {
+    const hours = Math.floor(timeDifference / 60);
+    timeString = `${hours} giờ trước`;
+  } else {
+    const daysAgo = Math.floor(timeDifference / (24 * 60));
+    timeString = `${daysAgo} ngày trước`;
+  }
   return (
     <div className={cx('media')} onClick={onPlaySong} style={{ background: currentSong?.encodeId === song.encodeId && 'rgba(255, 255, 255, 0.1)' }}>
       <div className={cx('media-left')} style={{ gap: index && '15px', flex: hiddenSongTitle && '1' }}>
@@ -41,6 +55,7 @@ const CardAlbumSong = ({
             className={cx('rank', {
               chartIndex: chartIndex,
               index: hiddenSongTitle,
+              [index === 1 ? 'first' : index === 2 ? 'middle' : 'last']: index < 4,
             })}>
             {index}
           </span>
@@ -91,7 +106,7 @@ const CardAlbumSong = ({
                   key={id}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onNavigateArtist(null, path.DETAILS_ARTIST.replace('/:name', link));
+                    onNavigateArtist(path.DETAILS_ARTIST.replace('/:name', link));
                   }}>
                   {name + `${index === arr.length - 1 ? '' : ', '}`}
                 </span>
@@ -103,6 +118,11 @@ const CardAlbumSong = ({
       {!hiddenSongTitle && (
         <div className={cx('media-middle')}>
           <span onClick={onNavigate}>{song.album?.title}</span>
+        </div>
+      )}
+      {releaseDate && (
+        <div className={cx('media-middle')}>
+          <span>{timeString}</span>
         </div>
       )}
       <div className={cx('media-right')}>

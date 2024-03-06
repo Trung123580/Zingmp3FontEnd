@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuid } from 'uuid';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Keyboard, Navigation } from 'swiper/modules';
-import { getHome } from '~/store/actions/dispatch';
+import { getHome, isScrollTop } from '~/store/actions/dispatch';
 import { apiHome } from '~/api';
 import { CardAlbum, CardRank, CardSong, Slider, ChartCard, LineChart } from '~/components';
 import { BoxSkeleton, CardFullSkeletonBanner } from '~/BaseSkeleton';
@@ -18,11 +18,12 @@ import path from '~/router/path';
 const cx = classNames.bind(style);
 const Home = () => {
   const [activeBtn, setActiveBtn] = useState(1);
-  const [meneGenre, setMenuGenre] = useState([]);
+  const [menuGenre, setMenuGenre] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { banner, newRelease, allAlbum, newReleaseChart, chartData, weekChart, remainingAlbum } = useSelector((state) => state.app);
+  const { banner, newRelease, allAlbum, newReleaseChart, chartData, weekChart, remainingAlbum, currentSong, isPlay } = useSelector(
+    (state) => state.app
+  );
   const { currentUser } = useSelector((state) => state.auth);
-  const { currentSong, isPlay } = useSelector((state) => state.app);
   const { themeApp, handle, selectedChart } = useContext(AuthProvider);
   const { onPlaySong, onAddPlayList, onRemovePlayList, onCloseModal, onActiveSong } = handle;
   const navigate = useNavigate();
@@ -50,9 +51,7 @@ const Home = () => {
   }, [newRelease]);
   const handleTypeActive = (number, type) => {
     setActiveBtn(number);
-    if (type === 'all') setMenuGenre(newRelease.items[type]);
-    if (type === 'others') setMenuGenre(newRelease.items[type]);
-    if (type === 'vPop') setMenuGenre(newRelease.items[type]);
+    setMenuGenre(newRelease.items[type]);
   };
   const handleNavigate = (url) => {
     navigate(
@@ -61,6 +60,7 @@ const Home = () => {
         .filter((item) => item !== 'nghe-si')
         .join('/')
     );
+    dispatch(isScrollTop(false));
   };
   const handleNavigatePlayList = (type, idPlayList) => {
     if (type === 1) return; // lam modal phat bai hat
@@ -71,7 +71,7 @@ const Home = () => {
       {isLoading ? (
         <>
           <Slider banner={banner} onNavigatePlayList={handleNavigatePlayList} />
-          <TitlePath content='Mới Phát Hành' show={true} onClick={() => handleNavigate(path.NEW_RELEASE + path.SONG)} />
+          <TitlePath content='Mới Phát Hành' show={true} onClick={() => handleNavigate(path.NEW_RELEASE)} />
           <div className={cx('list-btn')}>
             {listBtnNewRelease.map(({ content, id, active, type }) => (
               <Button
@@ -84,8 +84,8 @@ const Home = () => {
             ))}
           </div>
           <div className={cx('menu')}>
-            {!!meneGenre.length &&
-              meneGenre.map((card, index, array) => {
+            {!!menuGenre.length &&
+              menuGenre.map((card, index, array) => {
                 if (index <= 11) {
                   return (
                     <CardSong
@@ -104,10 +104,10 @@ const Home = () => {
               })}
           </div>
           {!!allAlbum.length &&
-            allAlbum.map(({ title, items }) => {
+            allAlbum.map((album) => {
               return (
-                <section id={cx('wrapper-album')} key={uuid()}>
-                  <TitlePath content={title} />
+                <section className={cx('wrapper-album')} key={uuid()}>
+                  <TitlePath content={album?.title} />
                   <Swiper
                     className={cx('slider')}
                     autoplay={{
@@ -138,12 +138,15 @@ const Home = () => {
                         slidesPerView: 4,
                         spaceBetween: 20,
                       },
-                      993: {
+                      1023: {
+                        slidesPerView: 4,
+                        spaceBetween: 20,
+                      },
+                      1024: {
                         slidesPerView: 5,
                       },
                     }}>
-                    {/* { thumbnailM, sortDescription, encodeId, link, title } */}
-                    {items.map((album) => (
+                    {album?.items.map((album) => (
                       <SwiperSlide key={album.encodeId}>
                         <CardAlbum
                           onNavigatePlayList={() => handleNavigatePlayList(null, album.link.split('.')[0])}
@@ -185,7 +188,12 @@ const Home = () => {
                     spaceBetween: 20,
                   },
                   993: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                  },
+                  1023: {
                     slidesPerView: 3,
+                    spaceBetween: 20,
                   },
                 }}>
                 {newReleaseChart?.items.map((rank, index, arr) => (
@@ -199,7 +207,6 @@ const Home = () => {
                   </SwiperSlide>
                 ))}
               </Swiper>
-              <div className={cx('ranks')}></div>
             </section>
           )}
           <section className={cx('chart')}>
@@ -242,9 +249,9 @@ const Home = () => {
               ))}
           </section>
           {!!remainingAlbum &&
-            remainingAlbum.map(({ title, items, sectionId }) => (
+            remainingAlbum.map((album) => (
               <section id={cx('wrapper-ranks')} key={uuid()}>
-                <TitlePath content={title} show={sectionId === 'hAlbum' ? false : true} onClick={() => handleNavigate(path.TOP_100)} />
+                <TitlePath content={album?.title} show={album?.sectionId === 'hAlbum' ? false : true} onClick={() => handleNavigate(path.TOP_100)} />
                 <Swiper
                   className={cx('slider')}
                   autoplay={{
@@ -275,11 +282,15 @@ const Home = () => {
                       slidesPerView: 4,
                       spaceBetween: 20,
                     },
-                    993: {
+                    1023: {
+                      slidesPerView: 4,
+                      spaceBetween: 20,
+                    },
+                    1024: {
                       slidesPerView: 5,
                     },
                   }}>
-                  {items.map((album) => (
+                  {album?.items.map((album) => (
                     <SwiperSlide key={album.encodeId}>
                       <CardAlbum
                         onNavigatePlayList={() => handleNavigatePlayList(null, album.link.split('.')[0])}
@@ -300,10 +311,9 @@ const Home = () => {
       ) : (
         <>
           <CardFullSkeletonBanner />
-          <BoxSkeleton card={5} height={200} />
+          <BoxSkeleton card={4} height={200} />
         </>
       )}
-      {/* convert ve 1 arr de map no ra ung ? : neu dung thi map cac components neu sai map Skeleton */}
     </div>
   );
 };

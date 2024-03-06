@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import style from './LyricSong.module.scss';
 import { AuthProvider } from '~/AuthProvider';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSong } from '~/store/actions/dispatch';
+import { getSong, hiddenLyric } from '~/store/actions/dispatch';
 import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { apiLyricSong } from '~/api';
 import { Scrollbar } from 'react-scrollbars-custom';
@@ -21,7 +21,7 @@ const cx = classNames.bind(style);
 const LyricSong = () => {
   const { handle, themeApp } = useContext(AuthProvider);
   const { currentSong, currentPlayList } = useSelector((store) => store.app);
-  const { currentTimeSongLyric } = useSelector((store) => store.lyric);
+  const { currentTimeSongLyric, isHidden } = useSelector((store) => store.lyric);
   const { onToggleLyricSong } = handle;
   const [swiperRef, setSwiperRef] = useState(null);
   const indexSong = useMemo(() => {
@@ -48,6 +48,8 @@ const LyricSong = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const refScroll = useRef(null);
+  const hideMouseRef = useRef(null);
+  const timeoutRef = useRef(null);
   const findLyricSong = useMemo(() => {
     const string = String(currentTimeSongLyric);
     const index = string.split('').indexOf('.');
@@ -77,10 +79,9 @@ const LyricSong = () => {
     })();
     // eslint-disable-next-line
   }, [currentSong.encodeId]);
-  console.log(stateLyric.prefixIndexLyric);
   useEffect(() => {
     if (swiperRef) {
-      swiperRef.slideTo(indexSong);
+      swiperRef?.slideTo(indexSong);
     }
     // eslint-disable-next-line
   }, [swiperRef, currentSong?.encodeId]);
@@ -94,6 +95,28 @@ const LyricSong = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const handleMouseMove = () => {
+      dispatch(hiddenLyric(false));
+      if (hideMouseRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = setTimeout(() => {
+          if (hideMouseRef.current) {
+            dispatch(hiddenLyric(true));
+          }
+        }, 5000);
+      }
+    };
+    let mouseRef = hideMouseRef.current;
+    if (mouseRef) {
+      mouseRef.addEventListener('mousemove', handleMouseMove);
+      return () => {
+        if (mouseRef) mouseRef.removeEventListener('mousemove', handleMouseMove);
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hideMouseRef]);
   const handleActiveFonts = (idFont) => setStateLyric((prev) => ({ ...prev, activeFont: () => idFont }));
   const handleToggleSetting = (e) => {
     e.stopPropagation();
@@ -141,7 +164,7 @@ const LyricSong = () => {
       ...prev,
       imgRandomBackGround: _sample(stateLyric.dataLyric?.defaultIBGUrls || []),
     }));
-    console.log('call');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stateLyric.isRandomBackGround]);
   // console.log(currentPlayList?.listItem);
   // console.log(stateLyric.currentSlide);
@@ -163,6 +186,7 @@ const LyricSong = () => {
     stateLyric: stateLyric,
     onChangeFullScreen: handleOnChangeFullScreen,
     onToggleBackGround: handleToggleBackGround,
+    isHidden: isHidden,
   };
   // console.log(stateLyric.dataLyric);
   // console.log(itemLyricRef.current?.getBoundingClientRect().y);
@@ -170,6 +194,7 @@ const LyricSong = () => {
     <section className={cx('lyric')}>
       <section
         className={cx('wrapper__lyric')}
+        ref={hideMouseRef}
         style={{
           background: stateLyric.isRandomBackGround && !!stateLyric.imgRandomBackGround ? `url('${stateLyric.imgRandomBackGround}')` : '#2d2f32',
         }}>
@@ -177,7 +202,10 @@ const LyricSong = () => {
           <div className={cx('header__left')}>
             <div className={cx('header__logo')}></div>
           </div>
-          <div className={cx('header__middle')}>
+          <div
+            className={cx('header__middle', {
+              hidden: isHidden,
+            })}>
             <ul className={cx('header__menu')}>
               <li
                 className={cx('header__menu-item', {
@@ -196,14 +224,17 @@ const LyricSong = () => {
             </ul>
           </div>
           <LyricSongHeaderRight {...optionRight} className={'hidden__mobile'} />
-          <div className={cx('icon__menu')}>
+          <div
+            className={cx('icon__menu', {
+              hidden: isHidden,
+            })}>
             <Button onClick={() => handleToggleDrawer(true)} icon={<MenuRoundedIcon fontSize='large' sx={{ fontSize: '3rem' }} />} />
             <SwipeableDrawer
               anchor={'right'}
               open={stateLyric.isOpenDrawer}
               onClose={() => handleToggleDrawer(false)}
               onOpen={() => handleToggleDrawer(true)}>
-              <div style={{ width: '250px' }} onClick={() => setStateLyric((prev) => ({ ...prev, isOpenDrawer: false }))}>
+              <div className={cx('header__right-drawer')} onClick={() => setStateLyric((prev) => ({ ...prev, isOpenDrawer: false }))}>
                 <LyricSongHeaderRight {...optionRight} className={'drawer'} />
               </div>
             </SwipeableDrawer>
@@ -320,7 +351,10 @@ const LyricSong = () => {
               </Swiper>
             </div>
           )}
-          <div className={cx('bottom__info')}>
+          <div
+            className={cx('bottom__info', {
+              hidden: isHidden,
+            })}>
             <h3 className={cx('bottom__info-title')}>
               {currentSong?.title} -<span> {currentSong?.artistsNames}</span>
             </h3>

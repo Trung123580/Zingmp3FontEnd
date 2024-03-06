@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { AuthProvider } from '~/AuthProvider';
 import { useParams, useNavigate } from 'react-router-dom';
 // import { getCurrentAlbum } from '~/store/actions/dispatch';
@@ -11,6 +11,7 @@ import classNames from 'classnames/bind';
 import style from './Album.module.scss';
 import TitlePath from '~/utils/TitlePath';
 import path from '~/router/path';
+import { isScrollTop } from '~/store/actions/dispatch';
 const cx = classNames.bind(style);
 const Album = () => {
   const [playListData, setPlayListData] = useState({});
@@ -22,6 +23,7 @@ const Album = () => {
   const { pid } = useParams();
   console.log(playListData);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   // const dispatch = useDispatch();
   useEffect(() => {
     const getDetailsPlayList = async () => {
@@ -31,12 +33,18 @@ const Album = () => {
         if (response.data?.err === 0) {
           setPlayListData(response.data.data);
           setIsLoading(true);
+          // mount se scrollTop = 0
+          dispatch(isScrollTop(true));
         }
       } catch (error) {
         console.log(error);
       }
     };
     getDetailsPlayList();
+    return () => {
+      // mount se scrollTop = false
+      dispatch(isScrollTop(false));
+    };
   }, [pid]);
   // console.log(playListData);
   const handleNavigate = (type, url) => {
@@ -111,7 +119,7 @@ const Album = () => {
       ) : (
         <>
           <CardFullSkeletonBanner />
-          <BoxSkeleton card={5} height={200} />
+          <BoxSkeleton card={4} height={200} />
         </>
       )}
     </div>

@@ -57,7 +57,7 @@ const Video = () => {
     isOpenSetting: false,
     percentSecondsLoaded: 0,
   });
-  const { onPlaySong, onAddMv, onRemoveMv } = handle;
+  const { onPlaySong, onAddMv, onRemoveMv, onAddHistoryMv } = handle;
   const { isTheaterMode, isMiniPlayer } = stateScreenMode;
   const { isPlay, isShowIcon, defaultIsPlay, percentSecondsLoaded, isMouse, isLoadingVideo, quality, isOpenQuality, isOpenSetting } = statePlayVideo;
   const { videoId, titleVideo, name } = useParams();
@@ -74,6 +74,7 @@ const Video = () => {
     return `${minute}:${secondLeft < 10 ? `0${secondLeft}` : secondLeft}`;
   };
   const selectItem = deFautDataVideo?.recommends.find(({ encodeId }) => encodeId === videoId);
+  console.log(selectItem);
   const optionQueuePlayer = {
     isAutoPlay: isAutoPlay,
     theme: theme,
@@ -188,7 +189,7 @@ const Video = () => {
         setIsLoading(false);
         // const response = await apiVideoArtist(videoId);
         const [responseArtist, responseVPop] = await Promise.all([apiVideoArtist(videoId), apiListMv('IWZ9Z08I', 1, 8)]);
-        if (responseArtist.data.err === 0 && responseVPop.data.err === 0) {
+        if (responseArtist?.data?.err === 0 && responseVPop?.data?.err === 0) {
           if (!isOnMount) setIsOnMount(true);
           setCurrentSeconds(0);
           dispatch(getDeFaultDataVideo(responseArtist));
@@ -208,7 +209,7 @@ const Video = () => {
     setIsLoadingListMV(false);
     if (artistData.length === 1) {
       const response2 = await apiGetArtist(artistData[0].alias);
-      if (response2.data.err === 0) {
+      if (response2?.data?.err === 0) {
         setIsLoadingListMV(true);
         setIsLoading(true);
         const findMenu = response2.data.data?.sections.find((item) => item.sectionType === 'video').items;
@@ -285,6 +286,7 @@ const Video = () => {
           setDataVideo(response.data.data);
           setStatePlayVideo((prev) => ({ ...prev, isPlay: true }));
           await handleGetVideoArtist(response);
+          // videoId; => tim ra bai hat trung voi id nay de add hítory mv
         }
       })();
     } catch (error) {
@@ -396,15 +398,10 @@ const Video = () => {
   };
   useEffect(() => {
     let mouseRef = hideMouseRef.current;
-
     if (defaultIsPlay) {
-      if (mouseRef) {
-        mouseRef.addEventListener('mousemove', handleMouseMove);
-      }
+      if (mouseRef) mouseRef.addEventListener('mousemove', handleMouseMove);
       return () => {
-        if (mouseRef) {
-          mouseRef.removeEventListener('mousemove', handleMouseMove);
-        }
+        if (mouseRef) mouseRef.removeEventListener('mousemove', handleMouseMove);
       };
     }
   }, [defaultIsPlay, hideMouseRef, isPlay]);
@@ -482,7 +479,7 @@ const Video = () => {
       <div className={cx('video-modal-loading')}>
         <div className={cx('container')} style={{ marginTop: '0' }}>
           <CardFullSkeletonBanner />
-          <BoxSkeleton card={5} height={200} />
+          <BoxSkeleton card={4} height={200} />
         </div>
       </div>
     );
@@ -616,6 +613,7 @@ const Video = () => {
                         onProgress={(e) => {
                           setCurrentSeconds(Math.floor(e.playedSeconds));
                         }}
+                        onStart={() => onAddHistoryMv(dataVideo)}
                         onBuffer={() => setStatePlayVideo((prev) => ({ ...prev, isLoadingVideo: true }))}
                         onBufferEnd={() => setStatePlayVideo((prev) => ({ ...prev, isLoadingVideo: false }))}
                         sourceVideo={sourceVideo}

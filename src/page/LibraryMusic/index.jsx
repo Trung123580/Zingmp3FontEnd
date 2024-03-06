@@ -1,8 +1,88 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import classNames from 'classnames/bind';
+import style from './LibraryMusic.module.scss';
+import { useContext } from 'react';
+import { AuthProvider } from '~/AuthProvider';
+import TitlePage from '~/utils/TitlePage';
+import { useSelector } from 'react-redux';
+import { BoxSkeleton, CardFullSkeletonBanner } from '~/BaseSkeleton';
+import { CardArtists } from '~/components';
+import path from '~/router/path';
+import LibraryMusicArtists from '~/components/LibraryMusicArtists';
+const cx = classNames.bind(style);
 const LibraryMusic = () => {
+  const { currentUser } = useSelector((store) => store.auth);
+  const { themeApp, handle } = useContext(AuthProvider);
+  const { onRemoveArtist, onAddArtist, onPlaySong } = handle;
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isRouterArtist = pathname.includes('artist');
+  console.log(currentUser);
+  const handleNavigate = (url) => {
+    navigate(
+      url
+        .split('/')
+        .filter((item) => item !== 'nghe-si')
+        .join('/')
+    );
+  };
+
+  if (!currentUser) {
+    return (
+      <section className={cx('container')}>
+        <CardFullSkeletonBanner />
+        <BoxSkeleton card={4} height={200} />
+      </section>
+    );
+  }
+
+  if (isRouterArtist) {
+    return (
+      <LibraryMusicArtists
+        currentUser={currentUser}
+        onRemoveArtist={onRemoveArtist}
+        onAddArtist={onAddArtist}
+        themeApp={themeApp}
+        onNavigate={handleNavigate}
+      />
+    );
+  }
+
   return (
-    <div>
+    <section className={cx('container')}>
+      <div className={cx('library__music')}>
+        <TitlePage
+          content='thư viện'
+          onClick={() =>
+            onPlaySong(
+              currentUser?.loveMusic[Math.floor(Math.random() * currentUser?.loveMusic.length)],
+              currentUser?.loveMusic || [],
+              'Nhạc yêu thích'
+            )
+          }
+        />
+        <div className={cx('menu__artists')}>
+          {currentUser?.followArtist.map((artist, index) => {
+            if (index < 5) {
+              return (
+                <CardArtists
+                  key={artist.id}
+                  data={artist}
+                  isHiddenFollow={true}
+                  // onToggleArtist={(e) => {
+                  //   currentUser?.followArtist.some((item) => item.id === artist.id) ? onRemoveArtist(e, artist.id) : onAddArtist(e, artist);
+                  // }}
+                  // isFollowArtist={currentUser?.followArtist.some((item) => item.id === artist.id)}
+                  themeApp={themeApp}
+                  onNavigate={() => handleNavigate(path.DETAILS_ARTIST.replace('/:name', artist.link))}
+                />
+              );
+            }
+            return null;
+          })}
+          <CardArtists navigateFollow themeApp={themeApp} onNavigate={() => handleNavigate(`${path.LIBRARY_MUSIC}/${path.ARTISTS}`)} />
+        </div>
+      </div>
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque doloribus ea tenetur distinctio dolores ducimus quae! Sapiente incidunt, magni
       optio esse reprehenderit vel, numquam accusantium fuga, consequuntur rerum recusandae excepturi! Nulla natus ducimus quod autem, eaque veritatis
       consequuntur in aliquid similique officia quidem? Aliquid nam sit repudiandae minus, numquam laboriosam praesentium, deserunt corporis
@@ -21,7 +101,7 @@ const LibraryMusic = () => {
       ea eius, a alias accusantium ducimus veritatis architecto sapiente laborum ratione, error minima aspernatur suscipit! Est quas veniam neque rem
       reprehenderit.
       <Outlet />
-    </div>
+    </section>
   );
 };
 

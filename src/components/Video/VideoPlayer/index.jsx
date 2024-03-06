@@ -3,7 +3,23 @@ import ReactPlayer from 'react-player';
 import { BsPlayCircle } from 'react-icons/bs';
 const VideoPlayer = forwardRef(
   (
-    { pip, onEnablePIP, light, onDisablePIP, onEnded, sourceVideo, isPlay, onPlay, onPause, onProgress, volume, onReady, onBuffer, onBufferEnd },
+    {
+      pip,
+      onEnablePIP,
+      onStart,
+      light,
+      onDisablePIP,
+      onEnded,
+      sourceVideo,
+      isPlay,
+      onPlay,
+      onPause,
+      onProgress,
+      volume,
+      onReady,
+      onBuffer,
+      onBufferEnd,
+    },
     ref
   ) => {
     return (
@@ -15,6 +31,7 @@ const VideoPlayer = forwardRef(
         onPause={onPause}
         onProgress={onProgress}
         loop={false}
+        onStart={onStart}
         url={sourceVideo}
         onReady={onReady}
         onBuffer={onBuffer}

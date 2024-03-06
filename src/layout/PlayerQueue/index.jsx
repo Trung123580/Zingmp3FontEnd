@@ -132,7 +132,7 @@ const PlayerQueue = () => {
           )}
           <div className={cx('list-menu')}>
             {currentPlayList?.title === 'Nhạc yêu thích' &&
-              currentPlayList?.listItem.length &&
+              !!currentPlayList?.listItem.length &&
               currentPlayList?.listItem.map((card, index, arr) => (
                 <CardSong
                   key={uuid()}
@@ -186,7 +186,7 @@ const PlayerQueue = () => {
                     onNavigateArtist={handleNavigate}
                     isIconLove={true}
                     onPlaySong={() => {
-                      onPlaySong(card, currentPlayList.listItem, currentPlayList.title);
+                      onPlaySong(card, currentPlayList?.listItem, currentPlayList?.title);
                       setActive(0);
                     }}
                     className='edit'

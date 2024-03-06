@@ -2,6 +2,7 @@ import actionTypes from '../actions';
 const initState = {
   theme: null,
   currentUser: null, // {}
+  isScrollTop: false,
 };
 // login zalo end firebase
 const authProviderReducer = (state = initState, action) => {
@@ -19,6 +20,11 @@ const authProviderReducer = (state = initState, action) => {
       return {
         ...state,
         currentUser: action.payload,
+      };
+    case actionTypes.SCROLL_TOP:
+      return {
+        ...state,
+        isScrollTop: action.payload,
       };
     default:
       return state;

@@ -25,9 +25,13 @@
   }
   .media-left {
     width: 50%;
+    min-width: 50%;
     display: flex;
     align-items: center;
     gap: 10px;
+    @include mobile {
+      flex: 1;
+    }
     svg {
       cursor: pointer;
     }
@@ -99,6 +103,9 @@
   }
   .media-middle {
     flex: 1;
+    @include mobile {
+      display: none;
+    }
     span {
       @include text-cover;
       cursor: pointer;
@@ -141,7 +148,7 @@
 .rank {
   opacity: 0.4;
   -webkit-text-stroke: 1px $color-white;
-  font-size: 4rem;
+  font-size: 3.2rem;
   text-wrap: nowrap;
   font-weight: 900;
   color: transparent;
@@ -150,11 +157,26 @@
   display: inline-block;
   text-align: center;
   min-width: 60px;
+  @include mobile {
+    min-width: 40px;
+  }
   &.chartIndex {
     min-width: 50px;
   }
   &.index {
     min-width: 30px !important  ;
+  }
+  &.first {
+    opacity: 1;
+    -webkit-text-stroke: 1px #4a90e2;
+  }
+  &.middle {
+    opacity: 1;
+    -webkit-text-stroke: 1px #50e3c2;
+  }
+  &.last {
+    opacity: 1;
+    -webkit-text-stroke: 1px #e35050;
   }
 }
 .status {
@@ -164,6 +186,9 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
+  @include mobile {
+    display: none;
+  }
 }
 .line {
   display: inline-block;
@@ -176,6 +201,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  @include mobile {
+    display: none;
+  }
   .number {
     color: $color-white;
     font-size: 1.2rem;

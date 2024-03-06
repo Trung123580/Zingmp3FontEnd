@@ -1,18 +1,18 @@
 import { v4 as uuid } from 'uuid';
-import { Home, ZingChart, LibraryMusic, NewRelease, Album, DetailsArtist } from '~/page';
+import { Home, ZingChart, LibraryMusic, NewRelease, Album, DetailsArtist, NewMusic, Top100 } from '~/page';
 import path from './path';
 import HistorySong from '~/components/HistorySong';
 import LoveSong from '~/components/LoveSong';
 import AlbumUser from '~/components/AlbumUser';
 import UserPlayList from '~/components/UserPlayList';
 import UploadedSongs from '~/components/UploadedSongs';
+import LibraryMusicArtists from '~/components/LibraryMusicArtists';
 import { DetailsArtistPanel, Video, ZingChartRanks } from '~/components';
 import {
   IconHome,
   IconZingChart,
   IconLibrary,
   IconStar,
-  IconStory,
   IconNoteMusic,
   IconAlbum,
   IconHistory,
@@ -27,7 +27,6 @@ const menuNavigate = [
 ];
 const menuRanks = [
   { id: uuid(), path: path.NEW_MUSIC, content: 'BXH nhạc mới', icon: IconNoteMusic },
-  { id: uuid(), path: path.CATEGORY_MUSIC, content: 'chủ đề & thể loại', icon: IconStory },
   { id: uuid(), path: path.TOP_100, content: 'Top 100', icon: IconStar },
 ];
 const router = [
@@ -65,6 +64,16 @@ const router = [
   },
   {
     id: uuid(),
+    path: path.NEW_MUSIC,
+    component: NewMusic,
+  },
+  {
+    id: uuid(),
+    path: path.TOP_100,
+    component: Top100,
+  },
+  {
+    id: uuid(),
     path: path.LIBRARY_MUSIC,
     component: LibraryMusic,
     insideRoute: [
@@ -73,6 +82,7 @@ const router = [
       { id: uuid(), path: path.LIBRARY_MUSIC + path.USER_PLAY_LIST, icon: IconPlayList, component: UserPlayList, content: 'Playlist' },
       { id: uuid(), path: path.LIBRARY_MUSIC + path.USER_ALBUM, icon: IconAlbum, component: AlbumUser, content: 'Album' },
       { id: uuid(), path: path.LIBRARY_MUSIC + path.UPLOAD, icon: IconUpload, component: UploadedSongs, content: 'Đã tải lên' },
+      { id: uuid(), path: path.LIBRARY_MUSIC + path.ARTISTS, icon: null, component: LibraryMusicArtists, content: '' },
     ],
   },
 ];

@@ -50,6 +50,7 @@
       h3 {
         font-size: 1.4rem;
         font-weight: 500;
+        @include text-cover;
       }
       .artists {
         display: flex;

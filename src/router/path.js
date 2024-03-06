@@ -5,11 +5,11 @@ const path = {
   // RADIO: '/radio',
   LIBRARY_MUSIC: '/library-music',
   NEW_MUSIC: '/new-music',
-  CATEGORY_MUSIC: '/category-music',
   TOP_100: '/top-100',
   HISTORY: '/history',
   LOVE_SONG: '/love-song',
   USER_PLAY_LIST: '/user-play-list',
+  ARTISTS: 'artist',
   // Details
   DETAILS_ARTIST: '/details-artist/:name',
   DETAILS_ARTIST_PANEL: '/:panel',

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AuthProvider } from '~/AuthProvider';
 import { v4 as uuid } from 'uuid';
 import classNames from 'classnames/bind';
-import { getArtistInfo } from '~/store/actions/dispatch';
+import { getArtistInfo, isScrollTop } from '~/store/actions/dispatch';
 import { CardSong, CardVideo, CardAlbum, CardArtists } from '~/components';
 import BaseModal from '~/utils/BaseModal';
 import { BoxSkeleton, CardFullSkeletonBanner } from '~/BaseSkeleton';
@@ -45,26 +45,19 @@ const DetailsArtist = () => {
         if (response.data?.err === 0) {
           setIsLoading(true);
           dispatch(getArtistInfo(response));
+          // mount se scrollTop = 0
+          dispatch(isScrollTop(true));
         }
       } catch (error) {
-        throw new Error(error);
+        console.error(error);
       }
     })();
     return () => {
-      onCloseModal();
+      dispatch(isScrollTop(false));
+      if (isOpenModal) onCloseModal();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
-  // useEffect(() => {
-  //   const handleClickOutside = () => {
-  //     onActiveSong(null, null);
-  //   };
-  //   document.addEventListener('click', handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener('click', handleClickOutside);
-  //   };
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
   const formatFollowCount = useMemo(() => {
     if (!artistInfo?.totalFollow) {
       return 0;
@@ -91,8 +84,13 @@ const DetailsArtist = () => {
     }
   };
   const handleNavigatePanel = (url) => {
+    const link = url
+      .split('/')
+      .filter((item) => item !== 'nghe-si')
+      .join('/');
     const pathLink = path.DETAILS_ARTIST + path.DETAILS_ARTIST_PANEL;
-    navigate(pathLink.replace('/:name/:panel', url));
+    navigate(pathLink.replace('/:name/:panel', link));
+    dispatch(isScrollTop(false));
   };
   const isFollowArtist = currentUser?.followArtist.some((item) => item?.id === artistInfo?.id);
   if (panel) {
@@ -109,7 +107,7 @@ const DetailsArtist = () => {
     return (
       <div className={cx('container')}>
         <CardFullSkeletonBanner />
-        <BoxSkeleton card={5} height={200} />
+        <BoxSkeleton card={4} height={200} />
       </div>
     );
   }
@@ -249,7 +247,11 @@ const DetailsArtist = () => {
                         slidesPerView: 4,
                         spaceBetween: 20,
                       },
-                      993: {
+                      1023: {
+                        slidesPerView: 4,
+                        spaceBetween: 20,
+                      },
+                      1024: {
                         slidesPerView: 5,
                       },
                     }}>
@@ -356,7 +358,11 @@ const DetailsArtist = () => {
                         slidesPerView: 4,
                         spaceBetween: 20,
                       },
-                      993: {
+                      1023: {
+                        slidesPerView: 4,
+                        spaceBetween: 20,
+                      },
+                      1024: {
                         slidesPerView: 5,
                       },
                     }}>
@@ -379,13 +385,17 @@ const DetailsArtist = () => {
             </div>
             <div className={cx('menu-artists')}>
               <TitlePath content={listArtist?.title} />
-              <div className={cx('wrapper-artists')}>
+              <div className={cx('  ')}>
                 {listArtist?.items.map((artist, index) => {
                   if (index < 5) {
                     return (
                       <CardArtists
                         key={artist.id}
                         data={artist}
+                        onToggleArtist={(e) => {
+                          currentUser?.followArtist.some((item) => item.id === artist.id) ? onRemoveArtist(e, artist.id) : onAddArtist(e, artist);
+                        }}
+                        isFollowArtist={currentUser?.followArtist.some((item) => item.id === artist.id)}
                         themeApp={themeApp}
                         onNavigate={() => handleNavigate(path.DETAILS_ARTIST.replace('/:name', artist.link))}
                       />
@@ -404,7 +414,7 @@ const DetailsArtist = () => {
                 <div className={cx('description')}>
                   <div className={cx('text')}>
                     <p>{artistInfo?.biography.split('<br>').join('')}</p>
-                    <span onClick={() => onOpenModal(null, true)}>xem thêm</span>
+                    <span onClick={() => onOpenModal({ name: null, type: false }, true)}>xem thêm</span>
                   </div>
                   <div className={cx('follow')}>
                     <h4>{formatFollowCount}</h4>
@@ -424,7 +434,6 @@ const DetailsArtist = () => {
         open={isOpenModal}
         onClose={onCloseModal}
       />
-      {/* <SongModal onClose={onCloseModal} open={isOpenModal} /> */}
     </>
   );
 };

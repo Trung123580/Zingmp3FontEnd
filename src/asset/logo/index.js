@@ -5,13 +5,15 @@ import IconLibrary from './IconLibrary';
 import IconPlay from './IconPlay';
 import IconTheme from './IconTheme';
 import IconNoteMusic from './IconNoteMusic';
-import IconStory from './IconStory';
 import IconStar from './IconStar';
 import IconAlbum from './IconAlbum';
 import IconHistory from './IconHistory';
 import IconLoveSong from './IconLoveSong';
 import IconPlayList from './IconPlayList';
 import IconUpload from './IconUpload';
+import IconTitlePage from './IconTitlePage';
+import IconAddPlaylist from './IconAddPlaylist';
+import IconLoadingSong from './IconLoadingSong';
 export {
   IconHome,
   IconZingChart,
@@ -20,11 +22,13 @@ export {
   IconPlay,
   IconTheme,
   IconNoteMusic,
-  IconStory,
   IconStar,
   IconAlbum,
   IconHistory,
   IconLoveSong,
   IconPlayList,
   IconUpload,
+  IconAddPlaylist,
+  IconTitlePage,
+  IconLoadingSong,
 };

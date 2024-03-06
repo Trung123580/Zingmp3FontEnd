@@ -1,0 +1,32 @@
+@import '../../variable.scss';
+@include container;
+.library__music {
+  .menu__artists {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 28px;
+    margin-top: 32px;
+    @include table {
+      margin-top: 25px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      > div {
+        &:nth-child(n + 4):not(:last-child) {
+          display: none;
+        }
+      }
+    }
+    @include mobile {
+      margin-top: 20px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      // n + 3 => sẽ chọn tất cả các phần tử từ thứ 3 trở đi
+      // :not => không chọn phần tử này
+      > div {
+        &:nth-child(n + 3):not(:last-child) {
+          display: none;
+        }
+      }
+    }
+  }
+}

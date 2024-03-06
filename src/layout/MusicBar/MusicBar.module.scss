@@ -17,6 +17,10 @@
   @include mobile {
     height: 130px;
   }
+  &.hidden {
+    visibility: hidden;
+    opacity: 0;
+  }
   &.lyricSong {
     z-index: 104;
     border-top: 1px solid transparent;
@@ -203,9 +207,15 @@
           display: flex;
           align-items: center;
           position: relative;
+          justify-content: center;
           flex-basis: auto;
           flex-grow: 0;
+          border-radius: 50%;
           flex-shrink: 0;
+          &.position {
+            min-width: 45px;
+            max-width: 45px;
+          }
           &:hover {
             &::after {
               display: block;
@@ -233,7 +243,9 @@
           svg {
             font-size: 2.4rem;
             &.icon-play {
-              font-size: 3.4rem;
+              width: 35px;
+              height: 35px;
+              // font-size: 3.5rem;
             }
           }
         }

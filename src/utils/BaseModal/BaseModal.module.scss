@@ -1,0 +1,21 @@
+@import '../../variable.scss';
+#form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px 0;
+  place-items: center;
+  .text__playlist {
+    height: 40px;
+    width: 100%;
+    border-radius: 999px;
+    border: 1px solid $alpha-bg;
+    background-color: $alpha-bg;
+    padding: 0 15px;
+    font-size: 14px;
+    color: $color-white;
+    line-height: 1.5;
+    &::placeholder {
+      color: #dadada;
+    }
+  }
+}

@@ -6,10 +6,11 @@ import classNames from 'classnames/bind';
 import style from './ZingChart.module.scss';
 import { BoxSkeleton, CardFullSkeletonBanner } from '~/BaseSkeleton';
 import { AuthProvider } from '~/AuthProvider';
-import { getChartHome } from '~/store/actions/dispatch';
+import { getChartHome, isScrollTop } from '~/store/actions/dispatch';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Button from '~/utils/Button';
 import path from '~/router/path';
+import TitlePage from '~/utils/TitlePage';
 const cx = classNames.bind(style);
 const ZingChart = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,23 +39,20 @@ const ZingChart = () => {
           },
         });
         dispatch(getChartHome(response));
+        // mount se scrollTop = 0
+        dispatch(isScrollTop(true));
       }
     })();
+    return () => {
+      dispatch(isScrollTop(false));
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   if (isRanks) {
     return <Outlet />;
   }
-  if (!isLoading && !dataSong) {
-    return (
-      <div className={cx('container')}>
-        <CardFullSkeletonBanner />
-        <BoxSkeleton card={5} height={200} />
-      </div>
-    );
-  }
-  const handleNavigate = (type, url) => {
-    if (type === 1) return; // lam modal phat bai hat
+  const handleNavigate = (url) => {
+    // if (type === 1) return; // lam modal phat bai hat
     navigate(
       url
         .split('/')
@@ -68,10 +66,19 @@ const ZingChart = () => {
   const handleNavigateChartRanks = (country) => {
     navigate(`${path.ZING_CHART + path.ZING_CHART_RANKS.replace(':country', country)}`); // xoa /:country di de thay the
   };
+  if (!isLoading && !dataSong) {
+    return (
+      <div className={cx('container')}>
+        <CardFullSkeletonBanner />
+        <BoxSkeleton card={4} height={200} />
+      </div>
+    );
+  }
   return (
     <section className={cx('container')}>
       <Outlet />
       <div className={cx('zing-chart')}>
+        <TitlePage content='#zingchart' className='zingchart' />
         <div className='chart' style={{ height: '500px' }}>
           <LineChart chartData={chartData} />
         </div>
@@ -84,7 +91,7 @@ const ZingChart = () => {
               currentSong={currentSong}
               currentUser={currentUser}
               onNavigateArtist={handleNavigate}
-              onNavigate={() => handleNavigate(null, song.album.link.split('.')[0])}
+              onNavigate={() => handleNavigate(song.album.link.split('.')[0])}
               isPlay={isPlay}
               theme={themeApp}
               onAddLikeSong={(e) => onAddLikeSong(e, song)}
@@ -130,7 +137,7 @@ const ZingChart = () => {
                             currentSong={currentSong}
                             currentUser={currentUser}
                             onNavigateArtist={handleNavigate}
-                            onNavigate={() => handleNavigate(null, song.album.link.split('.')[0])}
+                            onNavigate={() => handleNavigate(song.album.link.split('.')[0])}
                             isPlay={isPlay}
                             theme={themeApp}
                             onAddLikeSong={(e) => onAddLikeSong(e, song)}

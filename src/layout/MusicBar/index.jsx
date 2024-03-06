@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, useRef, memo, useMemo } from 'react';
+import { useContext, useEffect, useState, useRef, memo, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { playSong, openPlayList, getSong, randomSong, changeCurrentTimeSongLyric } from '~/store/actions/dispatch';
 import { AuthProvider } from '~/AuthProvider';
@@ -26,10 +26,12 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import Divide from '~/utils/Divide';
 import path from '~/router/path';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { IconLoadingSong } from '~/asset/logo';
 const cx = classNames.bind(style);
 const MusicBar = () => {
   const { currentSong, isRandomSong, isPlay, isOpenPlayList, currentPlayList, newReleaseChart } = useSelector((state) => state.app);
   const { currentUser } = useSelector((state) => state.auth);
+  const { isHidden } = useSelector((state) => state.lyric);
   const [seconds, setSeconds] = useState(0);
   const [audio, setAudio] = useState(null);
   const [stateMiniSize, setStateMiniSize] = useState({
@@ -39,8 +41,9 @@ const MusicBar = () => {
   });
   const [isDragging, setIsDragging] = useState(false);
   const [volume, setVolume] = useState(100);
+  const [isLoading, setIsLoading] = useState(false);
   const { themeApp, handle, isOpenLyricSong } = useContext(AuthProvider);
-  const { onAddLikeSong, onRemoveLikeSong, onPlaySong, onOpenModal, onToggleLyricSong } = handle;
+  const { onAddLikeSong, onRemoveLikeSong, onPlaySong, onOpenModal, onToggleLyricSong, onActiveSong } = handle;
   const { name } = useParams();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
@@ -58,7 +61,7 @@ const MusicBar = () => {
     .trim()
     .split('/')
     .filter((item) => item !== '').length;
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     audio.load();
     audio.pause();
     audio.currentTime = 0;
@@ -67,35 +70,55 @@ const MusicBar = () => {
     trackNoteRef.current.style.left = 0;
     setAudio(null);
     dispatch(changeCurrentTimeSongLyric(0));
-  };
+    // eslint-disable-next-line
+  }, [audio, thumbRef, trackNoteRef]);
   useEffect(() => {
     if (audio) {
       handleRefresh();
     }
     const getDetailsSong = async () => {
+      setIsLoading(true);
       try {
         const [response1, response2] = await Promise.all([apiSong(currentSong?.encodeId), apiInfoSong(currentSong?.encodeId)]);
-        if (response1.data?.err === 0 && response2.data?.err === 0) {
+        if (response1?.data?.err === 0 && response2?.data?.err === 0) {
           setAudio(new Audio(response1.data?.data[128]));
           currentSong.mvlink = response2.data.data.mvlink;
           setStateMiniSize((prev) => ({ ...prev, isMounted: true }));
+          setIsLoading(false);
           if (document.pictureInPictureElement === refMiniSize.current) {
             await refMiniSize.current.pause();
             await document.exitPictureInPicture();
           }
         } else {
           // // modal
-          if (currentUser) {
-            onOpenModal('do bài hát thuộc bản quyền zingmp3, chuyển đến Nhạc yêu thích của bạn');
+          if (response1?.data.err === -104 || response2?.data.err === -104) {
             onPlaySong(
               currentUser?.loveMusic[Math.floor(Math.random() * currentUser?.loveMusic.length)],
               currentUser?.loveMusic || [],
               'Nhạc yêu thích'
             );
-          } else {
-            if (!newReleaseChart?.items.length) return;
+            onOpenModal({
+              name: 'không thể lấy được dữ liệu bài hát',
+              type: false,
+            });
+            return;
+          }
+          if (currentUser) {
+            onPlaySong(
+              currentUser?.loveMusic[Math.floor(Math.random() * currentUser?.loveMusic.length)],
+              currentUser?.loveMusic || [],
+              'Nhạc yêu thích'
+            );
+            onOpenModal({
+              name: 'do bài hát thuộc bản quyền zingmp3, chuyển đến Nhạc yêu thích của bạn',
+              type: false,
+            });
+            return;
+          }
+          if (newReleaseChart?.items.length) {
             onOpenModal('do bài hát thuộc bản quyền zingmp3, chuyển đến BXH bài hát');
             onPlaySong(newReleaseChart?.items[0], newReleaseChart?.items || [], newReleaseChart?.title);
+            return;
           }
         }
       } catch (error) {
@@ -152,11 +175,11 @@ const MusicBar = () => {
       await e.target.requestPictureInPicture();
     };
     refMiniSize.current?.addEventListener('leavepictureinpicture', handleLeavePiP);
-    refMiniSize.current.addEventListener('loadedmetadata', handleLoadedMetadata);
+    refMiniSize.current?.addEventListener('loadedmetadata', handleLoadedMetadata);
 
     return () => {
       refMiniSize.current?.removeEventListener('leavepictureinpicture', handleLeavePiP);
-      refMiniSize.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      refMiniSize.current?.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
   }, [refMiniSize.current]);
   const handleToggleMiniScreen = async () => {
@@ -301,7 +324,7 @@ const MusicBar = () => {
       }
     };
     if (isPlay) {
-      intervalId = setInterval(updateCurrentTime, 1000);
+      intervalId = setInterval(updateCurrentTime, 500);
     } else {
       intervalId && clearInterval(intervalId);
     }
@@ -394,6 +417,7 @@ const MusicBar = () => {
       id={cx('music-bar')}
       className={cx({
         lyricSong: isOpenLyricSong,
+        hidden: isHidden,
       })}
       style={{ backgroundImage: `url(${themeApp?.backgroundMusicBar || backgroundDefaultBar})` }}>
       <div className={cx('player-controls')}>
@@ -438,7 +462,9 @@ const MusicBar = () => {
               )}
             </Tippy>
             <Tippy content={<span className='tippy-title'>Khác</span>} followCursor='horizontal' placement='top' arrow={true} duration={300}>
-              <span className={cx('icon')}>{<MoreHorizIcon fontSize='large' />}</span>
+              <span className={cx('icon')} onClick={(e) => onActiveSong(e, currentSong)}>
+                {<MoreHorizIcon fontSize='large' />}
+              </span>
             </Tippy>
           </div>
         </div>
@@ -457,8 +483,18 @@ const MusicBar = () => {
             <span className={cx('zm-btn')} onClick={handlePrevSong}>
               <SkipPreviousRoundedIcon />
             </span>
-            <span className={cx('zm-btn')} onClick={handleTogglePlayMusic}>
-              {isPlay ? <BsPauseCircle className={cx('icon-play')} /> : <BsPlayCircle className={cx('icon-play')} />}
+            <span
+              className={cx('zm-btn', {
+                position: true,
+              })}
+              onClick={handleTogglePlayMusic}>
+              {isLoading ? (
+                <IconLoadingSong classNam={cx('icon-play')} />
+              ) : isPlay ? (
+                <BsPauseCircle className={cx('icon-play')} />
+              ) : (
+                <BsPlayCircle className={cx('icon-play')} />
+              )}
             </span>
             <span className={cx('zm-btn')} onClick={handleNextSong}>
               <SkipNextRoundedIcon />

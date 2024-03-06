@@ -1,0 +1,8 @@
+@import '../../variable.scss';
+@include container;
+.banner {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-top: 90px;
+}

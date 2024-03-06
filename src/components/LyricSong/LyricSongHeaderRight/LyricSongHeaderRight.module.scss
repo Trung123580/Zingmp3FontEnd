@@ -1,13 +1,51 @@
 @import '../../../variable.scss';
 .header__right {
-  display: flex;
-  gap: 8px;
+  .wrapper__right {
+    display: flex;
+    gap: 8px;
+  }
   &.hidden__mobile {
+    .hidden {
+      opacity: 0;
+      visibility: hidden;
+      display: flex;
+      gap: 8px;
+    }
     @include mobile {
       display: none;
     }
   }
   &.drawer {
+    .wrapper__right {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      .zm-btn {
+        background-color: $primary-bg;
+        gap: 30px;
+        font-weight: 600;
+        font-size: 1.5rem;
+        width: 100%;
+        .text__drawer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex: 1;
+        }
+        &.flex-direction {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+          .setting {
+            position: inherit;
+            border-radius: 0;
+            padding: 5px;
+          }
+        }
+      }
+    }
+    .hidden {
+    }
     @include mobile {
     }
   }
@@ -29,6 +67,8 @@
       padding: 15px 0;
       border-radius: 8px;
       z-index: 104;
+      -webkit-animation: scale-up-ver-top 0.4s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+      animation: scale-up-ver-top 0.4s cubic-bezier(0.39, 0.575, 0.565, 1) both;
       .menu__settings {
         .setting__item {
           display: flex;
@@ -96,5 +136,19 @@
         font-size: 3.4rem;
       }
     }
+  }
+}
+@keyframes scale-up-ver-top {
+  0% {
+    -webkit-transform: scaleY(0.4);
+    transform: scaleY(0.4);
+    -webkit-transform-origin: 100% 0%;
+    transform-origin: 100% 0%;
+  }
+  100% {
+    -webkit-transform: scaleY(1);
+    transform: scaleY(1);
+    -webkit-transform-origin: 100% 0%;
+    transform-origin: 100% 0%;
   }
 }

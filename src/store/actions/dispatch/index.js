@@ -88,6 +88,18 @@ const changeCurrentTimeSongLyric = (time) => {
     payload: time,
   };
 };
+const hiddenLyric = (isHidden) => {
+  return {
+    type: actionTypes.HIDDEN_LYRIC,
+    payload: isHidden,
+  };
+};
+const isScrollTop = (isScroll) => {
+  return {
+    type: actionTypes.SCROLL_TOP,
+    payload: isScroll,
+  };
+};
 export {
   openCurrentVideo,
   getDeFaultDataVideo,
@@ -103,4 +115,6 @@ export {
   getCurrentPlayList,
   getArtistInfo,
   changeCurrentTimeSongLyric,
+  hiddenLyric,
+  isScrollTop,
 };

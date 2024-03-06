@@ -64,16 +64,17 @@ $bg-chart: hsla(0, 0%, 100%, 0.05);
     width: 100%;
     margin-top: 70px;
     padding: 0 59px;
+    margin-bottom: 20px;
     @content;
   }
   @include mobile {
     .container {
-      padding: 0 19px;
+      padding: 0 29px;
     }
   }
   @include table {
     .container {
-      padding: 0 29px;
+      padding: 0 39px;
     }
   }
 }

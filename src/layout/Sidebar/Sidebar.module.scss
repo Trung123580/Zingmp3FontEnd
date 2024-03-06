@@ -4,6 +4,8 @@
   min-width: 240px;
   background: rgba(255, 255, 255, 0.05);
   height: 100vh;
+  display: flex;
+  flex-direction: column;
   @include transition;
   @include mobile {
     max-width: 70px;
@@ -88,7 +90,35 @@
     }
   }
 }
-
+.bottom__sidebar {
+  flex: 1;
+  border-top: 1px solid $alpha-bg;
+  .bottom__wrapper {
+    cursor: pointer;
+    height: calc(100% - 90px);
+    display: flex;
+    flex: 1;
+    align-items: center;
+    font-size: 1.4rem;
+    line-height: 20px;
+    font-weight: 500;
+    gap: 12px;
+    white-space: nowrap;
+    line-height: normal;
+    padding: 12px 21px;
+    @include mobile {
+      height: calc(100% - 130px);
+      .text {
+        display: none;
+      }
+    }
+    @include table {
+      .text {
+        display: none;
+      }
+    }
+  }
+}
 .notification-login {
   padding: 15px 8px;
   border-radius: 8px;
@@ -112,5 +142,8 @@
 }
 // scroll
 .scroll-profile {
-  height: 37vh;
+  height: 44vh;
+  @include mobile {
+    height: 38vh;
+  }
 }

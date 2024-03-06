@@ -1,0 +1,29 @@
+@import '../../variable.scss';
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0 12px;
+  padding-top: 40px;
+  flex-wrap: nowrap;
+  @include table {
+    padding-top: 30px;
+  }
+  @include mobile {
+    padding-top: 20px;
+  }
+  .name {
+    font-weight: 700;
+    font-size: 4rem;
+    line-height: 48px;
+    text-transform: capitalize;
+    @include text-cover;
+    &.zingchart {
+      background: radial-gradient(50% 124.93% at 95.86% -10%, #3efad9 0, hsla(0, 0%, 100%, 0) 100%),
+        linear-gradient(91.56deg, #ff9357 1.54%, #9100ff 98.71%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: none;
+    }
+  }
+}

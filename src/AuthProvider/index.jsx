@@ -4,6 +4,7 @@ import { getSong, playSong, dataUser, addSuccess, getCurrentPlayList } from '~/s
 import Cookies from 'universal-cookie';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { doc, collection, getDocs, setDoc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore';
+import { v4 as uuid } from 'uuid';
 import { auth, googleProvider, db } from '~/fireBase-config';
 const AuthProvider = createContext();
 const cookies = new Cookies();
@@ -18,9 +19,13 @@ const AppProvider = ({ children }) => {
   const [openModal, setOpenModal] = useState({
     isOpenModal: false,
     currentModal: false,
-    titleModal: '',
+    dataModal: {
+      name: '',
+      type: false,
+      editType: false,
+    },
   });
-  const { isOpenModal, titleModal, currentModal } = openModal;
+  const { isOpenModal, dataModal, currentModal } = openModal;
   // chart
   const [selectedChart, setSelectedChart] = useState(null);
   const [user, setUser] = useState(undefined);
@@ -31,7 +36,17 @@ const AppProvider = ({ children }) => {
     setIsOpenLyricSong((prev) => !prev);
   };
   // modal
-  const handleOpen = (title, currentModal) => setOpenModal((prev) => ({ ...prev, isOpenModal: true, titleModal: title, currentModal: currentModal }));
+  const handleOpen = (data, currentModal) =>
+    setOpenModal((prev) => ({
+      ...prev,
+      isOpenModal: true,
+      dataModal: {
+        name: data?.name,
+        type: data?.type,
+        editType: data?.editType ? data?.editType : false,
+      },
+      currentModal: currentModal,
+    }));
   const handleClose = () => setOpenModal((prev) => ({ ...prev, isOpenModal: false }));
   // portal
   const [coords, setCoords] = useState({
@@ -53,25 +68,56 @@ const AppProvider = ({ children }) => {
         setCoords((prev) => ({ ...prev, isShowPortal: false }));
         return;
       }
+      const screenHeight = window.innerHeight;
       const clientReact = e.target.getBoundingClientRect();
+      const bottomSpace = screenHeight - clientReact.bottom;
       // console.log(clientReact);
       setCoords({
         x: clientReact.left,
         y: clientReact.top,
         width: clientReact.width,
         height: clientReact.height,
-        thumbnailM: song.thumbnailM,
-        encodeId: song.encodeId,
-        title: song.title,
+        thumbnailM: song.thumbnailM || null,
+        encodeId: song.encodeId || null,
+        title: song.title || null,
         isShowPortal: true,
         isDelete: isDelete,
         targetSong: targetSong, // false => danh sach phat / true => history
       });
+      if (bottomSpace < 200) setCoords((prev) => ({ ...prev, y: clientReact.top - 200 }));
     } else {
       setCoords((prev) => ({ ...prev, isShowPortal: false }));
     }
   };
-
+  const handleCreatePlaylistAndEditName = useCallback(
+    async (namePlaylist) => {
+      // e.stopPropagation();
+      if (!isAuth) {
+        handleLoginApp();
+        return;
+      }
+      if (dataModal.editType) {
+        // => edit
+      } else {
+        // => create
+        const userDoc = doc(db, 'user', user?.uid);
+        const data = {
+          name: namePlaylist || '',
+          id: uuid(),
+          items: [], // => chứa các item song add playlist
+          artist: user?.displayName,
+        };
+        await updateDoc(userDoc, {
+          createPlaylist: arrayUnion({ ...data }),
+        }).then(() => {
+          dispatch(dataUser({ ...currentUser, createPlaylist: [...currentUser?.createPlaylist, { ...data }] }));
+          dispatch(addSuccess({ type: true, content: 'đã tạo playlist' }));
+        }); // re-renderApp
+      }
+    },
+    // eslint-disable-next-line
+    [dataModal.editType, isAuth, user, currentUser]
+  );
   useEffect(() => {
     setUser(cookies.get('user'));
   }, [isAuth]);
@@ -81,20 +127,22 @@ const AppProvider = ({ children }) => {
     setThemeApp(getTheme);
   }, [theme]);
   useEffect(() => {
-    try {
-      if (isAuth) {
-        (async () => {
+    const getUser = async () => {
+      try {
+        if (isAuth) {
           if (user?.uid) {
             const docRef = doc(db, 'user', user?.uid);
             const docSnap = await getDoc(docRef);
             const data = docSnap.data();
             dispatch(dataUser(data)); // user
           }
-        })();
+        }
+      } catch (error) {
+        console.error(error);
+        console.log('loi');
       }
-    } catch (error) {
-      console.log(error);
-    }
+    };
+    getUser();
     // eslint-disable-next-line
   }, [appCallBack, user]);
   const handleLoginApp = async () => {
@@ -124,7 +172,8 @@ const AppProvider = ({ children }) => {
           createPlayList: [], // [ lồng arr để lưu các play list khác nhau[] ] // tu tao play list cho rieng minh
           followMv: [], // theo doi video
           followAlbum: [], // theo doi album
-          followArtist: [],
+          followArtist: [], // theo doi nghe si
+          historyMv: [], // lich su xem mv
         });
       }
     } catch (error) {
@@ -148,7 +197,7 @@ const AppProvider = ({ children }) => {
       dispatch(playSong(true));
       if (isAuth) {
         (async () => {
-          const userDoc = doc(db, 'user', user.uid);
+          const userDoc = doc(db, 'user', user?.uid);
           const isExit = currentUser?.historySong?.some(({ encodeId }) => encodeId === item.encodeId);
           const { encodeId, thumbnailM, artists, title, releaseDate } = item;
           if (!isExit) {
@@ -240,13 +289,7 @@ const AppProvider = ({ children }) => {
       const userDoc = doc(db, 'user', user?.uid);
       const { thumbnailM, encodeId, title, link, sortDescription } = playList;
       await updateDoc(userDoc, {
-        followPlayList: arrayUnion({
-          thumbnailM,
-          encodeId,
-          title,
-          link,
-          sortDescription,
-        }),
+        followPlayList: arrayUnion({ thumbnailM, encodeId, title, link, sortDescription }),
       }).then(() => {
         dispatch(
           dataUser({ ...currentUser, followPlayList: [...currentUser?.followPlayList, { thumbnailM, encodeId, title, link, sortDescription }] })
@@ -283,12 +326,7 @@ const AppProvider = ({ children }) => {
       const userDoc = doc(db, 'user', user?.uid);
       const { thumbnailM, encodeId, title, link } = album;
       await updateDoc(userDoc, {
-        followAlbum: arrayUnion({
-          thumbnailM,
-          encodeId,
-          title,
-          link,
-        }),
+        followAlbum: arrayUnion({ thumbnailM, encodeId, title, link }),
       }).then(() => {
         dispatch(dataUser({ ...currentUser, followAlbum: [...currentUser?.followAlbum, { thumbnailM, encodeId, title, link }] }));
         dispatch(addSuccess({ type: true, content: 'đã thêm album vào thư viện' }));
@@ -327,15 +365,10 @@ const AppProvider = ({ children }) => {
       const userDoc = doc(db, 'user', user?.uid);
       const { thumbnailM, id, name, link } = artist;
       await updateDoc(userDoc, {
-        followArtist: arrayUnion({
-          thumbnailM,
-          id,
-          name,
-          link,
-        }),
+        followArtist: arrayUnion({ thumbnailM, id, name, link }),
       }).then(() => {
         dispatch(dataUser({ ...currentUser, followArtist: [...currentUser?.followArtist, { thumbnailM, id, name, link }] }));
-        // dispatch(addSuccess({ type: true, content: 'đã thêm album vào thư viện' }));
+        dispatch(addSuccess({ type: true, content: 'đã thêm ca sĩ vào thư viện' }));
       });
     },
     // eslint-disable-next-line
@@ -350,7 +383,7 @@ const AppProvider = ({ children }) => {
         followArtist: newDataStory,
       }).then(() => {
         dispatch(dataUser({ ...currentUser, followArtist: newDataStory }));
-        // dispatch(addSuccess({ type: true, content: 'đã xóa mv khỏi thư viện' }));
+        dispatch(addSuccess({ type: true, content: 'đã xóa ca sĩ khỏi thư viện' }));
       });
     },
     // eslint-disable-next-line
@@ -366,14 +399,7 @@ const AppProvider = ({ children }) => {
       const userDoc = doc(db, 'user', user?.uid);
       const { thumbnailM, link, title, artists, duration, encodeId } = video;
       await updateDoc(userDoc, {
-        followMv: arrayUnion({
-          thumbnailM,
-          title,
-          encodeId,
-          link,
-          artists,
-          duration,
-        }),
+        followMv: arrayUnion({ thumbnailM, title, encodeId, link, artists, duration }),
       }).then(() => {
         dispatch(dataUser({ ...currentUser, followMv: [...currentUser?.followMv, { thumbnailM, title, link, artists, encodeId, duration }] }));
         dispatch(addSuccess({ type: true, content: 'đã thêm mv vào thư viện' }));
@@ -390,6 +416,41 @@ const AppProvider = ({ children }) => {
         followMv: newDataStory,
       }).then(() => {
         dispatch(dataUser({ ...currentUser, followMv: newDataStory }));
+        dispatch(addSuccess({ type: true, content: 'đã xóa mv khỏi thư viện' }));
+      });
+    },
+    // eslint-disable-next-line
+    [user, currentUser]
+  );
+  // historyMv
+  const handleAddHistoryMv = useCallback(
+    async (video) => {
+      if (!isAuth) {
+        handleLoginApp();
+        return;
+      }
+      const isExit = currentUser?.historyMv.some(({ encodeId }) => encodeId === video?.encodeId);
+      if (isExit) return;
+      const userDoc = doc(db, 'user', user?.uid);
+      const { thumbnailM, link, title, artists, duration, encodeId } = video;
+      await updateDoc(userDoc, {
+        historyMv: arrayUnion({ thumbnailM, title, encodeId, link, artists, duration }),
+      }).then(() => {
+        dispatch(dataUser({ ...currentUser, historyMv: [...currentUser?.historyMv, { thumbnailM, title, encodeId, link, artists, duration }] }));
+        dispatch(addSuccess({ type: true, content: 'đã thêm mv vào thư viện' }));
+      }); // re-renderApp
+    },
+    // eslint-disable-next-line
+    [isAuth, user, currentUser]
+  );
+  const handleRemoveHistoryMv = useCallback(
+    async (idVideo) => {
+      const newDataStory = currentUser?.historyMv.filter(({ encodeId }) => encodeId !== idVideo);
+      const userDoc = doc(db, 'user', user?.uid);
+      await updateDoc(userDoc, {
+        historyMv: newDataStory,
+      }).then(() => {
+        dispatch(dataUser({ ...currentUser, historyMv: newDataStory }));
         dispatch(addSuccess({ type: true, content: 'đã xóa mv khỏi thư viện' }));
       });
     },
@@ -422,6 +483,8 @@ const AppProvider = ({ children }) => {
       // mv
       onAddMv: handleAddMv,
       onRemoveMv: handleRemoveMv,
+      // historyMv
+      onAddHistoryMv: handleAddHistoryMv,
       // artist
       onAddArtist: handleAddArtist,
       onRemoveArtist: handleRemoveArtist,
@@ -429,19 +492,23 @@ const AppProvider = ({ children }) => {
       onActiveSong: handleActiveSong,
       //LyricSong
       onToggleLyricSong: handleToggleLyricSong,
+      // create and edit playlist
+      onCreatePlaylistAndEditName: handleCreatePlaylistAndEditName,
     },
     isAuth,
     user,
     selectedChart,
     // modal
     isOpenModal: isOpenModal,
-    titleModal: titleModal,
+    titleModal: dataModal.name,
     currentModal: currentModal,
     //portal
     coords: coords,
     isShowPortal: coords.isShowPortal,
     //LyricSong
     isOpenLyricSong: isOpenLyricSong,
+    // create and edit playlist
+    isModalPlaylist: dataModal.type,
   };
   return <AuthProvider.Provider value={values}>{children}</AuthProvider.Provider>;
 };
