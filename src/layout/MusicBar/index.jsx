@@ -92,6 +92,7 @@ const MusicBar = () => {
         } else {
           // // modal
           if (response1?.data.err === -104 || response2?.data.err === -104) {
+            if (!currentSong) return;
             onPlaySong(
               currentUser?.loveMusic[Math.floor(Math.random() * currentUser?.loveMusic.length)],
               currentUser?.loveMusic || [],
