@@ -10,12 +10,12 @@ import classNames from 'classnames/bind';
 import style from './BaseModal.module.scss';
 const cx = classNames.bind(style);
 const BaseModal = (props) => {
-  const { name, thumbnail, desc, onClose, open, reverseModal } = props;
+  const { onClose, open, reverseModal } = props;
   // reverseModal === true => description artist
   // reverseModal === false => song Error
   // isModalPlaylist === true && reverseModal === true => CreateAndEditPlaylist
-  const { titleModal, themeApp, handle, isModalPlaylist } = useContext(AuthProvider);
-  const { onCreatePlaylistAndEditName } = handle;
+  const { titleModal, themeApp, handle, isModalPlaylist, isModalDeleteShow, thumbnailM, desc } = useContext(AuthProvider);
+  const { onCreatePlaylistAndEditName, onDeletePlaylist } = handle;
   const [isDisableButton, setIsDisableButton] = useState(true);
   const {
     handleSubmit,
@@ -34,7 +34,7 @@ const BaseModal = (props) => {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: [380, 400, 480],
-    bgcolor: '#605C52',
+    bgcolor: '#363636',
     borderRadius: '8px',
     boxShadow: 24,
     p: 3,
@@ -47,6 +47,38 @@ const BaseModal = (props) => {
     }
     if (isDisableButton) setIsDisableButton(false);
   };
+  if (isModalDeleteShow) {
+    return (
+      <Modal keepMounted open={open} onClose={onClose} aria-labelledby='keep-mounted-modal-title' aria-describedby='keep-mounted-modal-description'>
+        <Box sx={{ ...style, padding: 0 }}>
+          <Box sx={{ m: '20px' }}>
+            <Box>
+              <Typography
+                variant='h3'
+                sx={{
+                  fontSize: '1.8rem',
+                  color: '#fff',
+                  mb: '10px',
+                  fontWeight: 700,
+                }}>
+                Xóa Playlist
+              </Typography>
+              <p style={{ color: '#fff' }}>{titleModal}</p>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: '15px', mt: '15px' }}>
+              <Button content='không' className='btn__playlist' onClick={onClose} />
+              <Button
+                content='có'
+                className='btn__playlist'
+                onClick={onDeletePlaylist}
+                style={{ backgroundColor: themeApp && themeApp?.primaryColor }}
+              />
+            </Box>
+          </Box>
+        </Box>
+      </Modal>
+    );
+  }
   if (isModalPlaylist && reverseModal) {
     return (
       <Modal
@@ -165,9 +197,9 @@ const BaseModal = (props) => {
           <CloseRoundedIcon fontSize='large' />
         </div>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px 0' }}>
-          <Avatar alt='Remy Sharp' src={thumbnail} sx={{ width: 110, height: 110 }} />
+          <Avatar alt='Remy Sharp' src={thumbnailM} sx={{ width: 110, height: 110 }} />
           <Typography variant='h3' fontSize={24} fontWeight={700} letterSpacing={0.3} color='white'>
-            {name}
+            {titleModal}
           </Typography>
         </Box>
         <Box sx={{ maxHeight: '218px', height: '218px', mt: 3 }}>

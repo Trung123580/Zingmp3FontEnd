@@ -36,9 +36,9 @@
       align-items: center;
       padding: 10px;
       gap: 10px;
-      flex-basis: auto;
-      flex-grow: 0;
-      flex-shrink: 0;
+      // flex-basis: auto;
+      // flex-grow: 0;
+      // flex-shrink: 0;
       .avatar {
         min-width: 40px;
         max-width: 40px;
@@ -49,6 +49,7 @@
       }
       .name {
         h2 {
+          @include text-cover;
           font-size: 18px;
           color: $color-white;
           font-weight: 700;
@@ -79,7 +80,8 @@
           margin-left: 10px;
         }
         @include mobile {
-          margin-left: 0px;
+          // margin-left: 0px;
+          display: none;
         }
         .icon {
           line-height: 0;
@@ -105,8 +107,23 @@
       padding: 10px;
       align-items: center;
       gap: 10px;
+      @include mobile {
+        display: none;
+      }
+    }
+    .header__mobile {
+      // min-width: max-content;
+      // max-width: max-content;
+      @include flex-basis;
+      @include pc {
+        display: none;
+      }
+      @include table {
+        display: none;
+      }
     }
   }
+
   .content {
     position: relative;
     color: #fff;
@@ -125,7 +142,6 @@
         .video-player {
           width: 100%;
           height: 100%;
-
           video {
             background-color: #000;
           }
@@ -151,7 +167,7 @@
     .wrapper-content {
       display: flex;
       flex-wrap: wrap;
-      margin: 0 -15px;
+      // margin: 0 -15px;
     }
     .wrapper_skeleton,
     .video-player {
@@ -159,7 +175,7 @@
       height: 100%;
       display: block;
       flex-shrink: 1;
-      padding: 0 15px;
+      padding: 0 20px 0 0;
       height: inherit;
       transition: opacity 0.1s cubic-bezier(0, 0, 0.2, 1);
       position: relative;
@@ -170,7 +186,7 @@
       border-radius: 4px;
       overflow: hidden;
       @include pc {
-        padding: 0 15px !important;
+        padding: 0 0 !important;
       }
       @include table {
         padding-bottom: 56.25% !important;
@@ -230,6 +246,9 @@
         padding: 0 30px;
         display: none;
         grid-template-rows: 1fr 2fr;
+        @include mobile {
+          padding: 0 15px;
+        }
         &.paused {
           display: grid;
         }
@@ -242,6 +261,9 @@
           top: 0;
           display: inline-block;
           border-radius: 1px !important;
+          @include mobile {
+            width: calc(100% - 2em);
+          }
         }
         .controls-video {
           display: flex;
@@ -249,6 +271,7 @@
           justify-content: space-between;
           margin-bottom: 5px;
           padding: 0 8px;
+          gap: 10px;
           .controls-left {
             display: flex;
             align-items: center;
@@ -440,4 +463,10 @@
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
+}
+.header__right-drawer {
+  height: 100%;
+  background-color: #2d2f32;
+  color: #fff;
+  width: 50vw;
 }

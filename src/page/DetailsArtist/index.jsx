@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Keyboard } from 'swiper/modules';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,7 +8,6 @@ import { v4 as uuid } from 'uuid';
 import classNames from 'classnames/bind';
 import { getArtistInfo, isScrollTop } from '~/store/actions/dispatch';
 import { CardSong, CardVideo, CardAlbum, CardArtists } from '~/components';
-import BaseModal from '~/utils/BaseModal';
 import { BoxSkeleton, CardFullSkeletonBanner } from '~/BaseSkeleton';
 import { apiGetArtist } from '~/api';
 import path from '~/router/path';
@@ -20,9 +19,10 @@ const cx = classNames.bind(style);
 const DetailsArtist = () => {
   const { currentUser } = useSelector((state) => state.auth);
   const { currentSong, isPlay, artistInfo, artistTopSection, singleEP, artistVideo, artistPlaylist, listArtist } = useSelector((state) => state.app);
-  const { themeApp, handle, isOpenModal, currentModal } = useContext(AuthProvider);
+  const { themeApp, handle, isOpenModal, activeIdAlbum } = useContext(AuthProvider);
   const [isLoading, setIsLoading] = useState(false);
   const { name, panel, videoId } = useParams();
+  const { pathname } = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {
@@ -36,8 +36,13 @@ const DetailsArtist = () => {
     onActiveSong,
     onAddArtist,
     onRemoveArtist,
+    onPlayMusicInPlaylist,
   } = handle;
+  const indexLocation = useMemo(() => {
+    return pathname.split('/').filter((item) => item !== '').length;
+  }, [pathname]);
   useEffect(() => {
+    if (indexLocation === 5) return;
     (async () => {
       setIsLoading(false);
       try {
@@ -57,7 +62,7 @@ const DetailsArtist = () => {
       if (isOpenModal) onCloseModal();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name]);
+  }, [name, indexLocation]);
   const formatFollowCount = useMemo(() => {
     if (!artistInfo?.totalFollow) {
       return 0;
@@ -151,6 +156,7 @@ const DetailsArtist = () => {
                 <TitlePath
                   content={artistTopSection?.title}
                   show={true}
+                  themeApp={themeApp}
                   style={{ marginTop: '0' }}
                   onClick={() => handleNavigatePanel(artistTopSection.link)}
                 />
@@ -216,7 +222,7 @@ const DetailsArtist = () => {
             <div className={cx('wrapper-album')}>
               {singleEP?.map((section) => (
                 <section id={cx('wrapper-album')} key={uuid()}>
-                  <TitlePath content={section.title} show={section?.link} onClick={() => handleNavigatePanel(section?.link)} />
+                  <TitlePath content={section.title} themeApp={themeApp} show={section?.link} onClick={() => handleNavigatePanel(section?.link)} />
                   <Swiper
                     className={cx('slider')}
                     autoplay={{
@@ -266,6 +272,9 @@ const DetailsArtist = () => {
                           currentUser={currentUser}
                           themeApp={themeApp}
                           noTitle={true}
+                          isPlay={isPlay}
+                          onPlayMusicInPlaylist={onPlayMusicInPlaylist}
+                          activeIdAlbum={activeIdAlbum}
                         />
                       </SwiperSlide>
                     ))}
@@ -275,7 +284,7 @@ const DetailsArtist = () => {
             </div>
             {artistVideo?.items && (
               <section id={cx('wrapper-album')} key={uuid()}>
-                <TitlePath content={artistVideo?.title} show={true} onClick={() => handleNavigatePanel(artistVideo?.link)} />
+                <TitlePath content={artistVideo?.title} themeApp={themeApp} show={true} onClick={() => handleNavigatePanel(artistVideo?.link)} />
                 <Swiper
                   className={cx('slider')}
                   autoplay={{
@@ -327,7 +336,7 @@ const DetailsArtist = () => {
             <div className={cx('wrapper-album')}>
               {artistPlaylist?.map((section) => (
                 <section id={cx('wrapper-album')} key={uuid()}>
-                  <TitlePath content={section.title} show={section?.link} onClick={() => handleNavigatePanel(section?.link)} />
+                  <TitlePath content={section.title} themeApp={themeApp} show={section?.link} onClick={() => handleNavigatePanel(section?.link)} />
                   <Swiper
                     className={cx('slider')}
                     autoplay={{
@@ -376,6 +385,9 @@ const DetailsArtist = () => {
                           currentUser={currentUser}
                           onNavigateArtist={handleNavigate}
                           themeApp={themeApp}
+                          isPlay={isPlay}
+                          onPlayMusicInPlaylist={onPlayMusicInPlaylist}
+                          activeIdAlbum={activeIdAlbum}
                         />
                       </SwiperSlide>
                     ))}
@@ -385,7 +397,7 @@ const DetailsArtist = () => {
             </div>
             <div className={cx('menu-artists')}>
               <TitlePath content={listArtist?.title} />
-              <div className={cx('  ')}>
+              <div className={cx('wrapper-artists')}>
                 {listArtist?.items.map((artist, index) => {
                   if (index < 5) {
                     return (
@@ -414,7 +426,20 @@ const DetailsArtist = () => {
                 <div className={cx('description')}>
                   <div className={cx('text')}>
                     <p>{artistInfo?.biography.split('<br>').join('')}</p>
-                    <span onClick={() => onOpenModal({ name: null, type: false }, true)}>xem thêm</span>
+                    <span
+                      onClick={() =>
+                        onOpenModal(
+                          {
+                            type: false,
+                            thumbnailM: artistInfo?.thumbnailM,
+                            desc: artistInfo?.biography,
+                            name: artistInfo?.name,
+                          },
+                          true
+                        )
+                      }>
+                      xem thêm
+                    </span>
                   </div>
                   <div className={cx('follow')}>
                     <h4>{formatFollowCount}</h4>
@@ -426,14 +451,6 @@ const DetailsArtist = () => {
           </div>
         </div>
       </div>
-      <BaseModal
-        reverseModal={currentModal}
-        name={artistInfo?.name}
-        thumbnail={artistInfo?.thumbnailM}
-        desc={artistInfo?.biography}
-        open={isOpenModal}
-        onClose={onCloseModal}
-      />
     </>
   );
 };

@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AuthProvider } from '~/AuthProvider';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -19,18 +19,44 @@ const Album = () => {
   const { currentSong, isPlay } = useSelector((state) => state.app);
   const { currentUser } = useSelector((state) => state.auth);
   const { themeApp, handle } = useContext(AuthProvider);
-  const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onAddPlayList, onRemovePlayList, onAddArtist, onRemoveArtist, onActiveSong } = handle;
+  const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onAddPlayList, onRemovePlayList, onAddArtist, onRemoveArtist, onActiveSong, onOpenModal } =
+    handle;
   const { pid } = useParams();
-  console.log(playListData);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const dispatch = useDispatch();
+  const isMountPlaylistUser = useMemo(() => {
+    return currentUser?.createPlaylist.some((item) => item.encodeId === pid) || false;
+  }, [currentUser, pid]);
   useEffect(() => {
+    if (isMountPlaylistUser) {
+      const data = (currentUser?.createPlaylist || []).find((item) => item.encodeId === pid);
+      setPlayListData({
+        song: {
+          items: data?.items,
+          total: data?.items?.length,
+          totalDuration: data?.items?.reduce((acc, item) => acc + (item?.duration || 0), 0),
+        },
+        artists: currentUser?.followArtist,
+        title: data.title,
+        encodeId: pid,
+        thumbnailM: currentUser?.avatar,
+        isPlaylistUser: true,
+      });
+      setIsLoading(true);
+      dispatch(isScrollTop(true));
+    }
+    return () => {
+      dispatch(isScrollTop(false));
+    };
+    //eslint-disable-next-line
+  }, [currentUser, isMountPlaylistUser, pid]);
+  useEffect(() => {
+    if (isMountPlaylistUser) return;
     const getDetailsPlayList = async () => {
       try {
         const response = await apiDetailsPlayList(pid);
         // console.log(response);
-        if (response.data?.err === 0) {
+        if (response?.data?.err === 0) {
           setPlayListData(response.data.data);
           setIsLoading(true);
           // mount se scrollTop = 0
@@ -45,10 +71,11 @@ const Album = () => {
       // mount se scrollTop = false
       dispatch(isScrollTop(false));
     };
-  }, [pid]);
-  // console.log(playListData);
-  const handleNavigate = (type, url) => {
-    if (type === 1) return; // lam modal phat bai hat
+    // eslint-disable-next-line
+  }, [pid, isMountPlaylistUser]);
+  console.log(playListData);
+  const handleNavigate = (url) => {
+    // if (type === 1) return; // lam modal phat bai hat
     navigate(
       url
         .split('/')
@@ -68,12 +95,24 @@ const Album = () => {
               onAddPlayList={(e) => onAddPlayList(e, playListData)}
               onRemovePlayList={(e) => onRemovePlayList(e, playListData?.encodeId)}
               currentUser={currentUser}
-              onPlaySong={() => onPlaySong(playListData?.song?.items[0], playListData?.song.items, playListData?.title)}
+              onPlaySong={() => onPlaySong(playListData?.song?.items[0], playListData?.song?.items, playListData?.title)}
+              onEditNamePlaylist={() =>
+                onOpenModal(
+                  {
+                    name: 'Chỉnh sửa playlist',
+                    type: true,
+                    editType: true,
+                    id: pid,
+                  },
+                  true
+                )
+              }
             />
             <div className={cx('wrapper')}>
               <SingerListSong playListData={playListData} />
-              {playListData.song.items.map((song, index, arr) => (
+              {playListData?.song?.items.map((song, index, arr) => (
                 <CardAlbumSong
+                  key={song.encodeId}
                   song={song}
                   onActiveSong={(e) => onActiveSong(e, song)}
                   currentSong={currentSong}
@@ -81,20 +120,23 @@ const Album = () => {
                   onNavigateArtist={handleNavigate}
                   onNavigate={(e) => {
                     e.stopPropagation();
-                    handleNavigate(null, song.album.link.split('.')[0]);
+                    handleNavigate(song.album.link.split('.')[0]);
                   }}
                   isPlay={isPlay}
                   theme={themeApp}
-                  key={song.encodeId}
                   onAddLikeSong={(e) => onAddLikeSong(e, song)}
                   onRemoveLikeSong={(e) => onRemoveLikeSong(e, song?.encodeId)}
                   onPlaySong={() => onPlaySong(song, arr, playListData?.title)}
                 />
               ))}
               <div className={cx('bottom-info')}>
-                <span>{playListData?.song.total} bài hát</span>
+                <span>{playListData?.song?.total} bài hát</span>
                 <span>•</span>
-                <span>{moment.unix(playListData?.song.totalDuration, 'seconds').format('h [giờ] m [phút]')}</span>
+                <span>
+                  {playListData?.song?.totalDuration !== 0
+                    ? moment.unix(playListData?.song?.totalDuration, 'seconds').format('h [giờ] m [phút]')
+                    : '0 giờ 0 phút'}
+                </span>
               </div>
             </div>
           </div>
@@ -110,7 +152,7 @@ const Album = () => {
                     currentUser?.followArtist.some((item) => item.id === artist.id) ? onRemoveArtist(e, artist.id) : onAddArtist(e, artist);
                   }}
                   isFollowArtist={currentUser?.followArtist.some((item) => item.id === artist.id)}
-                  onNavigate={() => handleNavigate(null, path.DETAILS_ARTIST.replace('/:name', artist.link))}
+                  onNavigate={() => handleNavigate(path.DETAILS_ARTIST.replace('/:name', artist.link))}
                 />
               ))}
             </div>

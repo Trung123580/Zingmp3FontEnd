@@ -5,9 +5,11 @@ const cx = classNames.bind(style);
 const SingerListSong = ({ playListData }) => {
   return (
     <div className={cx('list-song')}>
-      <h5>
-        Lời tựa <span>{playListData.description}</span>
-      </h5>
+      {!playListData?.isPlaylistUser && (
+        <h5>
+          Lời tựa <span>{playListData?.description}</span>
+        </h5>
+      )}
       <div className={cx('menu')}>
         <div className={cx('media-left')}>
           <SortByAlphaIcon />

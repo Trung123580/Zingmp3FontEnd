@@ -93,6 +93,8 @@
       }
       @include mobile {
         width: calc(100% / 2);
+        padding-left: 8px;
+        padding-right: 8px;
       }
     }
   }

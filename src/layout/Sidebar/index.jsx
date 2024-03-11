@@ -9,14 +9,16 @@ import { AuthProvider } from '~/AuthProvider';
 import classNames from 'classnames/bind';
 import style from './Sidebar.module.scss';
 import Button from '~/utils/Button';
+import QueueMusicRoundedIcon from '@mui/icons-material/QueueMusicRounded';
 import Divide from '~/utils/Divide';
 import { IconAddPlaylist } from '~/asset/logo';
+import Tippy from '@tippyjs/react';
 const cx = classNames.bind(style);
 const Sidebar = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const { pathname } = useLocation();
-  const { theme } = useSelector((state) => state.auth);
+  const { theme, currentUser } = useSelector((state) => state.auth);
   const { isAuth, handle } = useContext(AuthProvider);
   const { onLoginApp, onOpenModal } = handle;
   useEffect(() => {
@@ -154,9 +156,21 @@ const Sidebar = () => {
                       </li>
                     );
                   })}
+                  <Divide />
+                  {currentUser?.createPlaylist.map((item) => (
+                    <li
+                      className={cx('menu-item', {
+                        playlist: true,
+                      })}
+                      key={item?.encodeId}>
+                      <Link to={item?.link} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        {item?.title}
+                        <QueueMusicRoundedIcon fontSize='large' />
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </nav>
-              <Divide />
             </>
           ) : (
             <div className={cx('notification-login')}>
@@ -174,25 +188,15 @@ const Sidebar = () => {
               name: 'Tạo playlist mới',
               type: true,
             },
-            3
+            true
           )
-        }
-        // onClick={() =>
-        //   onOpenModal(
-        //     {
-        //       name: 'Tạo playlist mới',
-        //       type: true,
-        //       editType:true
-        //       id : id => để chỉnh sửa
-        //     },
-        //     3
-        //   )
-        // } // tao 1 noi de chinh sua playlist
-      >
-        <div className={cx('bottom__wrapper')}>
-          <IconAddPlaylist />
-          <span className={cx('text')}>Tạo playlist mới</span>
-        </div>
+        }>
+        <Tippy content={<span className='tippy-title'>Playlist</span>} followCursor='horizontal' placement='top' arrow={true} duration={300}>
+          <div className={cx('bottom__wrapper')}>
+            <IconAddPlaylist />
+            <span className={cx('text')}>Tạo playlist mới</span>
+          </div>
+        </Tippy>
       </div>
     </aside>
   );

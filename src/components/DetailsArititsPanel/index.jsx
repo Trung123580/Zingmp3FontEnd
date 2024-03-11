@@ -13,12 +13,12 @@ import path from '~/router/path';
 import { isScrollTop } from '~/store/actions/dispatch';
 const cx = classNames.bind(style);
 const DetailsArtistPanel = () => {
-  const [isShowDropDown, setIsShowDropDown] = useState(false);
-  const [sortSong, setSortSong] = useState(0);
   const { currentUser } = useSelector((state) => state.auth);
-  const { themeApp, handle } = useContext(AuthProvider);
   const { currentSong, isPlay, artistTopSection, singleEP, artistVideo } = useSelector((state) => state.app);
-  const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onAddAlbum, onRemoveAlbum } = handle;
+  const [sortSong, setSortSong] = useState(0);
+  const [isShowDropDown, setIsShowDropDown] = useState(false);
+  const { themeApp, handle, activeIdAlbum } = useContext(AuthProvider);
+  const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onAddAlbum, onRemoveAlbum, onPlayMusicInPlaylist } = handle;
   const { name, panel } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -141,6 +141,9 @@ const DetailsArtistPanel = () => {
                 currentUser={currentUser}
                 themeApp={themeApp}
                 noTitle={true}
+                isPlay={isPlay}
+                onPlayMusicInPlaylist={onPlayMusicInPlaylist}
+                activeIdAlbum={activeIdAlbum}
               />
             </div>
           ))}

@@ -9,7 +9,7 @@ export { default as CardAlbum } from './CardAlbum';
 export { default as CardRank } from './CardRank';
 export { default as ChartCard } from './ChartCard';
 export { default as LineChart } from './LineChart';
-export { default as AddSuccess } from './AddSuccess';
+// export { default as AddSuccess } from './AddSuccess';
 export { default as CardArtists } from './CardArtists';
 export { default as CardVideo } from './CardVideo';
 export { default as ZingChartRanks } from './ZingChartRanks';

@@ -6,6 +6,13 @@
   //     display: none;
   //   }
   // }
+  &.active {
+    .avatar {
+      .menu-action {
+        display: block;
+      }
+    }
+  }
   .avatar {
     width: 100%;
     overflow: hidden;
@@ -51,6 +58,11 @@
       display: inline-block;
       margin-right: 4px;
     }
+    .default {
+      text-decoration: none !important;
+      color: currentColor !important;
+      cursor: default !important;
+    }
   }
 }
 .menu-action {
@@ -63,13 +75,34 @@
     display: flex;
     align-items: center;
     cursor: pointer;
-    span {
+    .play-song {
+      // position: absolute;
+      // top: 50%;
+      // left: 50%;
+      // transform: translate(-50%, -50%);
+      img {
+        width: 18px;
+        min-width: 18px;
+        object-fit: cover;
+      }
+    }
+    .icon {
       line-height: 0;
       padding: 8px;
       margin: 0 2px;
       color: $color-white;
       cursor: pointer;
       min-width: max-content;
+      &.isPlay {
+        border: 1px solid #fff;
+        border-radius: 50%;
+        img {
+          padding: 3px;
+          width: 25px;
+          height: 25px;
+        }
+      }
+
       &:nth-child(2) {
         &:hover {
           background-color: transparent;

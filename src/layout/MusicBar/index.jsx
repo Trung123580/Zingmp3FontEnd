@@ -77,6 +77,7 @@ const MusicBar = () => {
       handleRefresh();
     }
     const getDetailsSong = async () => {
+      if (!currentSong) return;
       setIsLoading(true);
       try {
         const [response1, response2] = await Promise.all([apiSong(currentSong?.encodeId), apiInfoSong(currentSong?.encodeId)]);
@@ -127,13 +128,14 @@ const MusicBar = () => {
       }
     };
     getDetailsSong();
+    // eslint-disable-next-line
   }, [currentSong?.encodeId]);
   useEffect(() => {
     if (isVideo === 5) {
       audio?.pause();
       dispatch(playSong(false));
-    }
-  }, [isVideo]);
+    } // eslint-disable-next-line
+  }, [isVideo, audio]);
   // cdThumb rotate
   useEffect(() => {
     if (cdThumb.current) {
@@ -166,22 +168,25 @@ const MusicBar = () => {
         }
       })();
     }
+    // eslint-disable-next-line
   }, [stateMiniSize.isMiniSize, refMiniSize.current]);
   useEffect(() => {
-    if (!refMiniSize.current) return;
+    const refMiniScreen = refMiniSize.current;
+    if (!refMiniScreen) return;
     const handleLeavePiP = () => {
       setStateMiniSize((prev) => ({ ...prev, isMiniSize: false }));
     };
     const handleLoadedMetadata = async (e) => {
       await e.target.requestPictureInPicture();
     };
-    refMiniSize.current?.addEventListener('leavepictureinpicture', handleLeavePiP);
-    refMiniSize.current?.addEventListener('loadedmetadata', handleLoadedMetadata);
+    refMiniScreen?.addEventListener('leavepictureinpicture', handleLeavePiP);
+    refMiniScreen?.addEventListener('loadedmetadata', handleLoadedMetadata);
 
     return () => {
-      refMiniSize.current?.removeEventListener('leavepictureinpicture', handleLeavePiP);
-      refMiniSize.current?.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      refMiniScreen?.removeEventListener('leavepictureinpicture', handleLeavePiP);
+      refMiniScreen?.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
+    // eslint-disable-next-line
   }, [refMiniSize.current]);
   const handleToggleMiniScreen = async () => {
     if (document.pictureInPictureElement === refMiniSize.current) {
@@ -232,12 +237,14 @@ const MusicBar = () => {
     return () => {
       window.removeEventListener('keydown', handleListenKeydown);
     };
+    // eslint-disable-next-line
   }, [audio, volume, seconds, isVideo]);
   const indexSong = useMemo(() => {
     if (!currentPlayList?.listItem.length) return;
     const playList = currentPlayList?.listItem || [];
     return playList?.findIndex((item) => item?.encodeId === currentSong?.encodeId) || 0;
-  }, [currentSong?.encodeId]);
+    // eslint-disable-next-line
+  }, [currentSong?.encodeId, currentPlayList]);
   const handleNextSong = () => {
     if (indexSong !== -1 && indexSong + 1 < currentPlayList?.listItem?.length) {
       dispatch(getSong(currentPlayList?.listItem[indexSong + 1]));
@@ -294,6 +301,7 @@ const MusicBar = () => {
         !!audio && audio.removeEventListener('ended', handleEnded);
       };
     }
+    // eslint-disable-next-line
   }, [audio, isRandomSong]);
   useEffect(() => {
     if (volumeRef.current) {
@@ -303,7 +311,8 @@ const MusicBar = () => {
         inputVolumeRef.current.style.background = `linear-gradient(to right, ${themeApp?.primaryColor} 0%, ${themeApp?.primaryColor} ${volume}%, rgba(255, 255, 255, 0.3) ${volume}%, rgba(255, 255, 255, 0.3) 100%)`;
       }
     }
-  }, [volume]);
+    // eslint-disable-next-line
+  }, [volume, audio]);
   const handleMuteToggleVolume = () => {
     if (volumeRef.current) {
       if (audio) {
@@ -325,14 +334,16 @@ const MusicBar = () => {
       }
     };
     if (isPlay) {
-      intervalId = setInterval(updateCurrentTime, 500);
+      let timeUpdate = isOpenLyricSong ? 500 : 1000;
+      intervalId = setInterval(updateCurrentTime, timeUpdate);
     } else {
       intervalId && clearInterval(intervalId);
     }
     return () => {
       intervalId && clearInterval(intervalId);
     };
-  }, [isPlay, audio, isDragging]);
+    // eslint-disable-next-line
+  }, [isPlay, audio, isDragging, isOpenLyricSong]);
   useEffect(() => {
     document.addEventListener('mousemove', handleDragMove);
     document.addEventListener('mouseup', handleDragEnd);
@@ -340,6 +351,7 @@ const MusicBar = () => {
       document.removeEventListener('mousemove', handleDragMove);
       document.removeEventListener('mouseup', handleDragEnd);
     };
+    // eslint-disable-next-line
   }, [isDragging]);
   const handleTogglePlayMusic = () => {
     if (isPlay) {

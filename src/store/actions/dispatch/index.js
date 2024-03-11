@@ -39,12 +39,7 @@ const dataUser = (data) => {
     payload: data,
   };
 };
-const addSuccess = (isOpen) => {
-  return {
-    type: actionTypes.ADD_SUCCESS,
-    payload: isOpen,
-  };
-};
+
 const randomSong = (isRandom) => {
   return {
     type: actionTypes.RANDOM_SONG,
@@ -110,7 +105,7 @@ export {
   playSong,
   openPlayList,
   dataUser,
-  addSuccess,
+  // addSuccess,
   randomSong,
   getCurrentPlayList,
   getArtistInfo,

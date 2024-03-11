@@ -2,8 +2,24 @@ import classNames from 'classnames/bind';
 import style from './LibraryMusicArtists.module.scss';
 import { CardArtists } from '..';
 import path from '~/router/path';
+import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { useSelector } from 'react-redux';
+import { AuthProvider } from '~/AuthProvider';
 const cx = classNames.bind(style);
-const LibraryMusicArtists = ({ currentUser, themeApp, onNavigate, onRemoveArtist, onAddArtist }) => {
+const LibraryMusicArtists = () => {
+  const { currentUser } = useSelector((store) => store.auth);
+  const { themeApp, handle } = useContext(AuthProvider);
+  const { onRemoveArtist, onAddArtist } = handle;
+  const navigate = useNavigate();
+  const handleNavigate = (url) => {
+    navigate(
+      url
+        .split('/')
+        .filter((item) => item !== 'nghe-si')
+        .join('/')
+    );
+  };
   return (
     <section className={cx('container')}>
       <div className={cx('page__artists')}>
@@ -25,7 +41,7 @@ const LibraryMusicArtists = ({ currentUser, themeApp, onNavigate, onRemoveArtist
                   }}
                   isFollowArtist={currentUser?.followArtist.some((item) => item.id === artist.id)}
                   themeApp={themeApp}
-                  onNavigate={() => onNavigate(path.DETAILS_ARTIST.replace('/:name', artist.link))}
+                  onNavigate={() => handleNavigate(path.DETAILS_ARTIST.replace('/:name', artist.link))}
                 />
               );
             })}

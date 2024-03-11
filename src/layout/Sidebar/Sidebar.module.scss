@@ -54,6 +54,32 @@
   .menu-item {
     color: $color-navigation-text;
     border-left: 3px solid transparent;
+    &.playlist {
+      @include table {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      @include mobile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      a {
+        @include mobile {
+          padding: 12px 0;
+          margin: auto;
+        }
+        svg {
+          @include table {
+            display: none;
+          }
+          @include mobile {
+            display: none;
+          }
+        }
+      }
+    }
     @include transition;
     @include mobile {
       border-color: transparent !important;
@@ -143,6 +169,9 @@
 // scroll
 .scroll-profile {
   height: 44vh;
+  @include pc {
+    height: 40vh;
+  }
   @include mobile {
     height: 38vh;
   }

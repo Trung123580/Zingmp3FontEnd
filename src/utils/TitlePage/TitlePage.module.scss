@@ -17,6 +17,9 @@
     line-height: 48px;
     text-transform: capitalize;
     @include text-cover;
+    &.artist {
+      text-transform: inherit;
+    }
     &.zingchart {
       background: radial-gradient(50% 124.93% at 95.86% -10%, #3efad9 0, hsla(0, 0%, 100%, 0) 100%),
         linear-gradient(91.56deg, #ff9357 1.54%, #9100ff 98.71%);

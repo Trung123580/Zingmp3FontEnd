@@ -24,8 +24,8 @@ const Home = () => {
     (state) => state.app
   );
   const { currentUser } = useSelector((state) => state.auth);
-  const { themeApp, handle, selectedChart } = useContext(AuthProvider);
-  const { onPlaySong, onAddPlayList, onRemovePlayList, onCloseModal, onActiveSong } = handle;
+  const { themeApp, handle, selectedChart, activeIdAlbum } = useContext(AuthProvider);
+  const { onPlaySong, onAddPlayList, onRemovePlayList, onCloseModal, onActiveSong, onPlayMusicInPlaylist } = handle;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -71,7 +71,7 @@ const Home = () => {
       {isLoading ? (
         <>
           <Slider banner={banner} onNavigatePlayList={handleNavigatePlayList} />
-          <TitlePath content='Mới Phát Hành' show={true} onClick={() => handleNavigate(path.NEW_RELEASE)} />
+          <TitlePath themeApp={themeApp} content='Mới Phát Hành' show={true} onClick={() => handleNavigate(path.NEW_RELEASE)} />
           <div className={cx('list-btn')}>
             {listBtnNewRelease.map(({ content, id, active, type }) => (
               <Button
@@ -149,13 +149,16 @@ const Home = () => {
                     {album?.items.map((album) => (
                       <SwiperSlide key={album.encodeId}>
                         <CardAlbum
-                          onNavigatePlayList={() => handleNavigatePlayList(null, album.link.split('.')[0])}
+                          onNavigatePlayList={() => handleNavigate(album.link.split('.')[0])}
                           onNavigateArtist={handleNavigate}
                           data={album}
                           onAddPlayList={(e) => onAddPlayList(e, album)}
                           onRemovePlayList={(e) => onRemovePlayList(e, album.encodeId)}
                           currentUser={currentUser}
                           themeApp={themeApp}
+                          isPlay={isPlay}
+                          onPlayMusicInPlaylist={onPlayMusicInPlaylist}
+                          activeIdAlbum={activeIdAlbum}
                         />
                       </SwiperSlide>
                     ))}
@@ -165,7 +168,7 @@ const Home = () => {
             })}
           {!!newReleaseChart && (
             <section className={cx('wrapper-ranks')}>
-              <TitlePath content={newReleaseChart.title} show={true} onClick={() => handleNavigate(path.NEW_MUSIC)} />
+              <TitlePath themeApp={themeApp} content={newReleaseChart.title} show={true} onClick={() => handleNavigate(path.NEW_MUSIC)} />
               <Swiper
                 className={cx('slider')}
                 autoplay={{
@@ -251,7 +254,12 @@ const Home = () => {
           {!!remainingAlbum &&
             remainingAlbum.map((album) => (
               <section id={cx('wrapper-ranks')} key={uuid()}>
-                <TitlePath content={album?.title} show={album?.sectionId === 'hAlbum' ? false : true} onClick={() => handleNavigate(path.TOP_100)} />
+                <TitlePath
+                  themeApp={themeApp}
+                  content={album?.title}
+                  show={album?.sectionId === 'hAlbum' ? false : true}
+                  onClick={() => handleNavigate(path.TOP_100)}
+                />
                 <Swiper
                   className={cx('slider')}
                   autoplay={{
@@ -293,14 +301,17 @@ const Home = () => {
                   {album?.items.map((album) => (
                     <SwiperSlide key={album.encodeId}>
                       <CardAlbum
-                        onNavigatePlayList={() => handleNavigatePlayList(null, album.link.split('.')[0])}
+                        onNavigatePlayList={() => handleNavigate(album?.link.split('.')[0])}
                         onNavigateArtist={handleNavigate}
                         data={album}
                         currentUser={currentUser}
                         noTitle={true}
                         onAddPlayList={(e) => onAddPlayList(e, album)}
-                        onRemovePlayList={(e) => onRemovePlayList(e, album.encodeId)}
+                        onRemovePlayList={(e) => onRemovePlayList(e, album?.encodeId)}
                         themeApp={themeApp}
+                        isPlay={isPlay}
+                        onPlayMusicInPlaylist={onPlayMusicInPlaylist}
+                        activeIdAlbum={activeIdAlbum}
                       />
                     </SwiperSlide>
                   ))}

@@ -8,22 +8,13 @@ import classNames from 'classnames/bind';
 import style from './PlayerQueue.module.scss';
 import { differenceBy as _differenceBy } from 'lodash';
 import { useNavigate } from 'react-router-dom';
-import BaseModal from '~/utils/BaseModal';
 const cx = classNames.bind(style);
 const PlayerQueue = () => {
   const { isOpenPlayList, currentSong, isPlay, currentPlayList } = useSelector((state) => state.app);
   const { currentUser } = useSelector((state) => state.auth);
   const [active, setActive] = useState(0);
-  // const [activeIdSong, setActiveIdSong] = useState(null);
-  // const [coords, setCoords] = useState({
-  //   x: 0,
-  //   y: 0,
-  //   width: 0,
-  //   height: 0,
-  // });
-  // console.log(coords);
-  const { themeApp, handle, isOpenModal, currentModal, coords } = useContext(AuthProvider);
-  const { onAddLikeSong, onRemoveLikeSong, onPlaySong, onCloseModal, onActiveSong } = handle;
+  const { themeApp, handle, coords } = useContext(AuthProvider);
+  const { onAddLikeSong, onRemoveLikeSong, onPlaySong, onActiveSong } = handle;
   const navigate = useNavigate();
   const thumbStyles = {
     width: '100%',
@@ -195,7 +186,6 @@ const PlayerQueue = () => {
           </div>
         </div>
       </Scrollbar>
-      <BaseModal reverseModal={currentModal} open={isOpenModal} onClose={onCloseModal} />
     </div>
   );
 };

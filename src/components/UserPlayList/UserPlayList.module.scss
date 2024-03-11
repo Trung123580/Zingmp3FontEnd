@@ -1,6 +1,6 @@
 @import '../../variable.scss';
 @include container;
-.page__artists {
+.page__playlist {
   .header {
     display: flex;
     align-items: center;
@@ -33,10 +33,16 @@
       font-weight: 500;
       font-size: 1.4rem;
       border-bottom: 1px solid transparent;
+      cursor: pointer;
+      color: $text-navigate;
+      @include transition;
+      &.active {
+        color: $color-white;
+      }
     }
   }
   .content {
-    .menu__artists {
+    .menu {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 28px;
@@ -50,6 +56,31 @@
         margin-top: 20px;
         grid-template-columns: repeat(2, 1fr);
         gap: 15px;
+      }
+      .card__create-playlist {
+        width: 100%;
+        cursor: pointer;
+        border-radius: 4px;
+        border: 1px solid $border-primary;
+        font-size: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        svg {
+          font-size: 4.7rem;
+          color: $color-white;
+        }
+        span {
+          color: $color-white;
+        }
+        &:hover {
+          span,
+          svg {
+            color: currentColor;
+          }
+        }
       }
     }
   }

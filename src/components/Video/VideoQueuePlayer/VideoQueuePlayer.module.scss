@@ -2,7 +2,8 @@
 .queue-player {
   width: 350px;
   flex-shrink: 1;
-  padding: 0 15px;
+  padding: 0 0 0 20px;
+
   &.theaterMode {
     width: 100%;
     height: auto;
@@ -37,13 +38,15 @@
     border-radius: 4px;
     overflow: hidden;
     width: 95vw;
+    padding: 0;
   }
   @include mobile {
     position: relative;
-    margin: 30px auto 0;
+    margin: 10px auto 0;
     border-radius: 4px;
     overflow: hidden;
     width: 95vw;
+    padding: 0;
   }
   .wrapper-queue {
     background-color: hsla(0, 0%, 100%, 0.10196078431372549);
@@ -71,6 +74,7 @@
     @include mobile {
       justify-content: flex-start;
       gap: 10px;
+      padding: 15px 0;
     }
     h3 {
       font-weight: 700;

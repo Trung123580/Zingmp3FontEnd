@@ -70,7 +70,9 @@
   font-style: normal;
   font-display: swap;
 }
-
+:root {
+  --toastify-color-dark: #2d2f32;
+}
 *,
 *:before,
 *:after {
@@ -209,4 +211,7 @@ body {
 .swiper-slide-shadow-left,
 .swiper-slide-shadow-right {
   background: transparent !important;
+}
+.toast-message {
+  text-transform: capitalize;
 }

@@ -39,17 +39,35 @@
   }
   h3 {
     text-align: center;
-    white-space: normal; 
+    white-space: normal;
     font-size: 2rem;
     font-weight: 700;
     line-height: 1.5;
     text-transform: none;
     margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    .icon__delete {
+      cursor: pointer;
+      &:hover {
+        -webkit-filter: brightness(0.9);
+        filter: brightness(0.9);
+      }
+    }
   }
   .artists {
     font-size: 1.2rem;
     color: $text-secondary;
     @include text-cover;
+    .title__artist {
+      &:hover {
+        text-decoration: none;
+        cursor: default;
+      }
+      font-size: 1.3rem;
+      color: #fff;
+    }
     span {
       &:hover {
         text-decoration: underline;

@@ -1,0 +1,42 @@
+@import '../../../variable.scss';
+.wrapper {
+  padding: 15px 0;
+}
+.action-video {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 10px;
+  .item {
+    line-height: 0;
+    padding: 8px;
+    color: $color-white;
+    cursor: pointer;
+    width: 100%;
+    display: inline-block;
+    @include transition;
+    // border-radius: 50%;
+    box-shadow: 0 2px 4px 0 rgba(133, 105, 208, 0.11);
+    background-color: $primary-bg;
+    // gap: 30px;
+    font-weight: 600;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    svg {
+      font-size: 2.3rem;
+    }
+    &:hover {
+      //   opacity: 0.8;
+      background-color: $alpha-bg;
+    }
+  }
+}
+.header-right {
+  display: flex;
+  padding: 10px;
+  align-items: center;
+  gap: 10px;
+}

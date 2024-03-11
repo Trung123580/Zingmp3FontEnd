@@ -47,7 +47,6 @@ const LyricSong = () => {
   const itemLyricRef = useRef(null);
   const theme = useTheme();
   const dispatch = useDispatch();
-  const refScroll = useRef(null);
   const hideMouseRef = useRef(null);
   const timeoutRef = useRef(null);
   const findLyricSong = useMemo(() => {
@@ -250,7 +249,6 @@ const LyricSong = () => {
                   </div>
                   <div className={cx('content__text')}>
                     <Scrollbar
-                      ref={refScroll}
                       // scrollTop={itemLyricRef.current?.getBoundingClientRect().top} // dung de cuon den vi tri loi bai hat
                       wrapperProps={{
                         renderer: (props) => {

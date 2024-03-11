@@ -9,14 +9,15 @@ const path = {
   HISTORY: '/history',
   LOVE_SONG: '/love-song',
   USER_PLAY_LIST: '/user-play-list',
-  ARTISTS: 'artist',
+  ARTISTS: '/artist',
+  MV: 'mv',
   // Details
   DETAILS_ARTIST: '/details-artist/:name',
   DETAILS_ARTIST_PANEL: '/:panel',
   OPEN_VIDEO: '/video-clip/:titleVideo/:videoId',
   //
   ALBUM: '/album/:title/:pid',
-  PLAY_LIST: 'playlist/:title/:pid',
+  PLAY_LIST: '/playlist/:title/:pid',
   //
   USER_ALBUM: '/user-album',
   UPLOAD: '/upload',

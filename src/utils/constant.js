@@ -47,6 +47,13 @@ const navChart = [
   { id: uuid(), path: 'us', name: 'us-uk' },
   { id: uuid(), path: 'korea', name: 'k-pop' },
 ];
+
+const listLibrary = [
+  { id: uuid(), name: 'Bài hát', number: 0, path: '/love-song' },
+  { id: uuid(), name: 'ALBUM', number: 1, path: '/user-album' },
+  { id: uuid(), name: 'MV', number: 2, path: null },
+];
+
 const listKeyVideo = [
   {
     key: 'Digit0',
@@ -106,4 +113,4 @@ const fontsLyric = [
     id: uuid(),
   },
 ];
-export { listTheme, listBtnNewRelease, navChart, listKeyVideo, fontsLyric };
+export { listTheme, listBtnNewRelease, navChart, listKeyVideo, fontsLyric, listLibrary };

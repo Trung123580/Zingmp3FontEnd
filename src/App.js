@@ -4,20 +4,24 @@ import { Scrollbar } from 'react-scrollbars-custom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { PlayerQueue, Sidebar, Header, MusicBar } from '~/layout';
 import { router } from '~/router';
-import { AddSuccess, LyricSong, PortalModal } from './components';
+import { LyricSong, PortalModal } from './components';
 import { backgroundDefault } from '~/asset';
 import 'react-loading-skeleton/dist/skeleton.css';
+import 'react-toastify/dist/ReactToastify.css';
 import 'tippy.js/dist/tippy.css';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import './App.scss';
+import { ToastContainer } from 'react-toastify';
+
 import { useSelector } from 'react-redux';
+import BaseModal from './utils/BaseModal';
 
 function App() {
-  const { themeApp, isShowPortal, coords, handle, isOpenLyricSong } = useContext(AuthProvider);
+  const { themeApp, isShowPortal, coords, handle, isOpenLyricSong, isOpenModal, currentModal } = useContext(AuthProvider);
   const { isScrollTop } = useSelector((state) => state.auth);
-  const { onActiveSong } = handle;
+  const { onActiveSong, onCloseModal } = handle;
   const refScroll = useRef(null);
   const thumbStyles = {
     width: '100%',
@@ -53,6 +57,19 @@ function App() {
             if (coords?.isShowPortal) {
               onActiveSong(null, null);
             }
+          }}
+          disableTrackYMousewheelScrolling
+          trackXProps={{
+            renderer: (props) => {
+              const { elementRef, ...restProps } = props;
+              return <span {...restProps} ref={elementRef} className='TrackX' style={{ display: 'none' }} />;
+            },
+          }}
+          thumbXProps={{
+            renderer: (props) => {
+              const { elementRef, ...restProps } = props;
+              return <span {...restProps} ref={elementRef} className='ThUmBX' style={{ display: 'none' }} />;
+            },
           }}
           trackYProps={{
             renderer: (props) => {
@@ -106,7 +123,21 @@ function App() {
         <PlayerQueue />
         {isShowPortal && <PortalModal />}
         {isOpenLyricSong && <LyricSong />}
-        <AddSuccess />
+        <BaseModal reverseModal={currentModal} open={isOpenModal} onClose={onCloseModal} />
+        <ToastContainer
+          position='top-right'
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme='dark'
+          bodyClassName='toast-message'
+          // transition={0.3}
+        />
       </main>
     </Router>
   );

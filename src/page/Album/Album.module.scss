@@ -32,13 +32,28 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 50px;
+    > div {
+      &:nth-child(n + 6) {
+        display: none;
+      }
+    }
     @include table {
       grid-template-columns: repeat(4, 1fr);
       gap: 25px;
+      > div {
+        &:nth-child(n + 5) {
+          display: none;
+        }
+      }
     }
     @include mobile {
       grid-template-columns: repeat(2, 1fr);
       gap: 25px;
+      > div {
+        &:nth-child(n + 3) {
+          display: none;
+        }
+      }
     }
   }
 }

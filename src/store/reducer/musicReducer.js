@@ -10,7 +10,6 @@ const initState = {
   newReleaseChart: null, //{}
   chartData: null, // {}
   weekChart: null, // {}
-  showSuccess: { type: false, content: '' },
   isRandomSong: false,
   // artist_info
   artistInfo: null, // {}
@@ -59,12 +58,6 @@ const musicReducer = (state = initState, action) => {
       return {
         ...state,
         isOpenPlayList: action.payload,
-      };
-    // show AddSuccess
-    case actionTypes.ADD_SUCCESS:
-      return {
-        ...state,
-        showSuccess: action.payload,
       };
     // randomSong
     case actionTypes.RANDOM_SONG:

@@ -4,6 +4,9 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  @include mobile {
+    gap: 7px;
+  }
 }
 .menu {
   margin-top: 20px;
@@ -95,13 +98,14 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
-  margin-top: 70px;
+  margin-top: 60px;
   @include table {
-    margin-top: 60px;
+    margin-top: 40px;
   }
   @include mobile {
-    margin-top: 50px;
-    grid-template-columns: repeat(2, 1fr);
+    margin-top: 30px;
+    gap: 15px;
+    grid-template-columns: repeat(1, 1fr);
   }
   .zing-item {
     width: 100%;

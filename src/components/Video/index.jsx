@@ -5,7 +5,7 @@ import { Scrollbar } from 'react-scrollbars-custom';
 import { uniqBy as _uniqBy } from 'lodash';
 import classNames from 'classnames/bind';
 import style from './Video.module.scss';
-import { addSuccess, getDeFaultDataVideo } from '~/store/actions/dispatch';
+import { getDeFaultDataVideo } from '~/store/actions/dispatch';
 import { TbWindowMinimize } from 'react-icons/tb';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BsPlayCircle, BsPauseCircle } from 'react-icons/bs';
@@ -23,11 +23,14 @@ import StarRateRoundedIcon from '@mui/icons-material/StarRateRounded';
 import { AiOutlineLoading3Quarters } from 'react-icons/ai';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { PiMusicNotesSimpleBold, PiLink } from 'react-icons/pi';
 import VideoControls from './VideoControls';
 import TitlePath from '~/utils/TitlePath';
 import ListMvArtists from './ListMvArtists';
 import { listKeyVideo } from '~/utils/constant';
+import MobileResponsiveHeader from './MobileResponsiveHeader';
+import { SwipeableDrawer } from '@mui/material';
 const cx = classNames.bind(style);
 const Video = () => {
   const { themeApp, handle } = useContext(AuthProvider);
@@ -46,6 +49,7 @@ const Video = () => {
     isTheaterMode: false,
     isMiniPlayer: false,
   });
+
   const [statePlayVideo, setStatePlayVideo] = useState({
     isPlay: false,
     isShowIcon: false,
@@ -56,8 +60,9 @@ const Video = () => {
     isOpenQuality: false,
     isOpenSetting: false,
     percentSecondsLoaded: 0,
+    isOpenDrawer: false,
   });
-  const { onPlaySong, onAddMv, onRemoveMv, onAddHistoryMv } = handle;
+  const { onPlaySong, onAddMv, onRemoveMv, onAddHistoryMv, onCopyUrlClipBoard } = handle;
   const { isTheaterMode, isMiniPlayer } = stateScreenMode;
   const { isPlay, isShowIcon, defaultIsPlay, percentSecondsLoaded, isMouse, isLoadingVideo, quality, isOpenQuality, isOpenSetting } = statePlayVideo;
   const { videoId, titleVideo, name } = useParams();
@@ -172,6 +177,7 @@ const Video = () => {
       if (document.fullscreenElement !== null) await document.exitFullscreen();
     },
     onChangeFullScreen: async () => {
+      if (!videoRef.current) return;
       if (document.fullscreenElement === null) {
         await hideMouseRef.current?.requestFullscreen();
         if (isLoadingVideo || isOpenQuality) setStatePlayVideo((prev) => ({ ...prev, isOpenSetting: false, isOpenQuality: false }));
@@ -204,6 +210,13 @@ const Video = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // useEffect(() => {
+  //   if (deFautDataVideo) {
+  //       const getApiArtist = async () =>{
+
+  //       }
+  //   }
+  // },[deFautDataVideo])
   const handleGetVideoArtist = async (response) => {
     const artistData = response.data?.data?.artists;
     setIsLoadingListMV(false);
@@ -286,7 +299,6 @@ const Video = () => {
           setDataVideo(response.data.data);
           setStatePlayVideo((prev) => ({ ...prev, isPlay: true }));
           await handleGetVideoArtist(response);
-          // videoId; => tim ra bai hat trung voi id nay de add hítory mv
         }
       })();
     } catch (error) {
@@ -384,14 +396,14 @@ const Video = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quality, videoRef, currentTimeVideo]);
   const handleMouseMove = () => {
-    setStatePlayVideo((prev) => ({ ...prev, isMouse: true }));
+    if (!statePlayVideo.isMouse) setStatePlayVideo((prev) => ({ ...prev, isMouse: true }));
     if (hideMouseRef.current) {
       hideMouseRef.current.style.cursor = 'default';
       clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
         if (hideMouseRef.current) {
           hideMouseRef.current.style.cursor = 'none';
-          setStatePlayVideo((prev) => ({ ...prev, isMouse: false }));
+          if (statePlayVideo.isMouse) setStatePlayVideo((prev) => ({ ...prev, isMouse: false }));
         }
       }, 2500);
     }
@@ -404,9 +416,11 @@ const Video = () => {
         if (mouseRef) mouseRef.removeEventListener('mousemove', handleMouseMove);
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultIsPlay, hideMouseRef, isPlay]);
   useEffect(() => {
     if (!videoRef.current) return;
+
     const handleListenKeydown = async (e) => {
       if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
         e.preventDefault();
@@ -447,8 +461,10 @@ const Video = () => {
       });
     };
     window.addEventListener('keydown', handleListenKeydown);
+    // videoRef.current?.addEventListener('dblclick', handleFullScreenDBLclick);
     return () => {
       window.removeEventListener('keydown', handleListenKeydown);
+      // videoRef.current?.removeEventListener('dblclick', handleFullScreenDBLclick);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoRef.current, volume, isPlay]);
@@ -469,11 +485,19 @@ const Video = () => {
     navigate(-indexNavigate);
     onPlaySong(dataVideo.song, dataVideo.audioSongs, null);
   };
-  const handleCopyUrlClipBoard = async () => {
-    await navigator.clipboard.writeText(window.location.href);
-    dispatch(addSuccess({ type: true, content: 'Link đã được sao chép vào clipboard' }));
-  };
   const isExitsLikeVideo = currentUser?.followMv.some(({ encodeId }) => encodeId === videoId);
+  const optionHeader = {
+    themeApp: themeApp,
+    isExitsLikeVideo: isExitsLikeVideo,
+    onRemoveMv: onRemoveMv,
+    videoId: videoId,
+    onAddMv: onAddMv,
+    dataVideo: dataVideo,
+    onAudioVideo: handleAudioVideo,
+    onCopyUrlClipBoard: onCopyUrlClipBoard,
+    onMiniPlayer: handleMiniPlayer,
+  };
+  const handleToggleDrawer = (isboolean) => setStatePlayVideo((prev) => ({ ...prev, isOpenDrawer: isboolean }));
   if (!isOnMount) {
     return (
       <div className={cx('video-modal-loading')}>
@@ -572,7 +596,7 @@ const Video = () => {
                         placement='bottom'
                         arrow={true}
                         duration={300}>
-                        <div className={cx('icon')} onClick={handleCopyUrlClipBoard}>
+                        <div className={cx('icon')} onClick={onCopyUrlClipBoard}>
                           <PiLink />
                         </div>
                       </Tippy>
@@ -593,6 +617,18 @@ const Video = () => {
                     }}
                   />
                 </div>
+                <div className={cx('header__mobile')}>
+                  <Button onClick={() => handleToggleDrawer(true)} icon={<MenuRoundedIcon fontSize='large' sx={{ fontSize: '3rem' }} />} />
+                </div>
+                <SwipeableDrawer
+                  anchor={'right'}
+                  open={statePlayVideo.isOpenDrawer}
+                  onClose={() => handleToggleDrawer(false)}
+                  onOpen={() => handleToggleDrawer(true)}>
+                  <div className={cx('header__right-drawer')} onClick={() => setStatePlayVideo((prev) => ({ ...prev, isOpenDrawer: false }))}>
+                    <MobileResponsiveHeader {...optionHeader} />
+                  </div>
+                </SwipeableDrawer>
               </div>
               <div
                 className={cx('content', {
@@ -605,6 +641,7 @@ const Video = () => {
                         isMouse: isMouse,
                       })}
                       onClick={handleTogglePlayVideo}
+                      onDoubleClick={optionVideoControls.onChangeFullScreen}
                       ref={hideMouseRef}>
                       <VideoPlayer
                         ref={videoRef}

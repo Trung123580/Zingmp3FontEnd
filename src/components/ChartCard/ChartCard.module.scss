@@ -33,6 +33,9 @@
     white-space: nowrap;
     -webkit-text-stroke: 1px #4a90e2;
     opacity: 1;
+    @include mobile {
+      min-width: 20px;
+    }
   }
   .main {
     display: flex;
