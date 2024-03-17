@@ -31,7 +31,7 @@ function App() {
     borderRadius: '5px',
   };
   useEffect(() => {
-    if (!coords?.isShowPortal) return;
+    // if (!coords?.isShowPortal) return;
     const handleClickOutside = () => {
       onActiveSong(null, null);
     };

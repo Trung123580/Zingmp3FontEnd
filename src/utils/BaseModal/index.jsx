@@ -1,29 +1,30 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Typography, Modal, Box, Avatar } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { Scrollbar } from 'react-scrollbars-custom';
+import { apiLyricSong } from '~/api';
 import { AuthProvider } from '~/AuthProvider';
-import { modalSongErr } from '~/asset';
+import { loading, modalSongErr } from '~/asset';
 import Button from '../Button';
 import { useForm } from 'react-hook-form';
 import classNames from 'classnames/bind';
+import { v4 as uuid } from 'uuid';
 import style from './BaseModal.module.scss';
 const cx = classNames.bind(style);
 const BaseModal = (props) => {
+  const [stateLyricSong, setStateLyricSong] = useState({
+    data: [],
+    isLoading: true,
+  });
   const { onClose, open, reverseModal } = props;
+
   // reverseModal === true => description artist
   // reverseModal === false => song Error
   // isModalPlaylist === true && reverseModal === true => CreateAndEditPlaylist
-  const { titleModal, themeApp, handle, isModalPlaylist, isModalDeleteShow, thumbnailM, desc } = useContext(AuthProvider);
+  const { titleModal, themeApp, handle, isModalPlaylist, isModalDeleteShow, thumbnailM, desc, modalLyricSong } = useContext(AuthProvider);
   const { onCreatePlaylistAndEditName, onDeletePlaylist } = handle;
   const [isDisableButton, setIsDisableButton] = useState(true);
-  const {
-    handleSubmit,
-    register,
-    // setFocus,
-    // setError,
-    reset,
-  } = useForm();
+  const { handleSubmit, register, reset } = useForm();
   const handleSubmitForm = ({ name }) => {
     onCreatePlaylistAndEditName(name);
     reset(); // clear value
@@ -40,6 +41,26 @@ const BaseModal = (props) => {
     p: 3,
     outline: 'none',
   };
+  useEffect(() => {
+    if (!modalLyricSong?.isModalShowLyric) return;
+    if (!stateLyricSong.isLoading) setStateLyricSong((prev) => ({ ...prev, isLoading: true, data: [] }));
+    const getLyricSong = async () => {
+      try {
+        const response = await apiLyricSong(modalLyricSong?.encodeId);
+        if (response.data?.err === 0) {
+          setStateLyricSong((prev) => ({
+            ...prev,
+            data: response.data?.data?.sentences?.map((item) => `${item.words.map((it) => it.data).join(' ')}`) || [],
+            isLoading: false,
+          }));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getLyricSong();
+    // eslint-disable-next-line
+  }, [modalLyricSong?.isModalShowLyric]);
   const handleChangeInput = (e) => {
     if (e.target.value === '') {
       setIsDisableButton(true);
@@ -47,6 +68,83 @@ const BaseModal = (props) => {
     }
     if (isDisableButton) setIsDisableButton(false);
   };
+  if (modalLyricSong?.isModalShowLyric) {
+    return (
+      <Modal keepMounted open={open} onClose={onClose} aria-labelledby='keep-mounted-modal-title' aria-describedby='keep-mounted-modal-description'>
+        <Box sx={style}>
+          <Typography style={{ fontSize: '1.8rem', color: 'white', fontWeight: 700 }}>Lời Bài Hát </Typography>
+          {stateLyricSong.isLoading ? (
+            <Box sx={{ maxHeight: '300px', height: '300px', mt: 1 }}>
+              <Box sx={{ height: 'calc(100% - 35px)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <img src={loading} alt='' style={{ width: 'calc(100% - 50%)' }} />
+              </Box>
+            </Box>
+          ) : (
+            <Box sx={{ maxHeight: '300px', height: '300px', mt: 1 }}>
+              <Scrollbar
+                style={{ height: 'calc(100% - 35px)' }}
+                wrapperProps={{
+                  renderer: (props) => {
+                    const { elementRef, ...restProps } = props;
+                    return <span {...restProps} ref={elementRef} style={{ inset: '0 0 10px 0' }} />;
+                  },
+                }}
+                trackYProps={{
+                  renderer: (props) => {
+                    const { elementRef, ...restProps } = props;
+                    return <div {...restProps} ref={elementRef} className='trackY' style={{ ...restProps.style, width: '6px' }} />;
+                  },
+                }}
+                thumbYProps={{
+                  renderer: (props) => {
+                    const { elementRef, ...restProps } = props;
+                    return (
+                      <div
+                        {...restProps}
+                        ref={elementRef}
+                        className='tHuMbY'
+                        style={{
+                          width: '100%',
+                          backgroundColor: '#49463f',
+                          zIndex: '50',
+                          position: 'relative',
+                          borderRadius: '5px',
+                        }}
+                      />
+                    );
+                  },
+                }}>
+                <Box
+                  sx={{
+                    padding: '5px',
+                    border: '1px solid hsla(0, 0%, 100%, 0.1)',
+                    color: 'white',
+                    backgroundColor: 'hsla(0, 0%, 100%, .03)',
+                  }}>
+                  <Typography id='keep-mounted-modal-description' sx={{ fontSize: '1.4rem' }} variant='inherit'>
+                    <ul
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 3,
+                        padding: '12px 14px',
+                      }}>
+                      {stateLyricSong.data.map((item) => (
+                        <li key={uuid()}>{item}</li>
+                      ))}
+                    </ul>
+                  </Typography>
+                </Box>
+              </Scrollbar>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mt: '15px' }}>
+                <Button content={'Đóng'} className='genre-select' style={{ fontSize: '1.3rem', padding: '9px 24px' }} onClick={onClose} />
+              </Box>
+            </Box>
+          )}
+        </Box>
+      </Modal>
+    );
+  }
   if (isModalDeleteShow) {
     return (
       <Modal keepMounted open={open} onClose={onClose} aria-labelledby='keep-mounted-modal-title' aria-describedby='keep-mounted-modal-description'>

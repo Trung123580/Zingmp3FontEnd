@@ -51,9 +51,14 @@ const navChart = [
 const listLibrary = [
   { id: uuid(), name: 'Bài hát', number: 0, path: '/love-song' },
   { id: uuid(), name: 'ALBUM', number: 1, path: '/user-album' },
-  { id: uuid(), name: 'MV', number: 2, path: null },
+  { id: uuid(), name: 'MV', number: 2, path: '' },
 ];
 
+const listNavHistorySong = [
+  { id: uuid(), name: 'Bài hát', number: 0 },
+  { id: uuid(), name: 'Playlist', number: 1 },
+  { id: uuid(), name: 'mv', number: 2 },
+];
 const listKeyVideo = [
   {
     key: 'Digit0',
@@ -113,4 +118,4 @@ const fontsLyric = [
     id: uuid(),
   },
 ];
-export { listTheme, listBtnNewRelease, navChart, listKeyVideo, fontsLyric, listLibrary };
+export { listTheme, listBtnNewRelease, navChart, listKeyVideo, fontsLyric, listLibrary, listNavHistorySong };

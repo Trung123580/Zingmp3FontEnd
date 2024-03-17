@@ -68,14 +68,14 @@ const CardSong = ({
         <div className={cx('content')}>
           <h3 className={cx('name')}>{card.title}</h3>
           <div className={cx('artists')}>
-            {card?.artists?.map(({ name, id, link }, index) => (
+            {(card?.artists || []).map((item, index) => (
               <span
-                key={id}
+                key={item?.id}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onNavigateArtist(path.DETAILS_ARTIST.replace('/:name', link));
+                  onNavigateArtist(path.DETAILS_ARTIST.replace('/:name', item?.link));
                 }}>
-                {name + `${index === card.artists.length - 1 ? '' : ','}`}
+                {item?.name + `${index === card?.artists?.length - 1 ? '' : ','}`}
               </span>
             ))}
           </div>

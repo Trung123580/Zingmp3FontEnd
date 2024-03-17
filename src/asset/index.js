@@ -13,6 +13,7 @@ import backgroundEiffelBar from './image/background-eiffel-bar.png';
 import userDefault from './image/user-default.png';
 import modalSongErr from './image/modal.png';
 import loading from './image/loading.svg';
+import songDefault from './image/song-default.png';
 export {
   backgroundXone,
   backgroundZma,
@@ -29,4 +30,5 @@ export {
   userDefault,
   loading,
   modalSongErr,
+  songDefault,
 };

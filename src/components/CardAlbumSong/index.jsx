@@ -9,6 +9,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import { FaCaretDown, FaCaretUp } from 'react-icons/fa';
 import path from '~/router/path';
+import { memo } from 'react';
 const cx = classNames.bind(style);
 const CardAlbumSong = ({
   song,
@@ -28,6 +29,7 @@ const CardAlbumSong = ({
   hiddenSongTitle,
   hiddenIconMusic,
   releaseDate,
+  // fileUpload,
 }) => {
   const timeInSeconds = song.duration;
   const duration = moment.duration(timeInSeconds, 'seconds');
@@ -48,7 +50,12 @@ const CardAlbumSong = ({
     timeString = `${daysAgo} ngày trước`;
   }
   return (
-    <div className={cx('media')} onClick={onPlaySong} style={{ background: currentSong?.encodeId === song.encodeId && 'rgba(255, 255, 255, 0.1)' }}>
+    <div
+      className={cx('media', {
+        // fileUpload: fileUpload,
+      })}
+      onClick={onPlaySong}
+      style={{ background: currentSong?.encodeId === song.encodeId && 'rgba(255, 255, 255, 0.1)' }}>
       <div className={cx('media-left')} style={{ gap: index && '15px', flex: hiddenSongTitle && '1' }}>
         {index && (
           <span
@@ -127,6 +134,7 @@ const CardAlbumSong = ({
       )}
       <div className={cx('media-right')}>
         <span className={cx('time')}>{formattedTime}</span>
+
         <div className={cx('action')}>
           <Tippy
             content={<span className='tippy-title'>Thêm vào thư viện</span>}
@@ -162,4 +170,4 @@ const CardAlbumSong = ({
   );
 };
 
-export default CardAlbumSong;
+export default memo(CardAlbumSong);

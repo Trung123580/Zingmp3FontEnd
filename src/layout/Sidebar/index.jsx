@@ -78,6 +78,12 @@ const Sidebar = () => {
               return <div {...restProps} ref={elementRef} className='trackY' style={{ ...restProps.style, width: '4px' }} />;
             },
           }}
+          trackXProps={{
+            renderer: (props) => {
+              const { elementRef, ...restProps } = props;
+              return <span {...restProps} ref={elementRef} className='TrackX' style={{ ...restProps.style, display: 'none' }} />;
+            },
+          }}
           thumbYProps={{
             renderer: (props) => {
               const { elementRef, ...restProps } = props;

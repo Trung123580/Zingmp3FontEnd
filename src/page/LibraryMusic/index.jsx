@@ -3,6 +3,8 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import style from './LibraryMusic.module.scss';
 import path from '~/router/path';
+import { ref, listAll, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { firebaseStorage } from '~/fireBase-config';
 import { AuthProvider } from '~/AuthProvider';
 import TitlePage from '~/utils/TitlePage';
 import { useSelector } from 'react-redux';
@@ -12,6 +14,10 @@ import { Autoplay, Keyboard } from 'swiper/modules';
 import TitlePath from '~/utils/TitlePath';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { listLibrary } from '~/utils/constant';
+import { toast } from 'react-toastify';
+import { v4 as uuid } from 'uuid';
+import { songDefault } from '~/asset';
+import Button from '~/utils/Button';
 const cx = classNames.bind(style);
 const LibraryMusic = () => {
   const { currentUser } = useSelector((store) => store.auth);
@@ -19,24 +25,69 @@ const LibraryMusic = () => {
   const { themeApp, handle, activeIdAlbum } = useContext(AuthProvider);
   const { onPlaySong, onRemovePlayList, onAddPlayList, onOpenModal, onPlayMusicInPlaylist, onActiveSong, onAddLikeSong, onRemoveLikeSong } = handle;
   const [navItem, setNavItem] = useState(0);
+  const [isTransferSong, setIsTransferSong] = useState(false);
+  const [stateLibrary, setStateLibrary] = useState({
+    listAudioUpload: [],
+    reRender: false,
+  });
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const refBottom = useRef(null);
-  const listPathRouter = ['/library-music/user-play-list', '/library-music/artist', '/library-music/history'];
-  const constantPath = ['/library-music/love-song', '/library-music/user-album', '/library-music/upload'];
-  const isRouter = listPathRouter.some((item) => item === pathname);
-  const isConstantPath = constantPath.some((item) => item === pathname);
+  const [listPathRouter] = useState(['/library-music/user-play-list', '/library-music/artist', '/library-music/history']);
+  const [constantPath] = useState(['/library-music/love-song', '/library-music/user-album', '/library-music/upload']);
+  const isRouter = useMemo(() => listPathRouter.some((item) => item === pathname), [pathname, listPathRouter]);
+  const isConstantPath = useMemo(() => constantPath.some((item) => item === pathname), [pathname, constantPath]);
   useEffect(() => {
     if (isConstantPath && refBottom.current) {
       refBottom.current.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
       const index = constantPath.findIndex((item) => item === pathname);
-      if (index === 2) return;
+      if (index === 2) {
+        if (!isTransferSong) setIsTransferSong(true);
+        setNavItem(0);
+        return;
+      }
+      if (isTransferSong) setIsTransferSong(false);
       setNavItem(index);
     }
     // eslint-disable-next-line
-  }, [isConstantPath, refBottom, pathname]);
-
-  console.log(currentUser);
+  }, [isConstantPath, refBottom, pathname, constantPath]);
+  useEffect(() => {
+    const getAudio = async () => {
+      try {
+        const files = await listAll(ref(firebaseStorage, 'audio/'));
+        const data = await Promise.all(
+          files.items.map(async (item) => {
+            const url = await getDownloadURL(item);
+            const title = item.name;
+            const audio = new Audio(url); // Tạo một đối tượng Audio từ URL
+            audio.load(); // Load âm thanh
+            let duration;
+            await new Promise((resolve) => {
+              audio.oncanplaythrough = () => {
+                const durationInSeconds = Math.floor(audio.duration);
+                resolve(durationInSeconds);
+              };
+            }).then((res) => {
+              duration = res;
+            });
+            return {
+              url: url,
+              title: title.trim(),
+              encodeId: uuid(),
+              duration: duration,
+              fileUploadAudio: true,
+              thumbnailM: songDefault,
+            };
+          })
+        );
+        setStateLibrary((prev) => ({ ...prev, listAudioUpload: data }));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getAudio();
+  }, [stateLibrary.reRender]);
+  console.log(stateLibrary.listAudioUpload);
   const handleNavigate = (url) => {
     navigate(
       url
@@ -44,10 +95,6 @@ const LibraryMusic = () => {
         .filter((item) => item !== 'nghe-si')
         .join('/')
     );
-  };
-  const handleNavigatePlayList = (type, idPlayList) => {
-    if (type === 1) return; // lam modal phat bai hat
-    navigate(idPlayList);
   };
   const handleDeletePlaylist = (e, idPlayList) => {
     e.stopPropagation();
@@ -60,16 +107,34 @@ const LibraryMusic = () => {
   };
   const handleNavigateVideo = (url, name) => {
     const pathLink = path.DETAILS_ARTIST.replace(':name', name) + path.OPEN_VIDEO;
-    navigate(pathLink.replace('/video-clip/:titleVideo/:videoId', url.split('.')[0]));
+    handleNavigate(pathLink.replace('/video-clip/:titleVideo/:videoId', url.split('.')[0]));
   };
   const handleNavItem = (itemPath, pathLink) => {
     setNavItem(itemPath);
     if (pathLink) handleNavigate(path.LIBRARY_MUSIC + pathLink);
   };
+  const handleUpdateAudio = async (event) => {
+    try {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.name.endsWith('.mp3')) {
+        const audioRef = ref(firebaseStorage, `audio/${file?.name}`);
+        const uploadTask = uploadBytesResumable(audioRef, file);
+        await toast.promise(uploadTask, {
+          pending: 'Đang tải lên tệp...',
+          success: 'Tệp đã được tải lên thành công!',
+          error: 'Đã xảy ra lỗi khi tải lên tệp.',
+        });
+        setStateLibrary((prev) => ({ ...prev, reRender: !prev.reRender }));
+        event.target.files = null;
+      }
+    } catch (error) {
+      toast.error('Đã xảy ra lỗi khi tải lên tệp: ' + error.message);
+    }
+  };
   const dataRenderPlaylist = useMemo(() => {
     return [].concat(currentUser?.createPlaylist || [], currentUser?.followPlayList || []);
   }, [currentUser]);
-  // const isExitRender = router.find((item) => item.path === path.LIBRARY_MUSIC)?.insideRoute.some((route) => route.path === pathname);
   if (!currentUser) {
     return (
       <section className={cx('container')}>
@@ -163,7 +228,8 @@ const LibraryMusic = () => {
                 <SwiperSlide key={playlist?.encodeId}>
                   <CardAlbum
                     // key={playlist?.encodeId}
-                    onNavigatePlayList={() => handleNavigatePlayList(null, playlist.artist ? playlist.link : playlist?.link.split('.')[0])}
+                    // onNavigatePlayList={() => handleNavigatePlayList(null, playlist.artist ? playlist.link : playlist?.link.split('.')[0])}
+                    onNavigatePlayList={() => handleNavigate(playlist.artist ? playlist.link : playlist?.link.split('.')[0])}
                     onNavigateArtist={handleNavigate}
                     data={playlist}
                     isPlay={isPlay}
@@ -198,26 +264,92 @@ const LibraryMusic = () => {
           <div className={cx('content')}>
             {navItem === 0 && (
               <>
-                <SingerListSong playListData={{ isPlaylistUser: true }} />
-                {(currentUser?.loveMusic || []).map((song, index, arr) => (
-                  <CardAlbumSong
-                    key={song.encodeId}
-                    song={song}
-                    onActiveSong={(e) => onActiveSong(e, song)}
-                    currentSong={currentSong}
-                    currentUser={currentUser}
-                    onNavigateArtist={handleNavigate}
-                    onNavigate={(e) => {
-                      e.stopPropagation();
-                      handleNavigate(song.album.link.split('.')[0]);
+                <div className={cx('list-btn')}>
+                  <Button
+                    content='Yêu thích'
+                    className='genre-select'
+                    onClick={() => {
+                      if (!isTransferSong) return;
+                      setIsTransferSong(false);
                     }}
-                    isPlay={isPlay}
-                    theme={themeApp}
-                    onAddLikeSong={(e) => onAddLikeSong(e, song)}
-                    onRemoveLikeSong={(e) => onRemoveLikeSong(e, song?.encodeId)}
-                    onPlaySong={() => onPlaySong(song, arr, 'Nhạc yêu thích')}
+                    style={{ background: !isTransferSong && themeApp?.primaryColor }}
                   />
-                ))}
+                  <Button
+                    content='Đã tải lên'
+                    className='genre-select'
+                    onClick={() => {
+                      if (isTransferSong) return;
+                      setIsTransferSong(true);
+                    }}
+                    style={{ background: isTransferSong && themeApp?.primaryColor }}
+                  />
+                </div>
+                {!isTransferSong && (
+                  <>
+                    <SingerListSong playListData={{ isPlaylistUser: true }} />
+                    {(currentUser?.loveMusic || []).map((song, _index, arr) => (
+                      <CardAlbumSong
+                        key={song.encodeId}
+                        song={song}
+                        onActiveSong={(e) => onActiveSong(e, song)}
+                        currentSong={currentSong}
+                        currentUser={currentUser}
+                        onNavigateArtist={handleNavigate}
+                        onNavigate={(e) => {
+                          e.stopPropagation();
+                          handleNavigate(song.album.link.split('.')[0]);
+                        }}
+                        isPlay={isPlay}
+                        theme={themeApp}
+                        onAddLikeSong={(e) => onAddLikeSong(e, song)}
+                        onRemoveLikeSong={(e) => onRemoveLikeSong(e, song?.encodeId)}
+                        onPlaySong={() => onPlaySong(song, arr, 'Nhạc yêu thích')}
+                      />
+                    ))}
+                  </>
+                )}
+                <input type='file' name='file' id='up__file' accept='audio/*' multiple style={{ display: 'none' }} onChange={handleUpdateAudio} />
+                {isTransferSong && (
+                  <div className={cx('wrapper__upload')}>
+                    {stateLibrary.listAudioUpload.length ? (
+                      <div className={cx('files')}>
+                        {stateLibrary.listAudioUpload.map((song, _index, arr) => (
+                          <CardAlbumSong
+                            currentSong={currentSong}
+                            key={song.encodeId}
+                            song={song}
+                            onPlaySong={() => onPlaySong(song, arr, 'Nhạc tải lên')}
+                            onAddLikeSong={(e) => onAddLikeSong(e, song)}
+                            onRemoveLikeSong={(e) => onRemoveLikeSong(e, song?.encodeId)}
+                            isPlay={isPlay}
+                            currentUser={currentUser}
+                            theme={themeApp}
+                            songDefault={songDefault}
+                            // fileUpload={true}
+                            hiddenIconMusic={true}
+                            // chartIndex={}
+                            onActiveSong={(e) => onActiveSong(e, song, true, song?.title)}
+                          />
+                        ))}
+                        <div className={cx('wrapper__label')} style={{ marginTop: '20px' }}>
+                          <label htmlFor='up__file' className={cx('label__file')} style={{ background: themeApp?.primaryColor }}>
+                            Tải lên ngay
+                          </label>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={cx('no-file')}>
+                        <div className={cx('image')}></div>
+                        <h4 className={cx('text')}>Chưa có bài hát tải lên trong thư viện cá nhân</h4>
+                        <div className={cx('wrapper__label')}>
+                          <label htmlFor='up__file' className={cx('label__file')} style={{ background: themeApp?.primaryColor }}>
+                            Tải lên ngay
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             )}
             {navItem === 1 && (
@@ -225,7 +357,7 @@ const LibraryMusic = () => {
                 {(currentUser?.followAlbum || []).map((album) => (
                   <CardAlbum
                     key={album?.encodeId}
-                    onNavigatePlayList={() => handleNavigatePlayList(null, album?.link.split('.')[0])}
+                    onNavigatePlayList={() => handleNavigate(album?.link.split('.')[0])}
                     onNavigateArtist={handleNavigate}
                     data={album}
                     isPlay={isPlay}
@@ -256,7 +388,6 @@ const LibraryMusic = () => {
           </div>
         </div>
       </div>
-      {/* <Outlet /> */}
     </section>
   );
 };

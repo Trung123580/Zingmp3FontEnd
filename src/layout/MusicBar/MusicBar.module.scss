@@ -115,6 +115,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        flex: 1;
         @include mobile {
           flex-direction: column;
         }
@@ -141,7 +142,13 @@
           font-size: 1.4rem;
           font-weight: 500;
           line-height: 1.36;
+          // min-width: 30px;
+          // max-width: 30px;
+          // width: min-content;
           @include text-cover;
+          // white-space: nowrap;
+          // overflow: hidden;
+          // text-overflow: ellipsis;
         }
       }
       .artists {
@@ -164,6 +171,7 @@
         display: flex;
         align-items: center;
         cursor: pointer;
+        @include flex-basis;
         @include mobile {
           flex-direction: column-reverse;
           justify-content: center;

@@ -1,6 +1,6 @@
 @import '../../variable.scss';
 .portal {
-  background-color: #605c52;
+  background-color: #363636;
   border-radius: 8px;
   position: fixed;
   // top: 0%;
@@ -69,13 +69,75 @@
       font-size: 14px;
       cursor: pointer;
       line-height: normal;
+      position: relative;
+      @include transition;
       &:hover {
         background-color: $alpha-bg;
+        .playlist {
+          display: block;
+        }
       }
-      span {
+      .content__text {
         display: flex;
         align-items: center;
         gap: 10px;
+      }
+      .playlist {
+        position: absolute;
+        right: calc(100% - 10px);
+        left: unset;
+        background-color: #363636;
+        width: 230px;
+        box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 10px 0;
+        display: none;
+        .search {
+          height: 35px;
+          padding: 0 20px 0 14px;
+          margin-bottom: 10px;
+          #search__playlist {
+            border: none;
+            background-color: $alpha-bg;
+            width: 100%;
+            border-radius: 999px;
+            padding: 0 15px;
+            font-size: 1.4rem;
+            height: 100%;
+            color: $color-white;
+          }
+        }
+        .list {
+          display: flex;
+          flex-direction: column;
+          height: 185px;
+          .item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 20px 10px 14px;
+            color: $text-navigate;
+            @include transition;
+            &:hover {
+              color: $color-white;
+              background-color: $alpha-bg;
+            }
+            .icon {
+              background: url('https://zjs.zmdcdn.me/zmp3-desktop/releases/v1.10.5/static/media/thumb-add.2971eb21.svg') no-repeat center / cover;
+              border-radius: 2px;
+              height: 25px;
+              width: 25px;
+              display: inline-block;
+            }
+          }
+        }
+      }
+      @include mobile {
+        flex-direction: column;
+        .playlist {
+          position: initial;
+          width: 100%;
+        }
       }
     }
   }

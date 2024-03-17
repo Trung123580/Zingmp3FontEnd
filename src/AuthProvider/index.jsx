@@ -8,6 +8,8 @@ import { v4 as uuid } from 'uuid';
 import { auth, googleProvider, db } from '~/fireBase-config';
 import { toast } from 'react-toastify';
 import { apiDetailsPlayList } from '~/api';
+import { ref, deleteObject } from 'firebase/storage';
+import { firebaseStorage } from '~/fireBase-config';
 
 const AuthProvider = createContext();
 const cookies = new Cookies();
@@ -31,6 +33,7 @@ const AppProvider = ({ children }) => {
       type: false,
       editType: false,
       isDeleteShow: false,
+      isModalShowLyric: false,
       id: null,
       thumbnailM: null,
       desc: null,
@@ -42,8 +45,9 @@ const AppProvider = ({ children }) => {
     y: 0,
     width: 0,
     height: 0,
-    thumbnailM: '',
-    title: '',
+    // thumbnailM: '',
+    // title: '',
+    song: null,
     isShowPortal: false,
     isDelete: false,
     targetSong: false, // false => danh sach phat / true => history
@@ -81,7 +85,7 @@ const AppProvider = ({ children }) => {
     };
     getUser();
     // eslint-disable-next-line
-  }, [appCallBack, user]);
+  }, [appCallBack, user, isAuth]);
   //LyricSong
   const handleToggleLyricSong = () => {
     setIsOpenLyricSong((prev) => !prev);
@@ -96,26 +100,135 @@ const AppProvider = ({ children }) => {
         type: data?.type,
         editType: data?.editType ? data?.editType : false,
         isDeleteShow: data?.isDeleteShow,
+        isModalShowLyric: data?.isModalShowLyric,
         id: data?.id || null,
         thumbnailM: data?.thumbnailM,
         desc: data?.desc,
       },
       currentModal: currentModal,
     }));
-  const handleClose = () => setOpenModal((prev) => ({ ...prev, isOpenModal: false }));
+  const handleClose = () =>
+    setOpenModal((prev) => ({
+      ...prev,
+      isOpenModal: false,
+      dataModal: {
+        ...prev.dataModal,
+        isModalShowLyric: false,
+        isDeleteShow: false,
+      },
+    }));
   //toastify
   const notify = (desc) => (desc.includes('xóa') ? toast.error(desc) : toast.success(desc));
   //chart
   const handleChartHoverTooltip = (data) => {
     setSelectedChart(data);
   };
+  const handleAddHistoryPlaylist = async (props) => {
+    const isExit = currentUser?.historyPlaylist.some((item) => item.encodeId === props.id);
+    if (isExit) return;
+    const userDoc = doc(db, 'user', user?.uid);
+    const playListData = {
+      thumbnailM: props.thumbnailM || '',
+      encodeId: props.id || '',
+      link: props.link || '',
+      title: props.title || '',
+      sortDescription: props.sortDescription || '',
+      artists: props.artists || [],
+      isUser: props.isUser || '',
+    };
+    await updateDoc(userDoc, {
+      historyPlaylist: arrayUnion(playListData),
+    }).then(() => {
+      dispatch(dataUser({ ...currentUser, historyPlaylist: [...currentUser?.historyPlaylist, playListData] }));
+      notify('đã thêm playlist vào lịch sử thư viện');
+    });
+  };
   // playlist and play song
+  const handleAddSongPlaylist = useCallback(
+    async (idPlaylist, songItem) => {
+      if (!isAuth) {
+        handleLoginApp();
+        return;
+      }
+      const findItem = (currentUser?.createPlaylist || []).find((item) => item.encodeId === idPlaylist);
+      const isExist = findItem?.items.some((it) => it?.encodeId === songItem.encodeId);
+      if (isExist) {
+        notify('Đã tồn tại trong play list');
+        return;
+      }
+      const newDataPlaylist = (currentUser?.createPlaylist || [])
+        .reduce((accumulator, item) => {
+          const newItem = {
+            ...item,
+            items:
+              item.encodeId === idPlaylist
+                ? [...item.items, item.items.some((it) => it?.encodeId === songItem.encodeId) ? null : songItem]
+                : item.items,
+          };
+          return [...accumulator, newItem];
+        }, [])
+        .filter((item) => item !== undefined);
+      const userDoc = doc(db, 'user', user?.uid);
+      console.log(newDataPlaylist);
+      await updateDoc(userDoc, {
+        createPlaylist: newDataPlaylist,
+      }).then(() => {
+        dispatch(dataUser({ ...currentUser, createPlaylist: newDataPlaylist }));
+        notify('đã thêm bài hát vào playlist');
+      });
+    },
+    // eslint-disable-next-line
+    [isAuth, user, currentUser]
+  );
+  // handleAddHistorySong
+  const handleAddHistorySong = useCallback(
+    async (item) => {
+      if (isAuth) {
+        const userDoc = doc(db, 'user', user?.uid);
+        const isExit = currentUser?.historySong?.some(({ encodeId }) => encodeId === item.encodeId);
+        const videoData = {
+          encodeId: item.encodeId || '',
+          thumbnailM: item.thumbnailM || '',
+          artists: item.artists || '',
+          title: item.title || '',
+          releaseDate: item.releaseDate || '',
+          album: item.album || '',
+          duration: item.duration || '',
+        };
+        if (!isExit) {
+          await updateDoc(userDoc, {
+            historySong: arrayUnion(videoData),
+          }).then(() => {
+            setAppCallBack((prevAppCallBack) => !prevAppCallBack);
+            notify('đã thêm lich su thư viện');
+          });
+        }
+      }
+    },
+    [isAuth, currentUser, user]
+  );
   const handlePlayMusicInPlaylist = async (e, props) => {
     e.stopPropagation();
+    if (props?.isUser) {
+      const findPlaylist = currentUser?.createPlaylist.find((item) => item.encodeId === props.id);
+      const songs = findPlaylist?.items;
+      if (!songs.length) {
+        notify('Playlist chưa có bài hát nào');
+        return;
+      }
+      const songItem = songs[Math.floor(Math.random() * songs.length)];
+      dispatch(getSong(songItem));
+      dispatch(getCurrentPlayList({ listItem: songs, title: `Từ playlist ${findPlaylist?.title}` }));
+      dispatch(playSong(true));
+      handleAddHistorySong(songItem);
+      return;
+    }
     if (currentDataPlaylist.id === props.id) {
-      dispatch(getSong(currentDataPlaylist.data[Math.floor(Math.random() * currentDataPlaylist.data.length)]));
+      const songItem = currentDataPlaylist.data[Math.floor(Math.random() * currentDataPlaylist.data.length)];
+      dispatch(getSong(songItem));
       dispatch(getCurrentPlayList({ listItem: currentDataPlaylist.data, title: props?.title }));
       dispatch(playSong(true));
+      handleAddHistorySong(songItem);
       return;
     }
     try {
@@ -126,11 +239,13 @@ const AppProvider = ({ children }) => {
       });
       if (response?.data?.err === 0) {
         const data = response.data.data.song.items;
-        const item = data[Math.floor(Math.random() * data.length)];
-        dispatch(getSong(item));
+        const songItem = data[Math.floor(Math.random() * data.length)];
+        dispatch(getSong(songItem));
         dispatch(getCurrentPlayList({ listItem: data, title: props?.title }));
         dispatch(playSong(true));
+        handleAddHistorySong(songItem);
         setCurrentDataPlaylist({ id: props.id, data: data });
+        handleAddHistoryPlaylist(props);
       }
     } catch (error) {
       console.error(error);
@@ -146,22 +261,34 @@ const AppProvider = ({ children }) => {
         return;
       }
       const screenHeight = window.innerHeight;
-      const clientReact = e.target.getBoundingClientRect();
-      const bottomSpace = screenHeight - clientReact.bottom;
-      // console.log(clientReact);
+      const screenWidth = window.innerWidth;
+      const clientRect = e.target.getBoundingClientRect();
+      const rightSpace = screenWidth - clientRect.right;
+      const bottomSpace = screenHeight - clientRect.bottom;
+      const leftSpace = screenWidth - clientRect.left;
       setCoords({
-        x: clientReact.left,
-        y: clientReact.top,
-        width: clientReact.width,
-        height: clientReact.height,
-        thumbnailM: song.thumbnailM || null,
-        encodeId: song.encodeId || null,
-        title: song.title || null,
+        x: clientRect.left,
+        y: clientRect.top,
+        width: clientRect.width,
+        height: clientRect.height,
+        // thumbnailM: song.thumbnailM || null,
+        // encodeId: song.encodeId || null,
+        // title: song.title || null,
+        song: { ...song },
         isShowPortal: true,
         isDelete: isDelete,
         targetSong: targetSong, // false => danh sach phat / true => history
+        file__upload: typeof targetSong === 'string' ? true : false,
       });
-      if (bottomSpace < 200) setCoords((prev) => ({ ...prev, y: clientReact.top - 200 }));
+      if (bottomSpace < 200) {
+        setCoords((prev) => ({ ...prev, y: clientRect.top - 200, x: clientRect.left + 200 }));
+      }
+      if (rightSpace < 200) {
+        setCoords((prev) => ({ ...prev, x: clientRect.left }));
+      }
+      if (leftSpace < 200) {
+        setCoords((prev) => ({ ...prev, x: clientRect.right - 20 }));
+      }
     } else {
       setCoords((prev) => ({ ...prev, isShowPortal: false }));
     }
@@ -196,13 +323,14 @@ const AppProvider = ({ children }) => {
           title: namePlaylist || '',
           link: `/playlist/${user?.displayName}/${encodeId || ''}`,
           sortDescription: '',
+          isUser: true,
         };
         await updateDoc(userDoc, {
           createPlaylist: arrayUnion({ ...data }),
         }).then(() => {
           dispatch(dataUser({ ...currentUser, createPlaylist: [...currentUser?.createPlaylist, { ...data }] }));
           notify('đã tạo playlist');
-        }); // re-renderApp
+        });
       }
       handleClose();
     },
@@ -219,14 +347,12 @@ const AppProvider = ({ children }) => {
       }).then(() => {
         dispatch(dataUser({ ...currentUser, createPlaylist: newDataStory }));
         notify('đã xóa playlist khỏi thư viện');
-
         handleClose();
       });
     },
     // eslint-disable-next-line
     [user, currentUser, dataModal.id]
   );
-
   // copy path link
   const handleCopyUrlClipBoard = async () => {
     await navigator.clipboard.writeText(window.location.href);
@@ -262,13 +388,14 @@ const AppProvider = ({ children }) => {
           followAlbum: [], // theo doi album
           followArtist: [], // theo doi nghe si
           historyMv: [], // lich su xem mv
+          historyPlaylist: [], // lịch sử nghe bài hát trong play list đó
+          uploadAudio: [], // uploadAudio
         });
       }
     } catch (error) {
       console.error(error);
     }
   };
-  // console.log(currentUser);
   const handleSignOutApp = async () => {
     setIsAuth(false);
     cookies.remove('auth-token');
@@ -283,24 +410,8 @@ const AppProvider = ({ children }) => {
       dispatch(getSong({ ...item }));
       dispatch(getCurrentPlayList({ listItem: listItem, title: title }));
       dispatch(playSong(true));
-      if (isAuth) {
-        (async () => {
-          const userDoc = doc(db, 'user', user?.uid);
-          const isExit = currentUser?.historySong?.some(({ encodeId }) => encodeId === item.encodeId);
-          const { encodeId, thumbnailM, artists, title, releaseDate } = item;
-          if (!isExit) {
-            await updateDoc(userDoc, {
-              historySong: arrayUnion({
-                encodeId,
-                thumbnailM,
-                artists,
-                title,
-                releaseDate,
-              }),
-            }).then(() => setAppCallBack((prevAppCallBack) => !prevAppCallBack)); // re-renderApp
-          }
-        })();
-      }
+      if (currentDataPlaylist.id && currentDataPlaylist.data) setCurrentDataPlaylist((prev) => ({ ...prev, id: null, data: null }));
+      handleAddHistorySong(item);
     },
     // eslint-disable-next-line
     [isAuth, user, currentUser]
@@ -309,6 +420,18 @@ const AppProvider = ({ children }) => {
   const handleRemoveHistorySong = useCallback(
     async (e, idSong) => {
       e.stopPropagation();
+      if (typeof coords.targetSong === 'string') {
+        const audioRef = ref(firebaseStorage, `audio/${coords.targetSong}`);
+        try {
+          await deleteObject(audioRef).then(() => {
+            notify('đã xóa bài hát tải lên ');
+            handleActiveSong(null, null);
+          });
+        } catch (error) {
+          console.error('Xảy ra lỗi khi xóa tệp âm thanh:', error);
+        }
+        return;
+      }
       if (!coords.targetSong) {
         const refreshPlayList = currentPlayList?.listItem.filter((song) => song.encodeId !== idSong);
         dispatch(getCurrentPlayList({ listItem: refreshPlayList, title: currentPlayList?.title }));
@@ -347,7 +470,7 @@ const AppProvider = ({ children }) => {
       }).then(() => {
         dispatch(dataUser({ ...currentUser, loveMusic: [...currentUser?.loveMusic, { ...songItem }] }));
         notify('đã thêm bài hát vào thư viện');
-      }); // re-renderApp
+      });
     },
     // eslint-disable-next-line
     [isAuth, user, currentUser]
@@ -388,7 +511,7 @@ const AppProvider = ({ children }) => {
       }).then(() => {
         dispatch(dataUser({ ...currentUser, followPlayList: [...currentUser?.followPlayList, playListData] }));
         notify('đã thêm playlist vào thư viện');
-      }); // re-renderApp
+      });
     },
     // eslint-disable-next-line
     [isAuth, user, currentUser]
@@ -403,7 +526,7 @@ const AppProvider = ({ children }) => {
       }).then(() => {
         dispatch(dataUser({ ...currentUser, followPlayList: newDataStory }));
         notify('đã xóa playlist vào thư viện');
-      }); // re-renderApp
+      });
     },
     // eslint-disable-next-line
     [user, currentUser]
@@ -428,7 +551,7 @@ const AppProvider = ({ children }) => {
       }).then(() => {
         dispatch(dataUser({ ...currentUser, followAlbum: [...currentUser?.followAlbum, albumData] }));
         notify('đã thêm album vào thư viện');
-      }); // re-renderApp
+      });
     },
     // eslint-disable-next-line
     [isAuth, user, currentUser]
@@ -511,7 +634,7 @@ const AppProvider = ({ children }) => {
       }).then(() => {
         dispatch(dataUser({ ...currentUser, followMv: [...currentUser?.followMv, videoData] }));
         notify('đã thêm mv vào thư viện');
-      }); // re-renderApp
+      });
     },
     // eslint-disable-next-line
     [isAuth, user, currentUser]
@@ -541,30 +664,33 @@ const AppProvider = ({ children }) => {
       if (isExit) return;
       const userDoc = doc(db, 'user', user?.uid);
       const videoData = {
-        thumbnailM: video.thumbnailM,
-        title: video.title,
-        encodeId: video.encodeId,
-        link: video.link,
-        artists: video.artists,
-        duration: video.duration,
+        thumbnailM: video.thumbnailM || '',
+        title: video.title || '',
+        encodeId: video.encodeId || '',
+        link: video.link || '',
+        artists: video.artists || '',
+        duration: video.duration || '',
+        artist: video.artist || '',
       };
       await updateDoc(userDoc, {
         historyMv: arrayUnion(videoData),
       }).then(() => {
         dispatch(dataUser({ ...currentUser, historyMv: [...currentUser?.historyMv, videoData] }));
-      }); // re-renderApp
+      });
     },
     // eslint-disable-next-line
     [isAuth, user, currentUser]
   );
   const handleRemoveHistoryMv = useCallback(
-    async (idVideo) => {
+    async (e, idVideo) => {
+      e.stopPropagation();
       const newDataStory = currentUser?.historyMv.filter(({ encodeId }) => encodeId !== idVideo);
       const userDoc = doc(db, 'user', user?.uid);
       await updateDoc(userDoc, {
         historyMv: newDataStory,
       }).then(() => {
         dispatch(dataUser({ ...currentUser, historyMv: newDataStory }));
+        notify('đã xóa mv khỏi thư viện');
       });
     },
     // eslint-disable-next-line
@@ -612,6 +738,11 @@ const AppProvider = ({ children }) => {
       onCopyUrlClipBoard: handleCopyUrlClipBoard,
       // PlayMusicInPlaylist => phát nhạc trong playlist
       onPlayMusicInPlaylist: handlePlayMusicInPlaylist,
+      // addHistoryPlaylist
+      onAddHistoryPlaylist: handleAddHistoryPlaylist,
+      onRemoveHistoryMv: handleRemoveHistoryMv,
+      // handleAddSongPlaylist
+      onAddSongPlaylist: handleAddSongPlaylist,
     },
     isAuth,
     user,
@@ -630,8 +761,16 @@ const AppProvider = ({ children }) => {
     // create and edit playlist
     isModalPlaylist: dataModal.type,
     isModalDeleteShow: dataModal.isDeleteShow,
+    // isModalShowLyric
+    // isModalShowLyric: dataModal.isModalShowLyric,
+    modalLyricSong: {
+      isModalShowLyric: dataModal.isModalShowLyric,
+      encodeId: dataModal.id,
+    },
     // currentPlayMusicInPlaylist
     activeIdAlbum: currentDataPlaylist.id,
+    // dataQueueSong
+    // dataQueueSong: dataQueueSong,
   };
   return <AuthProvider.Provider value={values}>{children}</AuthProvider.Provider>;
 };

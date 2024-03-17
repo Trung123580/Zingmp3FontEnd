@@ -14,7 +14,7 @@ import { backgroundDefaultBar } from '~/asset';
 import { PiShuffleLight } from 'react-icons/pi';
 import { IoRepeatOutline } from 'react-icons/io5';
 import { LiaMicrophoneAltSolid } from 'react-icons/lia';
-import { LuVolume2, LuVolumeX, LuListMusic } from 'react-icons/lu';
+import { LuVolume2, LuVolumeX, LuListMusic, LuVolume1 } from 'react-icons/lu';
 import { BsPlayCircle, BsPauseCircle } from 'react-icons/bs';
 import { BiSolidMoviePlay } from 'react-icons/bi';
 import { FaRegWindowRestore } from 'react-icons/fa6';
@@ -79,6 +79,11 @@ const MusicBar = () => {
     const getDetailsSong = async () => {
       if (!currentSong) return;
       setIsLoading(true);
+      if (currentSong?.fileUploadAudio) {
+        setAudio(new Audio(currentSong?.url));
+        setIsLoading(false);
+        return;
+      }
       try {
         const [response1, response2] = await Promise.all([apiSong(currentSong?.encodeId), apiInfoSong(currentSong?.encodeId)]);
         if (response1?.data?.err === 0 && response2?.data?.err === 0) {
@@ -118,7 +123,7 @@ const MusicBar = () => {
             return;
           }
           if (newReleaseChart?.items.length) {
-            onOpenModal('do bài hát thuộc bản quyền zingmp3, chuyển đến BXH bài hát');
+            onOpenModal({ name: 'do bài hát thuộc bản quyền zingmp3, chuyển đến BXH bài hát', type: false });
             onPlaySong(newReleaseChart?.items[0], newReleaseChart?.items || [], newReleaseChart?.title);
             return;
           }
@@ -217,11 +222,11 @@ const MusicBar = () => {
         }
         if (e.code === 'ArrowUp' && e.target.tagName !== 'INPUT') {
           e.preventDefault();
-          setVolume((prevVolume) => Math.min(Number(prevVolume) + 20, 100));
+          setVolume((prevVolume) => Math.min(Number(prevVolume) + 10, 100));
         }
         if (e.code === 'ArrowDown' && e.target.tagName !== 'INPUT') {
           e.preventDefault();
-          setVolume((prevVolume) => Math.max(Number(prevVolume) - 20, 0));
+          setVolume((prevVolume) => Math.max(Number(prevVolume) - 10, 0));
         }
         if (e.code === 'ArrowRight' && e.target.tagName !== 'INPUT') {
           e.preventDefault();
@@ -246,18 +251,35 @@ const MusicBar = () => {
     // eslint-disable-next-line
   }, [currentSong?.encodeId, currentPlayList]);
   const handleNextSong = () => {
+    if (audio) {
+      handleRefresh();
+    }
+    if (isRandomSong) {
+      if (indexSong !== -1 && indexSong + 1 < currentPlayList?.listItem?.length) {
+        dispatch(getSong(_shuffle(currentPlayList?.listItem)[indexSong + 1]));
+      } else {
+        dispatch(getSong(currentPlayList.listItem[0]));
+      }
+      return;
+    }
     if (indexSong !== -1 && indexSong + 1 < currentPlayList?.listItem?.length) {
-      dispatch(getSong(currentPlayList?.listItem[indexSong + 1]));
+      const songItem = currentPlayList?.listItem[indexSong + 1];
+      dispatch(getSong(songItem));
     } else {
       dispatch(getSong(currentPlayList.listItem[0]));
     }
   };
   const handlePrevSong = () => {
+    if (audio) {
+      handleRefresh();
+    }
     if (indexSong !== -1 && indexSong - 1 >= 0) {
-      dispatch(getSong(currentPlayList?.listItem[indexSong - 1]));
+      const songItem = currentPlayList?.listItem[indexSong - 1];
+      dispatch(getSong(songItem));
     } else {
       // Không có bài hát trước đó, quay về cuối danh sách
-      dispatch(getSong(currentPlayList.listItem[currentPlayList.listItem.length - 1]));
+      const songItem = currentPlayList.listItem[currentPlayList.listItem.length - 1];
+      dispatch(getSong(songItem));
     }
   };
   // randomSong
@@ -271,11 +293,9 @@ const MusicBar = () => {
   useEffect(() => {
     if (audio) {
       const handleEnded = () => {
-        audio.pause();
-        audio.load();
-        audio.currentTime = 0;
-        thumbRef.current.style.background = `linear-gradient(to right, #fff 0%, #fff 0%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.3) 100%)`;
-        setSeconds(0);
+        if (audio) {
+          handleRefresh();
+        }
         if (isRandomSong) {
           if (indexSong !== -1 && indexSong + 1 < currentPlayList?.listItem?.length) {
             dispatch(getSong(_shuffle(currentPlayList?.listItem)[indexSong + 1]));
@@ -316,7 +336,7 @@ const MusicBar = () => {
   const handleMuteToggleVolume = () => {
     if (volumeRef.current) {
       if (audio) {
-        const result = (audio.volume = audio.volume === 0 ? 1 : 0);
+        const result = audio.volume === 0 ? 1 : 0;
         result === 1 ? setVolume(100) : setVolume(result);
       }
     }
@@ -574,7 +594,8 @@ const MusicBar = () => {
             </Tippy>
             <div className={cx('fixes')}>
               <div className={cx('zm-btn')} onClick={handleMuteToggleVolume}>
-                {audio?.volume === 0 ? <LuVolumeX /> : <LuVolume2 />}
+                {/* {volume == 0 ? <LuVolumeX /> : <LuVolume2 />} */}
+                {volume >= 60 ? <LuVolume2 /> : volume > 0 && volume < 60 ? <LuVolume1 /> : volume === 0 ? <LuVolumeX /> : null}
               </div>
               <div className={cx('volume')}>
                 <div className={cx('volume-wrapper')}>
@@ -585,7 +606,7 @@ const MusicBar = () => {
                     max={100}
                     step={1}
                     value={volume}
-                    onChange={(e) => setVolume(e.target.value)}
+                    onChange={(e) => setVolume(Number(e.target.value))}
                     ref={inputVolumeRef}
                     style={{
                       background: `linear-gradient(to right, ${themeApp?.primaryColor} 0%, ${themeApp?.primaryColor} ${volume}%, rgba(255, 255, 255, 0.3) ${volume}%, rgba(255, 255, 255, 0.3) 100%)`,

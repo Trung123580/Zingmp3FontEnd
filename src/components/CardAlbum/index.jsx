@@ -37,7 +37,7 @@ const CardAlbum = ({
         <img src={thumbnailM} alt='' />
         <div className={cx('menu-action')}>
           <div className={cx('action')}>
-            {data?.artist ? (
+            {data?.isUser ? (
               <span className={cx('icon')} onClick={onDeletePlaylist}>
                 <CloseRoundedIcon fontSize='large' />
               </span>
@@ -75,7 +75,19 @@ const CardAlbum = ({
                 placement='top'
                 arrow={true}
                 duration={300}>
-                <span className={cx('icon')} onClick={(e) => onPlayMusicInPlaylist(e, { id: idAlbum, title: title })}>
+                <span
+                  className={cx('icon')}
+                  onClick={(e) =>
+                    onPlayMusicInPlaylist(e, {
+                      id: idAlbum,
+                      title: title,
+                      thumbnailM: thumbnailM,
+                      link: data?.link,
+                      sortDescription: '',
+                      artists: data?.artists,
+                      isUser: data?.isUser,
+                    })
+                  }>
                   <BsPlayCircle className={cx('icon-play')} />
                 </span>
               </Tippy>

@@ -59,7 +59,7 @@ const LyricSong = () => {
   }, [currentTimeSongLyric, stateLyric.dataLyric]);
 
   useEffect(() => {
-    if (findLyricSong !== -1) {
+    if (findLyricSong !== -1 && itemLyricRef.current) {
       itemLyricRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       setStateLyric((prev) => ({ ...prev, prefixIndexLyric: findLyricSong }));
     }

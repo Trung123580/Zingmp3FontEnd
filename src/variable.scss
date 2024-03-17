@@ -39,6 +39,11 @@ $bg-chart: hsla(0, 0%, 100%, 0.05);
   flex-grow: 0;
   flex-shrink: 0;
 }
+@mixin hover-button {
+  -webkit-filter: brightness(0.9);
+  filter: brightness(0.9);
+  @include transition;
+}
 //Mobile
 @mixin mobile {
   @media (max-width: 768px) {
@@ -65,6 +70,7 @@ $bg-chart: hsla(0, 0%, 100%, 0.05);
     margin-top: 70px;
     padding: 0 59px;
     margin-bottom: 20px;
+    // overflow: hidden;
     @content;
   }
   @include mobile {

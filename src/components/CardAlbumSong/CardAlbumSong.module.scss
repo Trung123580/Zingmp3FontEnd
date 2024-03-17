@@ -9,6 +9,11 @@
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  // &.fileUpload:hover {
+  //   .time {
+  //     display: block;
+  //   }
+  // }
   &:hover {
     background-color: $alpha-bg;
     .action {

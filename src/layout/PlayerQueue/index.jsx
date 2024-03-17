@@ -6,7 +6,6 @@ import { AuthProvider } from '~/AuthProvider';
 import { CardSong } from '~/components';
 import classNames from 'classnames/bind';
 import style from './PlayerQueue.module.scss';
-import { differenceBy as _differenceBy } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 const cx = classNames.bind(style);
 const PlayerQueue = () => {
@@ -93,38 +92,38 @@ const PlayerQueue = () => {
             </div>
           </div>
           {active === 0 && (
-            <div className={cx('song-active')}>
-              {!!currentSong && (
-                <CardSong
-                  isHiddenTime={true}
-                  onActiveSong={(e) => onActiveSong(e, currentSong)}
-                  isPlay={isPlay}
-                  currentSong={currentSong}
-                  onAddLikeSong={onAddLikeSong}
-                  onRemoveLikeSong={onRemoveLikeSong}
-                  currentUser={currentUser}
-                  card={currentSong}
-                  isIconLove={true}
-                  onNavigateArtist={handleNavigate}
-                  className='edit'
-                />
-              )}
-            </div>
-          )}
-          {active === 0 && (
-            <div className={cx('next-info__song')}>
-              <h4>Tiếp theo</h4>
-              {currentPlayList?.title && (
-                <p>
-                  từ danh sách bài hát <span style={{ color: themeApp?.primaryColor }}> {currentPlayList?.title}</span>
-                </p>
-              )}
-            </div>
+            <>
+              <div className={cx('song-active')}>
+                {!!currentSong && (
+                  <CardSong
+                    isHiddenTime={true}
+                    onActiveSong={(e) => onActiveSong(e, currentSong)}
+                    isPlay={isPlay}
+                    currentSong={currentSong}
+                    onAddLikeSong={onAddLikeSong}
+                    onRemoveLikeSong={onRemoveLikeSong}
+                    currentUser={currentUser}
+                    card={currentSong}
+                    isIconLove={true}
+                    onNavigateArtist={handleNavigate}
+                    className='edit'
+                  />
+                )}
+              </div>
+              <div className={cx('next-info__song')}>
+                <h4>Tiếp theo</h4>
+                {currentPlayList?.title && (
+                  <p>
+                    từ danh sách bài hát <span style={{ color: themeApp?.primaryColor }}> {currentPlayList?.title}</span>
+                  </p>
+                )}
+              </div>
+            </>
           )}
           <div className={cx('list-menu')}>
-            {currentPlayList?.title === 'Nhạc yêu thích' &&
+            {/* {currentPlayList?.title === 'Nhạc yêu thích' &&
               !!currentPlayList?.listItem.length &&
-              currentPlayList?.listItem.map((card, index, arr) => (
+              currentPlayList?.listItem.map((card, _index, arr) => (
                 <CardSong
                   key={uuid()}
                   onActiveSong={(e) => onActiveSong(e, card, true)}
@@ -140,13 +139,9 @@ const PlayerQueue = () => {
                   onPlaySong={() => onPlaySong(card, arr, currentPlayList?.title)}
                   onNavigateArtist={handleNavigate}
                 />
-              ))}
+              ))} */}
             {!!currentSong && active === 0
-              ? _differenceBy(
-                  currentPlayList?.listItem || [],
-                  (currentUser?.historySong.length && currentUser?.historySong) || [currentSong],
-                  'encodeId'
-                ).map((card, index, arr) => (
+              ? (currentPlayList?.listItem || []).map((card, _index, arr) => (
                   <CardSong
                     key={uuid()}
                     onActiveSong={(e) => onActiveSong(e, card, true)}
@@ -163,7 +158,7 @@ const PlayerQueue = () => {
                     onNavigateArtist={handleNavigate}
                   />
                 ))
-              : currentUser?.historySong.map((card) => (
+              : (currentUser?.historySong || []).map((card, _index, arr) => (
                   <CardSong
                     key={uuid()}
                     onActiveSong={(e) => onActiveSong(e, card, true, true)}
@@ -177,7 +172,7 @@ const PlayerQueue = () => {
                     onNavigateArtist={handleNavigate}
                     isIconLove={true}
                     onPlaySong={() => {
-                      onPlaySong(card, currentPlayList?.listItem, currentPlayList?.title);
+                      onPlaySong(card, arr, 'Nghe gần đây');
                       setActive(0);
                     }}
                     className='edit'
@@ -189,5 +184,5 @@ const PlayerQueue = () => {
     </div>
   );
 };
-
+// _differenceBy(currentPlayList?.listItem || [], (currentUser?.historySong.length && currentUser?.historySong) || [currentSong], 'encodeId');
 export default PlayerQueue;

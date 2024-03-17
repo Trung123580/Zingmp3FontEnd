@@ -19,8 +19,18 @@ const Album = () => {
   const { currentSong, isPlay } = useSelector((state) => state.app);
   const { currentUser } = useSelector((state) => state.auth);
   const { themeApp, handle } = useContext(AuthProvider);
-  const { onPlaySong, onAddLikeSong, onRemoveLikeSong, onAddPlayList, onRemovePlayList, onAddArtist, onRemoveArtist, onActiveSong, onOpenModal } =
-    handle;
+  const {
+    onPlaySong,
+    onAddLikeSong,
+    onRemoveLikeSong,
+    onAddPlayList,
+    onRemovePlayList,
+    onAddArtist,
+    onRemoveArtist,
+    onActiveSong,
+    onOpenModal,
+    onAddHistoryPlaylist,
+  } = handle;
   const { pid } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -38,9 +48,12 @@ const Album = () => {
         },
         artists: currentUser?.followArtist,
         title: data.title,
-        encodeId: pid,
+        encodeId: data.encodeId || pid,
         thumbnailM: currentUser?.avatar,
-        isPlaylistUser: true,
+        isPlaylistUser: data?.isUser, // true
+        isUser: data?.isUser,
+        link: data?.link,
+        id: data.encodeId || pid,
       });
       setIsLoading(true);
       dispatch(isScrollTop(true));
@@ -95,7 +108,14 @@ const Album = () => {
               onAddPlayList={(e) => onAddPlayList(e, playListData)}
               onRemovePlayList={(e) => onRemovePlayList(e, playListData?.encodeId)}
               currentUser={currentUser}
-              onPlaySong={() => onPlaySong(playListData?.song?.items[0], playListData?.song?.items, playListData?.title)}
+              onPlaySong={() => {
+                if (playListData?.song?.items.length === 0) return;
+                onPlaySong(playListData?.song?.items[0], playListData?.song?.items, playListData?.title);
+                onAddHistoryPlaylist({
+                  ...playListData,
+                  id: playListData?.encodeId,
+                });
+              }}
               onEditNamePlaylist={() =>
                 onOpenModal(
                   {
@@ -126,7 +146,10 @@ const Album = () => {
                   theme={themeApp}
                   onAddLikeSong={(e) => onAddLikeSong(e, song)}
                   onRemoveLikeSong={(e) => onRemoveLikeSong(e, song?.encodeId)}
-                  onPlaySong={() => onPlaySong(song, arr, playListData?.title)}
+                  onPlaySong={() => {
+                    onPlaySong(song, arr, playListData?.title);
+                    onAddHistoryPlaylist(playListData);
+                  }}
                 />
               ))}
               <div className={cx('bottom-info')}>

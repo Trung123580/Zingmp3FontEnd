@@ -1,10 +1,12 @@
+import { memo } from 'react';
 import classNames from 'classnames/bind';
 import style from './CardVideo.module.scss';
 import moment from 'moment';
 import { BsPlayCircle } from 'react-icons/bs';
 import path from '~/router/path';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 const cx = classNames.bind(style);
-const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo }) => {
+const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo, deleteHistory }) => {
   return (
     <div className={cx('card')} onClick={onOpenVideo}>
       <div className={cx('banner')}>
@@ -13,6 +15,11 @@ const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo }) => {
         <div className={cx('icon-play')}>
           <BsPlayCircle />
         </div>
+        {deleteHistory?.isIconDelete && (
+          <div className={cx('icon-delete')} onClick={deleteHistory?.onDeleteHistory}>
+            <CloseRoundedIcon />
+          </div>
+        )}
       </div>
       <div
         className={cx('user')}
@@ -43,4 +50,4 @@ const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo }) => {
   );
 };
 
-export default CardVideo;
+export default memo(CardVideo);
