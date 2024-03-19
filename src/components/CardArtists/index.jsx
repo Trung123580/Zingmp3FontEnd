@@ -26,7 +26,7 @@ const CardArtists = ({ data, themeApp, onNavigate, isFollowArtist, onToggleArtis
   return (
     <div className={cx('card-artist')} style={{ color: themeApp?.primaryColor }}>
       <div className={cx('avatar')} onClick={onNavigate}>
-        <img src={data?.thumbnailM} alt='' />
+        <img loading='lazy' src={data?.thumbnailM} alt='' />
       </div>
       <div className={cx('content')}>
         <h3>{data?.name}</h3>

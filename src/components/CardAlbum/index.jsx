@@ -34,7 +34,7 @@ const CardAlbum = ({
         active: isAlbumActive && isPlay,
       })}>
       <div className={cx('avatar')} onClick={onNavigatePlayList}>
-        <img src={thumbnailM} alt='' />
+        <img loading='lazy' src={thumbnailM} alt='' />
         <div className={cx('menu-action')}>
           <div className={cx('action')}>
             {data?.isUser ? (

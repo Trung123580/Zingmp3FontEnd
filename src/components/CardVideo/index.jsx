@@ -10,7 +10,7 @@ const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo, deleteHist
   return (
     <div className={cx('card')} onClick={onOpenVideo}>
       <div className={cx('banner')}>
-        <img src={data?.thumbnailM} alt='' />
+        <img loading='lazy' src={data?.thumbnailM} alt='' />
         <span className={cx('duration')}>{moment.unix(data?.duration).format('mm:ss')}</span>
         <div className={cx('icon-play')}>
           <BsPlayCircle />
@@ -28,7 +28,7 @@ const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo, deleteHist
           onNavigate();
         }}>
         <div className={cx('avatar')}>
-          <img src={data?.artist?.thumbnail} alt='' />
+          <img loading='lazy' src={data?.artist?.thumbnail} alt='' />
         </div>
         <div className={cx('content')}>
           <h3>{data?.title}</h3>

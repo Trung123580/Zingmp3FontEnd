@@ -50,7 +50,7 @@ const CardSong = ({
       onClick={onPlaySong}
       style={{ ...style, background: isSelector && 'rgba(255, 255, 255, 0.1)', padding: !!isHiddenTime && '8px' }}>
       <div className={cx('avatar')} style={{ minWidth: !!isHiddenTime && '40px', width: !!isIconLove && '40px' }}>
-        <img src={card.thumbnailM} alt='Error' />
+        <img loading='lazy' src={card.thumbnailM} alt='Error' />
         {isPlay && isSelector ? (
           <div className={cx('play-song')}>
             <img src='https://zmp3-static.zmdcdn.me/skins/zmp3-v6.1/images/icons/icon-playing.gif' alt='' />

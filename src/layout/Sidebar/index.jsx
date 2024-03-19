@@ -163,7 +163,7 @@ const Sidebar = () => {
                     );
                   })}
                   <Divide />
-                  {currentUser?.createPlaylist.map((item) => (
+                  {(currentUser?.createPlaylist || []).map((item) => (
                     <li
                       className={cx('menu-item', {
                         playlist: true,

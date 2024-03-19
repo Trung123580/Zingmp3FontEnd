@@ -91,7 +91,7 @@ const CardAlbumSong = ({
         )}
         <div className={cx('content')}>
           <div className={cx('avatar')}>
-            <img src={song.thumbnailM} alt='error' />
+            <img loading='lazy' src={song.thumbnailM} alt='error' />
             {isPlay && isSelector ? (
               <div className={cx('play-song')}>
                 <img src='https://zmp3-static.zmdcdn.me/skins/zmp3-v6.1/images/icons/icon-playing.gif' alt='' />

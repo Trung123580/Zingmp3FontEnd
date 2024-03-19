@@ -14,7 +14,7 @@ const ChartCard = ({ data, index, totalScore, active, style, onPlaySong, onNavig
       {!!index && <span className={cx('rank')}>{index}</span>}
       <div className={cx('main')}>
         <div className={cx('avatar')} style={{ margin: !index && '0 10px 0 0', minWidth: !index && '40px', width: !index && '40px' }}>
-          <img src={thumbnailM} alt='error' />
+          <img loading='lazy' src={thumbnailM} alt='error' />
         </div>
         <div className={cx('text')}>
           <h3 style={{ fontSize: !index && '1.2rem' }}>{title}</h3>
