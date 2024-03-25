@@ -106,7 +106,7 @@ const Header = () => {
       setIsOpenSetting(false);
       setIsOpenLogin(false);
     }
-    if (isSuggest) setIsSuggest(false);
+    setIsSuggest(false);
   };
   useEffect(() => {
     document.addEventListener('click', handleClickOutside);
