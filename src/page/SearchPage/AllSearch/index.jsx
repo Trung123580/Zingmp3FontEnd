@@ -21,13 +21,22 @@ const AllSearch = () => {
   const { currentUser } = useSelector((state) => state.auth);
   const { currentSong, isPlay, currentPlayList } = useSelector((state) => state.app);
   const { themeApp, handle, activeIdAlbum } = useContext(AuthProvider);
-  const { onPlaySong, onAddPlayList, onRemovePlayList, onActiveSong, onPlayMusicInPlaylist } = handle;
+  const {
+    onPlaySong,
+    onAddPlayList,
+    onRemovePlayList,
+    onActiveSong,
+    onPlayMusicInPlaylist,
+    onAddLikeSong,
+    onRemoveLikeSong,
+    onAddArtist,
+    onRemoveArtist,
+  } = handle;
   const { isLoading, isError, searchData } = stateSearch;
   const navigate = useNavigate();
   const { keyWord } = useParams();
 
   const findArtist = (searchData?.artists || []).find((item) => item.id === searchData?.top?.id);
-  console.log(stateSearch.searchData);
   const handleNavigate = (url) => {
     navigate(
       url
