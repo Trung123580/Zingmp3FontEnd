@@ -365,6 +365,13 @@ const MusicBar = () => {
     // eslint-disable-next-line
   }, [isPlay, audio, isDragging, isOpenLyricSong]);
   useEffect(() => {
+    if (isPlay && audio) {
+      audio.play();
+    } else if (!isPlay && audio) {
+      audio.pause();
+    }
+  }, [isPlay, audio]);
+  useEffect(() => {
     document.addEventListener('mousemove', handleDragMove);
     document.addEventListener('mouseup', handleDragEnd);
     return () => {

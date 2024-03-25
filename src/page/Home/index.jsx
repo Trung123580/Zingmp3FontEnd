@@ -25,7 +25,7 @@ const Home = () => {
   );
   const { currentUser } = useSelector((state) => state.auth);
   const { themeApp, handle, selectedChart, activeIdAlbum } = useContext(AuthProvider);
-  const { onPlaySong, onAddPlayList, onRemovePlayList, onCloseModal, onActiveSong, onPlayMusicInPlaylist } = handle;
+  const { onPlaySong, onAddPlayList, onRemovePlayList, onCloseModal, onActiveSong, onPlayMusicInPlaylist, onAddLikeSong, onRemoveLikeSong } = handle;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -96,7 +96,11 @@ const Home = () => {
                       currentUser={currentUser}
                       onNavigateArtist={handleNavigate}
                       card={card}
+                      isIconLove={true}
                       onPlaySong={() => onPlaySong(card, array, newRelease?.title)}
+                      onAddLikeSong={(e) => onAddLikeSong(e, card)}
+                      onRemoveLikeSong={(e) => onRemoveLikeSong(e, card?.encodeId)}
+                      
                     />
                   );
                 }
@@ -159,6 +163,7 @@ const Home = () => {
                           isPlay={isPlay}
                           onPlayMusicInPlaylist={onPlayMusicInPlaylist}
                           activeIdAlbum={activeIdAlbum}
+                          
                         />
                       </SwiperSlide>
                     ))}

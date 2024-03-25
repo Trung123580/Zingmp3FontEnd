@@ -6,3 +6,4 @@ export { default as Album } from './Album';
 export { default as DetailsArtist } from './DetailsArtist';
 export { default as NewMusic } from './NewMusic';
 export { default as Top100 } from './Top100';
+export { default as SearchPage } from './SearchPage';

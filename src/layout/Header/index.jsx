@@ -16,16 +16,72 @@ import BrowserUpdatedIcon from '@mui/icons-material/BrowserUpdated';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
+import path from '~/router/path';
+import Cookies from 'universal-cookie';
+const cookies = new Cookies();
 const cx = classNames.bind(style);
 const Header = () => {
   const [listHistory, setListHistory] = useState([]);
   const [isOpenLogin, setIsOpenLogin] = useState(false);
   const [isOpenSetting, setIsOpenSetting] = useState(false);
+  const [search, setSearch] = useState('');
+  const [searchList, setSearchList] = useState(() => {
+    return cookies.get('list_Search') ?? [];
+  });
+  const [isSuggest, setIsSuggest] = useState(false);
   const { themeApp, handle, isAuth, user } = useContext(AuthProvider);
   const { onLoginApp, onSignOutApp } = handle;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const handleFormatText = (text) => {
+    const regex = /[!@#$%^&*(),.?":{}|<>']/g;
+    return text.replace(regex, '');
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!search) return;
+    navigate(path.SEARCH + path.SEARCH_ALL.replace('/:keyWord', `/${handleFormatText(search)}`));
+    const historySearch = cookies.get('list_Search') || [];
+    // const result = (historySearch ?? []).filter((item) => search !== item);
+    // cookies.set('list_Search' , [])
+    const isResult = historySearch.includes(search);
+    if (isResult) {
+      cookies.set('list_Search', historySearch);
+    } else {
+      historySearch.push(search);
+      cookies.set('list_Search', historySearch);
+      setSearchList(historySearch);
+    }
+    if (isSuggest) setIsSuggest(false);
+  };
+  const optionSearch = {
+    search: search,
+    isSuggest: isSuggest,
+    searchList: searchList,
+    onDeleteSearch: (e, value) => {
+      e.preventDefault();
+      const historySearch = cookies.get('list_Search') || [];
+      const newData = historySearch.filter((item) => item !== value);
+      cookies.set('list_Search', newData);
+      setSearchList(newData);
+      // return newData;
+    },
+    onSearch: (e, value) => {
+      e.preventDefault();
+      setSearch(value);
+      handleSubmit(e);
+    },
+    onKeySearch: (keyWord) => {
+      setSearch(keyWord);
+    },
+    onRefresh: () => {
+      if (search) setSearch('');
+    },
+    onFocusSuggest: () => setIsSuggest(true),
+    onSubmitSearch: handleSubmit,
+  };
+
   // change history router app
   useEffect(() => {
     if (location.pathname === '/') setListHistory(['/']);
@@ -45,15 +101,19 @@ const Header = () => {
     setIsOpenLogin(!isOpenLogin);
     setIsOpenSetting(false);
   };
-  const handleClickOutside = (event) => {
-    setIsOpenSetting(false);
-    setIsOpenLogin(false);
+  const handleClickOutside = () => {
+    if (isOpenSetting || isOpenLogin) {
+      setIsOpenSetting(false);
+      setIsOpenLogin(false);
+    }
+    if (isSuggest) setIsSuggest(false);
   };
   useEffect(() => {
     document.addEventListener('click', handleClickOutside);
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
+    //eslint-disable-next-line
   }, []);
 
   return (
@@ -74,7 +134,7 @@ const Header = () => {
               />
               <Button content={<EastIcon fontSize='large' />} onClick={() => navigate(+1)} />
             </div>
-            <Search themeApp={themeApp} />
+            <Search themeApp={themeApp} {...optionSearch} />
           </div>
           <div className={cx('level-right')}>
             <a
@@ -94,11 +154,13 @@ const Header = () => {
               {isOpenSetting && (
                 <ul className={cx('list')}>
                   <li className={cx('item')}>
-                    <span>
-                      <IconTheme />
-                      Giao Diện
-                    </span>
-                    <ArrowForwardIosOutlinedIcon />
+                    <div className={cx('wrapper-icon')}>
+                      <span>
+                        <IconTheme />
+                        Giao Diện
+                      </span>
+                      <ArrowForwardIosOutlinedIcon />
+                    </div>
                     <ul className={cx('list-theme')}>
                       {listTheme.map(({ backgroundImage, color, id, name, backgroundMusicBar }) => (
                         <li key={id} onClick={() => handleChangeTheme(backgroundImage, color, backgroundMusicBar)}>
@@ -111,11 +173,13 @@ const Header = () => {
                     </ul>
                   </li>
                   <li className={cx('item')}>
-                    <span>
-                      <InfoOutlinedIcon />
-                      Giới Thiệu
-                    </span>
-                    <ArrowForwardIosOutlinedIcon />
+                    <div className={cx('wrapper-icon')}>
+                      <span>
+                        <InfoOutlinedIcon />
+                        Giới Thiệu
+                      </span>
+                      <ArrowForwardIosOutlinedIcon />
+                    </div>
                   </li>
                 </ul>
               )}

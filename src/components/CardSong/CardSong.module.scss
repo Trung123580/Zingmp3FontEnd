@@ -11,7 +11,33 @@
   // animation: swing-in-top-fwd 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
   cursor: pointer;
   // @include transition;
-
+  &.isSearch {
+    background-color: rgba(254, 255, 255, 0.05);
+    // @include table {
+    width: calc((100% / 3) - 15px);
+    .avatar {
+      min-width: 84px;
+      max-width: 84px;
+      width: 84px;
+      position: relative;
+    }
+    .wrapper {
+      justify-content: center;
+    }
+    // }
+    @include mobile {
+      margin-top: 15px;
+      width: 100%;
+    }
+    &:hover {
+      background-color: rgba(254, 255, 255, 0.1);
+      @include table {
+        .content {
+          display: none;
+        }
+      }
+    }
+  }
   &.edit {
     width: 100%;
     &:nth-child(n + 7) {

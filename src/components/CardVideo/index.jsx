@@ -4,6 +4,8 @@ import style from './CardVideo.module.scss';
 import moment from 'moment';
 import { BsPlayCircle } from 'react-icons/bs';
 import path from '~/router/path';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
+
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 const cx = classNames.bind(style);
 const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo, deleteHistory }) => {
@@ -33,14 +35,16 @@ const CardVideo = ({ data, onNavigate, onNavigateArtist, onOpenVideo, deleteHist
         <div className={cx('content')}>
           <h3>{data?.title}</h3>
           <div className={cx('artists')}>
-            {data?.artists?.map(({ name, id, link }, index) => (
+            {data?.artists?.map((item, index) => (
               <span
-                key={id}
+                key={item?.id}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onNavigateArtist(path.DETAILS_ARTIST.replace('/:name', link));
+                  onNavigateArtist(path.DETAILS_ARTIST.replace('/:name', item?.link));
                 }}>
-                {name + `${index === data.artists.length - 1 ? '' : ','}`}
+                {item?.name}
+                {item?.spotlight && <StarRoundedIcon fontSize='medium' />}
+                {index === data?.artists.length - 1 ? '' : ','}
               </span>
             ))}
           </div>

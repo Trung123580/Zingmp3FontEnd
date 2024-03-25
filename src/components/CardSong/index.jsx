@@ -7,7 +7,9 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+
 import path from '~/router/path';
+import { memo } from 'react';
 const cx = classNames.bind(style);
 const CardSong = ({
   style,
@@ -26,6 +28,7 @@ const CardSong = ({
   onAddLikeSong,
   onRemoveLikeSong,
   onNavigateArtist,
+  isSearch,
 }) => {
   const currentTime = moment();
   const targetTime = moment.unix(card?.releaseDate);
@@ -117,4 +120,4 @@ const CardSong = ({
   );
 };
 
-export default CardSong;
+export default memo(CardSong);

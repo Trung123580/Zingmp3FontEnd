@@ -39,6 +39,9 @@
       &.active {
         color: $color-white;
       }
+      &:hover {
+        color: $color-white;
+      }
     }
   }
   .content {
@@ -68,6 +71,7 @@
         align-items: center;
         justify-content: center;
         gap: 15px;
+        min-height: 265px;
         svg {
           font-size: 4.7rem;
           color: $color-white;

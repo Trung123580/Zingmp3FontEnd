@@ -79,7 +79,6 @@ const Video = () => {
     return `${minute}:${secondLeft < 10 ? `0${secondLeft}` : secondLeft}`;
   };
   const selectItem = deFautDataVideo?.recommends.find(({ encodeId }) => encodeId === videoId);
-  console.log(selectItem);
   const optionQueuePlayer = {
     isAutoPlay: isAutoPlay,
     theme: theme,
@@ -306,7 +305,6 @@ const Video = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId]);
-  console.log(dataVideo);
   // getSecondsLoaded;
   useEffect(() => {
     if (videoRef.current) {

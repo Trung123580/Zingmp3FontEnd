@@ -14,7 +14,6 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import './App.scss';
 import { ToastContainer } from 'react-toastify';
-
 import { useSelector } from 'react-redux';
 import BaseModal from './utils/BaseModal';
 
@@ -31,16 +30,15 @@ function App() {
     borderRadius: '5px',
   };
   useEffect(() => {
-    // if (!coords?.isShowPortal) return;
     const handleClickOutside = () => {
-      onActiveSong(null, null);
+      if (coords?.isShowPortal) onActiveSong(null, null);
     };
     document.addEventListener('click', handleClickOutside);
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [coords.isShowPortal]);
   useEffect(() => {
     if (refScroll.current && isScrollTop) {
       refScroll.current.scrollTop = 0;

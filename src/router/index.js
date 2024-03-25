@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { Home, ZingChart, LibraryMusic, NewRelease, Album, DetailsArtist, NewMusic, Top100 } from '~/page';
+import { Home, ZingChart, LibraryMusic, NewRelease, Album, DetailsArtist, NewMusic, Top100, SearchPage } from '~/page';
 import path from './path';
 import HistorySong from '~/components/HistorySong';
 import UserPlayList from '~/components/UserPlayList';
@@ -17,6 +17,11 @@ import {
   IconPlayList,
   IconUpload,
 } from '~/asset/logo';
+import Songs from '~/page/SearchPage/Songs';
+import Playlist from '~/page/SearchPage/PlayLists';
+import Artists from '~/page/SearchPage/Artists';
+import Mv from '~/page/SearchPage/Mv';
+import AllSearch from '~/page/SearchPage/AllSearch';
 const menuNavigate = [
   { id: uuid(), path: path.HOME, content: 'Khám Phá', icon: IconHome },
   { id: uuid(), path: path.ZING_CHART, content: '#zingchart', icon: IconZingChart },
@@ -80,6 +85,18 @@ const router = [
       { id: uuid(), path: path.LIBRARY_MUSIC + path.USER_ALBUM, icon: IconAlbum, component: '', content: 'Album' },
       { id: uuid(), path: path.LIBRARY_MUSIC + path.UPLOAD, icon: IconUpload, component: '', content: 'Đã tải lên' },
       { id: uuid(), path: path.LIBRARY_MUSIC + path.ARTISTS, icon: '', component: LibraryMusicArtists, content: '' },
+    ],
+  },
+  {
+    id: uuid(),
+    path: path.SEARCH,
+    component: SearchPage,
+    insideRoute: [
+      { id: uuid(), path: path.SEARCH + path.SEARCH_ALL, component: AllSearch, content: 'tất cả' },
+      { id: uuid(), path: path.SEARCH + path.SEARCH_SONG, component: Songs, content: 'bài hát' },
+      { id: uuid(), path: path.SEARCH + path.SEARCH_PLAYLIST, component: Playlist, content: 'playlist/album' },
+      { id: uuid(), path: path.SEARCH + path.SEARCH_ARTIST, component: Artists, content: 'nghệ sĩ/oa' },
+      { id: uuid(), path: path.SEARCH + path.SEARCH_MV, component: Mv, content: 'mv' },
     ],
   },
 ];

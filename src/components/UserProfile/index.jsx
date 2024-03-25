@@ -5,6 +5,7 @@ import BlockIcon from '@mui/icons-material/Block';
 import LogoutIcon from '@mui/icons-material/Logout';
 import classNames from 'classnames/bind';
 import style from './UserProfile.module.scss';
+import { memo } from 'react';
 const cx = classNames.bind(style);
 const UserProfile = ({ user, onSignOutApp }) => {
   return (
@@ -63,4 +64,4 @@ const UserProfile = ({ user, onSignOutApp }) => {
   );
 };
 
-export default UserProfile;
+export default memo(UserProfile);

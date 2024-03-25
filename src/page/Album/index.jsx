@@ -35,7 +35,7 @@ const Album = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isMountPlaylistUser = useMemo(() => {
-    return currentUser?.createPlaylist.some((item) => item.encodeId === pid) || false;
+    return (currentUser?.createPlaylist || []).some((item) => item.encodeId === pid) || false;
   }, [currentUser, pid]);
   useEffect(() => {
     if (isMountPlaylistUser) {

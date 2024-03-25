@@ -5,6 +5,7 @@ import moment from 'moment';
 import AudiotrackRoundedIcon from '@mui/icons-material/AudiotrackRounded';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { FaRegWindowRestore } from 'react-icons/fa6';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded';
 import { FaCaretDown, FaCaretUp } from 'react-icons/fa';
@@ -23,6 +24,7 @@ const CardAlbumSong = ({
   onRemoveLikeSong,
   onNavigate,
   onNavigateArtist,
+  onNavigateVideo,
   index,
   status,
   chartIndex,
@@ -136,6 +138,19 @@ const CardAlbumSong = ({
         <span className={cx('time')}>{formattedTime}</span>
 
         <div className={cx('action')}>
+          {song?.mvlink && (
+            <Tippy
+              content={<span className='tippy-title'>Xem MV</span>}
+              followCursor='horizontal'
+              // plugins={[followCursor]}
+              placement='top'
+              arrow={true}
+              duration={300}>
+              <span className={cx('icon')} onClick={onNavigateVideo}>
+                {<FaRegWindowRestore fontSize='large' />}
+              </span>
+            </Tippy>
+          )}
           <Tippy
             content={<span className='tippy-title'>Thêm vào thư viện</span>}
             followCursor='horizontal'

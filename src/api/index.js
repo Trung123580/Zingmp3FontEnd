@@ -10,6 +10,18 @@ export const apiHome = async () => {
     throw new Error(error);
   }
 };
+export const apiSearch = async (keyWord) => {
+  try {
+    const response = await axios({
+      method: 'get',
+      url: '/search',
+      params: { keyword: keyWord },
+    });
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 export const apiDetailsPlayList = async (playListId) => {
   try {
     const response = await axios({

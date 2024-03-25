@@ -145,7 +145,7 @@ const PortalModal = () => {
         </li>
         {coords.isDelete && (
           // viet onclick delete
-          <li className={cx('portal__action-item')} onClick={(e) => onRemoveHistorySong(e, coords.encodeId)}>
+          <li className={cx('portal__action-item')} onClick={(e) => onRemoveHistorySong(e, coords.song.encodeId)}>
             <span className={cx('content__text')}>
               <DeleteOutlineRoundedIcon />
               Xóa

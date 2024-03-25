@@ -1,4 +1,5 @@
 const path = {
+  //
   HOME: '/',
   ZING_CHART: '/zing-chart',
   ZING_CHART_RANKS: '/zing-chart-tuan/:country',
@@ -21,8 +22,15 @@ const path = {
   //
   USER_ALBUM: '/user-album',
   UPLOAD: '/upload',
-  // chưa nghĩ ra tác dụng
+  //
   NEW_RELEASE: '/new-release',
   SONG: '/song',
+  // search
+  SEARCH: '/search',
+  SEARCH_ALL: '/search-all/:keyWord',
+  SEARCH_SONG: '/search-song/:keyWord',
+  SEARCH_PLAYLIST: '/search-playlist/:keyWord',
+  SEARCH_ARTIST: '/search-artist/:keyWord',
+  SEARCH_MV: '/search-mv/:keyWord',
 };
 export default path;

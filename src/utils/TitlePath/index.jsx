@@ -1,6 +1,7 @@
 import classNames from 'classnames/bind';
 import style from './TitlePath.module.scss';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { memo } from 'react';
 const cx = classNames.bind(style);
 const TitlePath = ({ content, show, onClick, style, themeApp }) => {
   return (
@@ -16,4 +17,4 @@ const TitlePath = ({ content, show, onClick, style, themeApp }) => {
   );
 };
 
-export default TitlePath;
+export default memo(TitlePath);

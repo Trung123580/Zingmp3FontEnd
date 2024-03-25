@@ -89,14 +89,14 @@
         color: $text-secondary;
         @include text-cover;
         span {
+          display: inline-block;
+          margin-right: 6px;
           &:hover {
             text-decoration: underline;
             cursor: pointer;
             color: $color-navigation-text;
             @include transition;
           }
-          display: inline-block;
-          margin-right: 4px;
         }
       }
     }

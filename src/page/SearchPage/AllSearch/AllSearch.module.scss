@@ -1,0 +1,214 @@
+@import '../../../variable.scss';
+.error {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  flex-direction: column;
+  img {
+    object-fit: cover;
+    width: 500px;
+    height: 500px;
+  }
+  h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    line-height: 1.3;
+  }
+}
+.allSearch {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  .highlight {
+    .highlight__list {
+      //   margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      width: 100%;
+      .card__top {
+        width: calc((100% / 3) - 15px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 4px;
+        background-color: rgba(254, 255, 255, 0.05);
+        height: fit-content;
+        cursor: pointer;
+        &:hover {
+          background-color: rgba(254, 255, 255, 0.1);
+        }
+        .avatar {
+          min-width: 84px;
+          max-width: 84px;
+          width: 84px;
+          position: relative;
+          img {
+            border-radius: 999px;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+        @include table {
+          width: calc((100% / 3) - 15px);
+          // .avatar {
+          //   min-width: 84px;
+          //   max-width: 84px;
+          //   width: 84px;
+          //   position: relative;
+          // }
+        }
+        @include mobile {
+          width: 100%;
+          // margin-bottom: 20px;
+        }
+        &:hover {
+          background-color: $alpha-bg;
+        }
+      }
+      .info {
+        flex: 1 1;
+        flex-basis: 0;
+        .note {
+          font-size: 12px;
+          line-height: 18px;
+          font-weight: 400;
+          letter-spacing: 0.0025em;
+          color: $text-secondary;
+          margin-bottom: 6px;
+          white-space: nowrap;
+        }
+        .name {
+          line-height: 1.3;
+          font-weight: 500;
+          font-size: 1.4rem;
+          @include text-cover;
+        }
+        .artists {
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+  .playlist {
+    .header {
+      display: flex;
+      // justify-content: space-between;
+      align-items: center;
+      .left {
+        display: flex;
+        gap: 10px;
+        flex: 1;
+        .avatar {
+          min-width: 50px;
+          max-width: 50px;
+          width: 50px;
+          height: 50px;
+          overflow: hidden;
+          border-radius: 4px;
+          img {
+            &:hover {
+              @include hover;
+            }
+          }
+        }
+        .text {
+          width: 100%;
+          flex-basis: auto;
+          flex-grow: 1;
+          flex-shrink: 1;
+          text-align: left;
+          align-self: center;
+          .note {
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            color: $text-secondary;
+            font-weight: 400;
+          }
+          .name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 5px 0 0;
+            text-transform: none;
+            cursor: pointer;
+            width: fit-content;
+            &:hover {
+              color: $text-secondary;
+              text-decoration: underline;
+              @include transition;
+            }
+          }
+        }
+      }
+      .right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: $text-secondary;
+        cursor: pointer;
+        &:hover {
+          transition: 0.3s;
+          color: currentColor;
+        }
+        span {
+          font-size: 1.2rem;
+          font-weight: 500;
+          text-wrap: nowrap;
+          font-size: 12px;
+          text-transform: uppercase;
+        }
+      }
+    }
+    .content {
+      .list__playlist {
+        margin-top: 20px;
+      }
+    }
+  }
+  .songs {
+    .list__songs {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+  }
+  .mvs {
+    .list__mv {
+      // display: grid;
+      // grid-template-columns: repeat(3, 1fr);
+      // gap: 28px;
+      // margin-top: 32px;
+      // @include table {
+      //   margin-top: 25px;
+      //   grid-template-columns: repeat(2, 1fr);
+      //   gap: 20px;
+      // }
+      // @include mobile {
+      //   margin-top: 20px;
+      //   grid-template-columns: repeat(1, 1fr);
+      //   gap: 15px;
+      // }
+    }
+  }
+  .artists {
+    .list {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 28px;
+      @include table {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+      }
+      @include mobile {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+    }
+  }
+}

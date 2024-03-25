@@ -2,6 +2,13 @@
 .search {
   width: 100%;
   max-width: 440px;
+  position: relative;
+  &.isSuggest {
+    .search-container {
+      background-color: $primary-bg;
+      border-radius: 20px 20px 0 0;
+    }
+  }
   .search-container {
     display: flex;
     align-items: center;
@@ -10,7 +17,7 @@
     height: 40px;
     background-color: $alpha-bg;
     color: $text-placeholder;
-    padding: 0 10px;
+    padding: 0 15px 0 10px;
     gap: 10px;
     border: 1px solid transparent;
     label {
@@ -31,8 +38,70 @@
       color: $color-white;
       &::placeholder {
         color: inherit;
+        @include text-cover;
       }
       // }
+    }
+  }
+  .suggest_list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    // height: 100vh;
+    // max-height: calc(100vh - 180px);
+    width: 100%;
+    // border-radius: 999px;
+    background-color: $primary-bg;
+    padding: 13px 10px;
+    border-radius: 0 0 20px 20px;
+    .title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      padding: 0 10px 8px;
+    }
+
+    @include mobile {
+      // max-height: calc(100vh - 250px);
+    }
+    .list {
+      .item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 4px;
+        padding: 8px 10px;
+        position: relative;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        position: relative;
+        cursor: pointer;
+        span {
+          display: inline-block;
+          flex: 1;
+        }
+        &.active {
+          background: $alpha-bg;
+        }
+        &:hover {
+          @include transition;
+          background: $alpha-bg;
+        }
+        .position {
+          position: absolute;
+          right: 1%;
+          top: 50%;
+          padding: 5px;
+          transform: translateY(-50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 999px;
+          &:hover {
+            background-color: $alpha-bg;
+          }
+        }
+      }
     }
   }
 }

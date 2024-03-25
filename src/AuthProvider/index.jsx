@@ -16,7 +16,7 @@ const cookies = new Cookies();
 const expirationDate = new Date();
 const AppProvider = ({ children }) => {
   const { theme, currentUser } = useSelector((state) => state.auth);
-  const { currentPlayList } = useSelector((state) => state.app);
+  const { currentPlayList, isPlay } = useSelector((state) => state.app);
   const [themeApp, setThemeApp] = useState(null);
   const [appCallBack, setAppCallBack] = useState(false);
   const [isAuth, setIsAuth] = useState(cookies.get('auth-token'));
@@ -194,6 +194,9 @@ const AppProvider = ({ children }) => {
           releaseDate: item.releaseDate || '',
           album: item.album || '',
           duration: item.duration || '',
+          isUser: item.isUser || false,
+          fileUploadAudio: true,
+          url: item.url || '',
         };
         if (!isExit) {
           await updateDoc(userDoc, {
@@ -406,15 +409,18 @@ const AppProvider = ({ children }) => {
   const handlePlaySong = useCallback(
     (item, listItem, title) => {
       const song = JSON.parse(localStorage.getItem('song'));
-      if (song?.encodeId === item?.encodeId) return;
-      dispatch(getSong({ ...item }));
+      if (song?.encodeId === item?.encodeId) {
+        dispatch(playSong(!isPlay));
+        return;
+      }
+      dispatch(getSong({ ...item, artists: item.artists || [] }));
       dispatch(getCurrentPlayList({ listItem: listItem, title: title }));
       dispatch(playSong(true));
       if (currentDataPlaylist.id && currentDataPlaylist.data) setCurrentDataPlaylist((prev) => ({ ...prev, id: null, data: null }));
       handleAddHistorySong(item);
     },
     // eslint-disable-next-line
-    [isAuth, user, currentUser]
+    [isAuth, user, currentUser, isPlay]
   );
   // remove historySong
   const handleRemoveHistorySong = useCallback(
@@ -442,6 +448,9 @@ const AppProvider = ({ children }) => {
       }
       const userDoc = doc(db, 'user', user?.uid);
       const newDataStory = currentUser?.historySong.filter(({ encodeId }) => encodeId !== idSong);
+      console.log(newDataStory);
+      console.log(idSong);
+      console.log(newDataStory.length);
       await updateDoc(userDoc, {
         historySong: newDataStory,
       }).then(() => {

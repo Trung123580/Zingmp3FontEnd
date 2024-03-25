@@ -118,4 +118,5 @@ const fontsLyric = [
     id: uuid(),
   },
 ];
+
 export { listTheme, listBtnNewRelease, navChart, listKeyVideo, fontsLyric, listLibrary, listNavHistorySong };
