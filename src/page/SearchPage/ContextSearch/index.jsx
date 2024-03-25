@@ -17,7 +17,6 @@ const ContextSearch = ({ children }) => {
   useEffect(() => {
     if (!keyWord) return;
     const getSearch = async () => {
-      console.log('call');
       if (!stateSearch.isLoading) setStateSearch((prev) => ({ ...prev, isLoading: true }));
       try {
         const response = await apiSearch(keyWord);
