@@ -19,6 +19,7 @@ import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutl
 import path from '~/router/path';
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
+const expirationDate = new Date();
 const cx = classNames.bind(style);
 const Header = () => {
   const [listHistory, setListHistory] = useState([]);
@@ -43,14 +44,19 @@ const Header = () => {
     if (!search) return;
     navigate(path.SEARCH + path.SEARCH_ALL.replace('/:keyWord', `/${handleFormatText(search)}`));
     const historySearch = cookies.get('list_Search') || [];
-    // const result = (historySearch ?? []).filter((item) => search !== item);
-    // cookies.set('list_Search' , [])
     const isResult = historySearch.includes(search);
     if (isResult) {
       cookies.set('list_Search', historySearch);
     } else {
+      const currentMonth = expirationDate.getMonth();
+      expirationDate.setMonth(currentMonth + 1);
+      if (expirationDate.getMonth() === currentMonth) {
+        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+      }
       historySearch.push(search);
-      cookies.set('list_Search', historySearch);
+      cookies.set('list_Search', historySearch, {
+        expires: currentMonth,
+      });
       setSearchList(historySearch);
     }
     if (isSuggest) setIsSuggest(false);

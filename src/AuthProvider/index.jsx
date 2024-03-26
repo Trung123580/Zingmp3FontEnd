@@ -58,7 +58,6 @@ const AppProvider = ({ children }) => {
   const [user, setUser] = useState(undefined);
   const userCollection = collection(db, 'user');
   const dispatch = useDispatch();
-  console.log(currentUser);
   useEffect(() => {
     setUser(cookies.get('user'));
   }, [isAuth]);

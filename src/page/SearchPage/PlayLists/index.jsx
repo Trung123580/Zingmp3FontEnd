@@ -44,7 +44,7 @@ const Playlist = () => {
   }
   return (
     <div className={cx('playlist')}>
-      <TitlePath content={'Playlist/Album'} />
+      <TitlePath content={'Playlist/Album'} style={{ marginTop: '0' }} />
       <div className={cx('list')}>
         {(searchData?.playlists || []).map((playlist) => (
           <CardAlbum

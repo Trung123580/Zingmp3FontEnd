@@ -43,7 +43,7 @@ const Mv = () => {
   }
   return (
     <div className={cx('mv')}>
-      <TitlePath content={'MV'} />
+      <TitlePath content={'MV'} style={{ marginTop: '0' }} />
       <div className={cx('list')}>
         {(searchData?.videos || []).map((video) => (
           <CardVideo

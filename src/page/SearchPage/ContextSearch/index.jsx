@@ -34,6 +34,7 @@ const ContextSearch = ({ children }) => {
     return () => {
       dispatch(isScrollTop(false));
     };
+    // eslint-disable-next-line
   }, [keyWord]);
   return (
     <SearchProvider.Provider
